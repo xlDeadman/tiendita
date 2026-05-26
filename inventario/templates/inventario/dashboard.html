@@ -2,6 +2,10 @@
 {% block title %}Dashboard{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
 
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
 {% block content %}
 
 <!-- Tarjetas resumen -->
@@ -64,7 +68,7 @@
 </div>
 
 <!-- Segunda fila -->
-<div class="row g-3 mb-3">
+<div class="row g-3">
 
   <!-- Semáforo -->
   <div class="col-12 col-md-4">
@@ -128,26 +132,17 @@
     </div>
   </div>
 
-  <!-- Más vendidos -->
+  <!-- Más vendidos GRÁFICA -->
   <div class="col-12 col-md-4">
     <div class="card stat-card h-100">
       <div class="card-header">
         <i class="bi bi-trophy me-1" style="color:#f97316;"></i> Más vendidos
       </div>
-      <div class="card-body p-0">
+      <div class="card-body d-flex align-items-center justify-content-center">
         {% if top_productos %}
-        <ul class="list-group list-group-flush">
-          {% for p in top_productos %}
-          <li class="list-group-item d-flex justify-content-between py-2">
-            <span class="small fw-medium">{{ p.producto__nombre }}</span>
-            <span class="badge rounded-pill" style="background:rgba(249,115,22,.2); color:#fb923c;">
-              {{ p.total_vendido }}
-            </span>
-          </li>
-          {% endfor %}
-        </ul>
+        <canvas id="chartVendidos" style="max-height:220px;"></canvas>
         {% else %}
-        <div class="text-center py-4 text-muted small">
+        <div class="text-center text-muted small">
           <i class="bi bi-graph-up fs-4 d-block mb-1"></i>
           Aún no hay ventas registradas
         </div>
@@ -158,102 +153,50 @@
 
 </div>
 
-<!-- Tercera fila: Clientes fiados + Últimas ventas -->
-<div class="row g-3">
+{% endblock %}
 
-  <!-- Clientes fiados -->
-  <div class="col-12 col-md-6">
-    <div class="card stat-card h-100">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-people-fill me-2" style="color:#f97316;"></i> Clientes fiados</span>
-        <a href="{% url 'cliente_list' %}" class="btn btn-sm py-0 px-2" style="font-size:.75rem; border:0.5px solid rgba(255,255,255,.15); color:rgba(255,255,255,.5); border-radius:6px;">Ver todos</a>
-      </div>
-      <div class="card-body p-0">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr>
-              <th>Cliente</th>
-              <th>Deuda</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for cliente in clientes_fiados %}
-            <tr>
-              <td class="small fw-medium">
-                <i class="bi bi-person-circle me-1" style="color:#f97316;"></i>{{ cliente.nombre }}
-              </td>
-              <td>
-                {% if cliente.deuda %}
-                  <span class="badge" style="background:rgba(239,68,68,.2); color:#fca5a5;">${{ cliente.deuda }}</span>
-                {% else %}
-                  <span class="badge" style="background:rgba(16,185,129,.2); color:#6ee7b7;">Sin deuda</span>
-                {% endif %}
-              </td>
-              <td>
-                {% if cliente.bloqueado %}
-                  <span class="badge" style="background:rgba(239,68,68,.2); color:#fca5a5;">⛔ Bloqueado</span>
-                {% else %}
-                  <span class="badge" style="background:rgba(16,185,129,.2); color:#6ee7b7;">✅ Activo</span>
-                {% endif %}
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="3" class="text-center text-muted py-3 small">
-                No hay clientes registrados.
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+{% block extra_js %}
+{% if top_productos %}
+<script>
+  const labels = [{% for p in top_productos %}"{{ p.producto__nombre }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+  const data = [{% for p in top_productos %}{{ p.total_vendido }}{% if not forloop.last %},{% endif %}{% endfor %}];
 
-  <!-- Últimas ventas -->
-  <div class="col-12 col-md-6">
-    <div class="card stat-card h-100">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-clock-history me-2" style="color:#f97316;"></i> Últimas ventas</span>
-        <a href="{% url 'venta_list' %}" class="btn btn-sm py-0 px-2" style="font-size:.75rem; border:0.5px solid rgba(255,255,255,.15); color:rgba(255,255,255,.5); border-radius:6px;">Ver todas</a>
-      </div>
-      <div class="card-body p-0">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Cliente</th>
-              <th>Total</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for venta in ultimas_ventas %}
-            <tr>
-              <td class="text-muted small">#{{ venta.pk }}</td>
-              <td class="small">{{ venta.cliente|default:"—" }}</td>
-              <td class="fw-semibold" style="color:#10b981;">${{ venta.total|floatformat:2 }}</td>
-              <td>
-                <a href="{% url 'venta_detail' venta.pk %}" class="btn btn-outline-primary btn-sm py-0 px-2" style="font-size:.75rem;">
-                  <i class="bi bi-eye"></i>
-                </a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="4" class="text-center text-muted py-3 small">
-                <i class="bi bi-graph-up fs-4 d-block mb-1"></i>
-                Aún no hay ventas registradas
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-</div>
-
+  new Chart(document.getElementById('chartVendidos'), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Vendidos',
+        data: data,
+        backgroundColor: [
+          'rgba(249,115,22,.8)',
+          'rgba(239,68,68,.8)',
+          'rgba(16,185,129,.8)',
+          'rgba(99,102,241,.8)',
+          'rgba(245,158,11,.8)',
+        ],
+        borderRadius: 8,
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        x: {
+          ticks: { color: '#888', font: { size: 10 } },
+          grid: { display: false },
+        },
+        y: {
+          ticks: { color: '#888', font: { size: 10 } },
+          grid: { color: 'rgba(0,0,0,.05)' },
+          beginAtZero: true,
+        }
+      }
+    }
+  });
+</script>
+{% endif %}
 {% endblock %}

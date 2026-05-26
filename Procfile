@@ -1,0 +1,1 @@
+web: gunicorn tiendita_project.wsgi --log-file -
