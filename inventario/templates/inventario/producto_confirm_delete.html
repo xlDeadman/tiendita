@@ -1,0 +1,38 @@
+{% extends 'inventario/base.html' %}
+{% block title %}Eliminar producto{% endblock %}
+{% block page_title %}Eliminar producto{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-5">
+    <div class="card stat-card border-danger">
+      <div class="card-body text-center p-5">
+        <div class="fs-1 mb-2">🗑️</div>
+        <h5 class="fw-semibold">¿Eliminar este producto?</h5>
+        <p class="text-muted">
+          <strong>{{ producto.nombre }}</strong><br>
+          Precio: ${{ producto.precio }} — Stock: {{ producto.stock_actual }} pzs
+        </p>
+        {% if producto.detalles_venta.exists %}
+        <div class="alert alert-warning text-start small">
+          <i class="bi bi-info-circle me-1"></i>
+          Este producto tiene ventas registradas. Se <strong>desactivará</strong> en lugar de eliminarse para conservar el historial.
+        </div>
+        {% else %}
+        <div class="alert alert-danger text-start small">
+          <i class="bi bi-exclamation-triangle me-1"></i>
+          Esta acción no se puede deshacer.
+        </div>
+        {% endif %}
+        <form method="post" class="d-flex gap-2 justify-content-center mt-3">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash me-1"></i>Sí, eliminar
+          </button>
+          <a href="{% url 'producto_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

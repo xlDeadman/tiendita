@@ -1,0 +1,82 @@
+{% extends 'inventario/base.html' %}
+{% block title %}Ventas{% endblock %}
+{% block page_title %}🧾 Historial de ventas{% endblock %}
+
+{% block content %}
+
+<!-- Filtros fecha -->
+<div class="card stat-card mb-3">
+  <div class="card-body py-2">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-6 col-md-3">
+        <label class="form-label small fw-medium mb-1">Desde</label>
+        <input type="date" name="desde" value="{{ fecha_desde }}" class="form-control form-control-sm">
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label small fw-medium mb-1">Hasta</label>
+        <input type="date" name="hasta" value="{{ fecha_hasta }}" class="form-control form-control-sm">
+      </div>
+      <div class="col-auto d-flex gap-1">
+        <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+        <a href="{% url 'venta_list' %}" class="btn btn-outline-secondary btn-sm">✕</a>
+      </div>
+      <div class="col-auto ms-auto">
+        <span class="fw-semibold text-success">Total: ${{ total_general|floatformat:2 }}</span>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="d-flex justify-content-end mb-3">
+  <a href="{% url 'venta_create' %}" class="btn btn-success btn-sm">
+    <i class="bi bi-cart-plus"></i> Nueva venta
+  </a>
+</div>
+
+<div class="table-card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Productos</th>
+          <th class="text-end">Total</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in ventas %}
+        <tr>
+          <td class="small">{{ v.fecha }}</td>
+          <td class="small text-muted">
+            {% for d in v.detalles.all %}
+              {{ d.producto.nombre }} ×{{ d.cantidad }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+          </td>
+          <td class="text-end fw-semibold text-success">${{ v.total|floatformat:2 }}</td>
+          <td class="text-center">
+            <div class="btn-group btn-group-sm">
+              <a href="{% url 'venta_detail' v.pk %}" class="btn btn-outline-primary" title="Ver detalle">
+                <i class="bi bi-eye"></i>
+              </a>
+              <a href="{% url 'venta_delete' v.pk %}" class="btn btn-outline-danger" title="Cancelar venta">
+                <i class="bi bi-trash"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center py-5 text-muted">
+            <i class="bi bi-receipt fs-2 d-block mb-2"></i>
+            No hay ventas registradas.
+            <a href="{% url 'venta_create' %}">Registrar la primera</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

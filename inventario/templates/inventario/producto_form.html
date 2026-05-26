@@ -1,0 +1,96 @@
+{% extends 'inventario/base.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block page_title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-7 col-lg-6">
+    <div class="card stat-card">
+      <div class="card-header border-0 bg-transparent pt-4 pb-0 px-4">
+        <h5 class="fw-semibold">{{ titulo }}</h5>
+        <p class="text-muted small mb-0">Todos los precios en pesos mexicanos.</p>
+      </div>
+      <div class="card-body p-4">
+        <form method="post">
+          {% csrf_token %}
+
+          <!-- Nombre -->
+          <div class="mb-3">
+            <label class="form-label fw-medium">{{ form.nombre.label }}</label>
+            {{ form.nombre }}
+            {% if form.nombre.errors %}
+              <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Categoría -->
+          <div class="mb-3">
+            <label class="form-label fw-medium">{{ form.categoria.label }}</label>
+            {{ form.categoria }}
+            <div class="form-text">
+              ¿No hay categoría? <a href="{% url 'categoria_create' %}" target="_blank">Crea una aquí</a>
+            </div>
+          </div>
+
+          <!-- Stock -->
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <label class="form-label fw-medium">{{ form.stock_inicial.label }}</label>
+              {{ form.stock_inicial }}
+              <div class="form-text">¿Cuántas piezas compraste?</div>
+              {% if form.stock_inicial.errors %}
+                <div class="text-danger small mt-1">{{ form.stock_inicial.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-medium">{{ form.stock_actual.label }}</label>
+              {{ form.stock_actual }}
+              <div class="form-text">¿Cuántas hay hoy?</div>
+              {% if form.stock_actual.errors %}
+                <div class="text-danger small mt-1">{{ form.stock_actual.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Precio -->
+          <div class="mb-3">
+            <label class="form-label fw-medium">{{ form.precio.label }}</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              {{ form.precio }}
+            </div>
+            {% if form.precio.errors %}
+              <div class="text-danger small mt-1">{{ form.precio.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Activo -->
+          <div class="mb-4 form-check">
+            {{ form.activo }}
+            <label class="form-check-label" for="{{ form.activo.id_for_label }}">
+              Producto activo (visible para ventas)
+            </label>
+          </div>
+
+          <!-- Semáforo preview -->
+          {% if producto %}
+          <div class="alert alert-light border mb-4 py-2">
+            <small class="text-muted">Estado actual del semáforo:</small>
+            <span class="ms-2 badge bg-{{ producto.semaforo_badge }}{% if producto.semaforo == 'naranja' %} text-dark{% endif %}">
+              {{ producto.semaforo_icon }} {{ producto.semaforo_texto }} ({{ producto.stock_actual }} pzs)
+            </span>
+          </div>
+          {% endif %}
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-fill">
+              <i class="bi bi-check-lg me-1"></i>{{ boton }}
+            </button>
+            <a href="{% url 'producto_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

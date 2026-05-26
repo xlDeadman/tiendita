@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Tiendita{% endblock %} — Inventario</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --sidebar-width: 240px;
+      --accent: #e31837;
+      --accent-hover: #c01530;
+      --accent-yellow: #f5a623;
+      --sidebar-bg: #c01530;
+      --body-bg: #f5a623;
+      --card-bg: #fff;
+      --border: rgba(0,0,0,.08);
+    }
+
+    * { box-sizing: border-box; }
+    body { background: var(--body-bg); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: var(--sidebar-width);
+      right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 40px,
+        rgba(255,255,255,.06) 40px,
+        rgba(255,255,255,.06) 80px
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #sidebar {
+      width: var(--sidebar-width);
+      min-height: 100vh;
+      background: var(--sidebar-bg);
+      position: fixed;
+      top: 0; left: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      border-right: 4px solid #a01228;
+    }
+
+    .sidebar-brand {
+      padding: 1.5rem 1.25rem 1rem;
+      border-bottom: 0.5px solid rgba(255,255,255,.15);
+      background: #a01228;
+    }
+    .sidebar-brand h5 {
+      color: #fff;
+      margin: 0;
+      font-weight: 800;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .sidebar-brand small { color: rgba(255,255,255,.5); font-size: .72rem; }
+
+    .sidebar-oxxo-bar { display: flex; height: 5px; }
+    .sidebar-oxxo-bar div:nth-child(1) { background: #f5a623; flex: 3; }
+    .sidebar-oxxo-bar div:nth-child(2) { background: #fff; flex: 1; }
+    .sidebar-oxxo-bar div:nth-child(3) { background: #f5a623; flex: 1; }
+
+    .sidebar-nav { padding: .5rem 0; flex: 1; overflow-y: auto; }
+
+    .sidebar-label {
+      color: rgba(255,255,255,.4);
+      font-size: .6rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: .9rem 1.25rem .3rem;
+    }
+
+    .nav-link-side {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      color: rgba(255,255,255,.7);
+      padding: .55rem 1.25rem;
+      font-size: .84rem;
+      text-decoration: none;
+      transition: background .15s, color .15s;
+      border-left: 3px solid transparent;
+    }
+    .nav-link-side:hover { background: rgba(0,0,0,.15); color: #fff; }
+    .nav-link-side.active {
+      background: rgba(0,0,0,.2);
+      color: #f5a623;
+      border-left: 3px solid #f5a623;
+      padding-left: calc(1.25rem - 3px);
+      font-weight: 600;
+    }
+    .nav-link-side i { font-size: .95rem; width: 1.1rem; text-align: center; }
+
+    .sidebar-footer {
+      padding: .85rem 1.25rem;
+      border-top: 0.5px solid rgba(255,255,255,.15);
+      background: #a01228;
+    }
+    .sidebar-footer .user-info {
+      color: rgba(255,255,255,.5);
+      font-size: .75rem;
+      margin-bottom: .4rem;
+    }
+
+    #main-content { margin-left: var(--sidebar-width); min-height: 100vh; position: relative; z-index: 1; }
+
+    .topbar {
+      background: #e31837;
+      border-bottom: 4px solid #f5a623;
+      padding: .7rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 10px rgba(227,24,55,.3);
+    }
+    .topbar-title {
+      font-weight: 700;
+      color: #fff;
+      font-size: 1rem;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+
+    .btn-topbar-primary {
+      background: #fff;
+      color: #e31837;
+      border: none;
+      padding: .4rem .9rem;
+      border-radius: 8px;
+      font-size: .82rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      text-decoration: none;
+      transition: opacity .15s;
+    }
+    .btn-topbar-primary:hover { opacity: .88; color: #e31837; }
+
+    .btn-topbar-success {
+      background: #f5a623;
+      color: #fff;
+      border: none;
+      padding: .4rem .9rem;
+      border-radius: 8px;
+      font-size: .82rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      text-decoration: none;
+      transition: opacity .15s;
+    }
+    .btn-topbar-success:hover { opacity: .88; color: #fff; }
+
+    .page-body { padding: 1.75rem; }
+
+    .stat-card {
+      border: none !important;
+      border-radius: 14px !important;
+      background: #fff !important;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 2px 12px rgba(0,0,0,.1);
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.15); }
+    .stat-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .table-card {
+      background: #fff;
+      border-radius: 14px;
+      border: none;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,.1);
+    }
+    .table { color: #333 !important; }
+    .table thead th {
+      background: #e31837;
+      color: #fff;
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      border-bottom: none;
+      padding: .65rem 1rem;
+    }
+    .table tbody td {
+      padding: .65rem 1rem;
+      font-size: .88rem;
+      border-bottom: 0.5px solid #f0f0f0;
+      color: #333;
+    }
+    .table tbody tr:hover { background: #fff8f0; }
+    .table > :not(caption) > * > * {
+      background: transparent !important;
+      color: #333 !important;
+    }
+
+    .messages-container { padding: 1rem 1.75rem 0; }
+    .alert { border-radius: 10px; font-size: .88rem; border: none; }
+    .alert-success { background: #dcfce7; color: #166534; }
+    .alert-danger { background: #fee2e2; color: #991b1b; }
+    .alert-warning { background: #fef9c3; color: #854d0e; }
+    .alert-info { background: #dbeafe; color: #1e40af; }
+
+    .card {
+      border: none !important;
+      border-radius: 14px !important;
+      background: #fff !important;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+    .card-header {
+      border-radius: 14px 14px 0 0 !important;
+      font-size: .88rem;
+      font-weight: 700;
+      padding: .75rem 1.25rem;
+      border-bottom: 3px solid #f5a623 !important;
+      color: #fff !important;
+      background: #e31837 !important;
+    }
+    .card-body { color: #333; }
+
+    .list-group-item {
+      background: transparent !important;
+      border-color: #f0f0f0 !important;
+      color: #333 !important;
+    }
+    .list-group-item:hover { background: #fff8f0 !important; }
+
+    .form-control, .form-select {
+      background: #fff !important;
+      border: 1.5px solid #e0e0e0 !important;
+      border-radius: 8px;
+      font-size: .88rem;
+      padding: .5rem .85rem;
+      color: #333 !important;
+    }
+    .form-control::placeholder { color: #aaa !important; }
+    .form-control:focus, .form-select:focus {
+      border-color: #e31837 !important;
+      box-shadow: 0 0 0 3px rgba(227,24,55,.1) !important;
+    }
+    .form-label { color: #555 !important; font-size: .85rem; font-weight: 600; }
+    .input-group-text {
+      background: #f8f8f8 !important;
+      border: 1.5px solid #e0e0e0 !important;
+      color: #e31837 !important;
+      font-weight: 700;
+    }
+
+    .btn { border-radius: 8px; font-size: .85rem; font-weight: 600; }
+    .btn-primary { background: #e31837 !important; border-color: #e31837 !important; color: #fff !important; }
+    .btn-primary:hover { background: #c01530 !important; border-color: #c01530 !important; }
+    .btn-success { background: #10b981 !important; border-color: #10b981 !important; color: #fff !important; }
+    .btn-success:hover { background: #059669 !important; border-color: #059669 !important; }
+    .btn-secondary { background: #6b7280 !important; border-color: #6b7280 !important; color: #fff !important; }
+    .btn-outline-primary { border-color: #e31837 !important; color: #e31837 !important; }
+    .btn-outline-primary:hover { background: rgba(227,24,55,.1) !important; }
+    .btn-outline-danger { border-color: #ef4444 !important; color: #ef4444 !important; }
+    .btn-outline-danger:hover { background: rgba(239,68,68,.1) !important; }
+    .btn-outline-warning { border-color: #f59e0b !important; color: #f59e0b !important; }
+    .btn-outline-warning:hover { background: rgba(245,158,11,.1) !important; }
+    .btn-outline-secondary { border-color: #9ca3af !important; color: #6b7280 !important; }
+    .btn-outline-secondary:hover { background: rgba(0,0,0,.05) !important; }
+    .btn-outline-success { border-color: #10b981 !important; color: #10b981 !important; }
+    .btn-outline-success:hover { background: rgba(16,185,129,.1) !important; }
+
+    .text-dark { color: #1a1a1a !important; }
+    .text-muted { color: #888 !important; }
+    .text-success { color: #10b981 !important; }
+    .text-danger { color: #e31837 !important; }
+    .text-warning { color: #f59e0b !important; }
+
+    @media (max-width: 768px) {
+      #sidebar { width: 0; overflow: hidden; }
+      #main-content { margin-left: 0; }
+      body::before { left: 0; }
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<nav id="sidebar">
+  <div class="sidebar-brand">
+    <h5>🏪 Tiendita</h5>
+    <small>Control de inventario</small>
+  </div>
+  <div class="sidebar-oxxo-bar">
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="sidebar-label">Principal</div>
+    <a href="{% url 'dashboard' %}" class="nav-link-side {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <i class="bi bi-speedometer2"></i> Panel Principal
+    </a>
+
+    <div class="sidebar-label">Ventas</div>
+    <a href="{% url 'cliente_list' %}" class="nav-link-side {% if 'cliente' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-people-fill"></i> Crédito
+    </a>
+    <a href="{% url 'venta_create' %}" class="nav-link-side">
+      <i class="bi bi-cash"></i> Efectivo
+    </a>
+
+    <div class="sidebar-label">Clientes</div>
+    <a href="{% url 'cliente_create' %}" class="nav-link-side">
+      <i class="bi bi-person-plus-fill"></i> Nuevo cliente
+    </a>
+
+    <div class="sidebar-label">Catálogo</div>
+    <a href="{% url 'producto_list' %}" class="nav-link-side {% if 'producto' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-box-seam"></i> Productos
+    </a>
+    <a href="{% url 'categoria_list' %}" class="nav-link-side {% if 'categoria' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-tags"></i> Categorías
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <i class="bi bi-person-circle"></i> {{ user.username }}
+    </div>
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="nav-link-side" style="background:none; border:none; padding:.35rem 0; font-size:.78rem; width:100%; text-align:left; cursor:pointer;">
+        <i class="bi bi-box-arrow-left"></i> Cerrar sesión
+      </button>
+    </form>
+  </div>
+</nav>
+
+<div id="main-content">
+  <div class="topbar">
+    <span class="topbar-title">{% block page_title %}Dashboard{% endblock %}</span>
+    <div class="d-flex gap-2">
+      {% block topbar_actions %}{% endblock %}
+    </div>
+  </div>
+
+  {% if messages %}
+  <div class="messages-container">
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="page-body">
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+{% else %}
+  {% block auth_content %}{% endblock %}
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

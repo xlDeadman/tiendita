@@ -1,0 +1,84 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Clientes{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-people-fill"></i> Clientes</h2>
+    <a href="{% url 'cliente_create' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus-fill"></i> Nuevo cliente
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Cliente</th>
+                    <th>Deuda total</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr class="{% if cliente.bloqueado %}table-danger{% endif %}">
+                    <td>
+                        <i class="bi bi-person-circle"></i>
+                        {{ cliente.nombre }}
+                    </td>
+                    <td>
+                        {% if cliente.deuda %}
+                            <span class="badge bg-danger fs-6">${{ cliente.deuda }}</span>
+                        {% else %}
+                            <span class="badge bg-success">Sin deuda</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if cliente.bloqueado %}
+                            <span class="badge bg-danger">⛔ Bloqueado — No pagó</span>
+                        {% else %}
+                            <span class="badge bg-success">✅ Activo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'cliente_detail' cliente.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i> Ver cuenta
+                        </a>
+                        <a href="{% url 'cliente_edit' cliente.pk %}" class="btn btn-sm btn-outline-warning">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        {% if cliente.bloqueado %}
+                        <form method="post" action="{% url 'cliente_desbloquear' cliente.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-unlock"></i> Desbloquear
+                            </button>
+                        </form>
+                        {% else %}
+                        <form method="post" action="{% url 'cliente_bloquear' cliente.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                onclick="return confirm('¿Bloquear a {{ cliente.nombre }}?')">
+                                <i class="bi bi-lock"></i> Bloquear
+                            </button>
+                        </form>
+                        {% endif %}
+                        <a href="{% url 'cliente_delete' cliente.pk %}" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">
+                        No hay clientes registrados.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

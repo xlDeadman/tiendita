@@ -1,0 +1,112 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-person-plus-fill"></i> {{ titulo }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ form.nombre.label }}</label>
+                        {{ form.nombre }}
+                        {% if form.nombre.errors %}
+                            <div class="text-danger small">{{ form.nombre.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ form.notas.label }}</label>
+                        {{ form.notas }}
+                        {% if form.notas.errors %}
+                            <div class="text-danger small">{{ form.notas.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    {% if formset %}
+                    <hr style="border-color:rgba(255,255,255,.1);">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-cart-plus"></i> Productos</h6>
+                    {{ formset.management_form }}
+                    <div id="productos-container">
+                        {% for f in formset %}
+                        <div class="row g-2 mb-2 producto-row align-items-center">
+                            <div class="col-md-5">
+                                <label class="form-label small text-muted">Producto</label>
+                                {{ f.producto }}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted">Cantidad</label>
+                                {{ f.cantidad }}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted">Precio ($)</label>
+                                {{ f.precio_unitario }}
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end">
+                                {% if f.DELETE %}
+                                    <div class="d-none">{{ f.DELETE }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'cliente_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function attachPrecioAuto(row) {
+        const select = row.querySelector('select');
+        const precioInput = row.querySelector('input[name$="-precio_unitario"]');
+        if (select && precioInput) {
+            select.addEventListener('change', async function() {
+                const pid = this.value;
+                if (!pid) return;
+                try {
+                    const res = await fetch('/api/producto/' + pid + '/precio/');
+                    const data = await res.json();
+                    precioInput.value = data.precio;
+                } catch(e) {}
+            });
+        }
+    }
+
+    // Attach a filas existentes
+    document.querySelectorAll('.producto-row').forEach(attachPrecioAuto);
+
+    // Agregar nueva fila
+    document.getElementById('agregar-producto')?.addEventListener('click', function () {
+        const container = document.getElementById('productos-container');
+        const totalForms = document.getElementById('id_detalleventa_set-TOTAL_FORMS');
+        const formNum = parseInt(totalForms.value);
+        const firstRow = container.querySelector('.producto-row');
+        const newRow = firstRow.cloneNode(true);
+
+        newRow.innerHTML = newRow.innerHTML.replace(/-0-/g, `-${formNum}-`).replace(/_0_/g, `_${formNum}_`);
+        newRow.querySelectorAll('input, select').forEach(el => el.value = '');
+        container.appendChild(newRow);
+        totalForms.value = formNum + 1;
+        attachPrecioAuto(newRow);
+    });
+</script>
+{% endblock %}

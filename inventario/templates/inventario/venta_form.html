@@ -1,0 +1,213 @@
+{% extends 'inventario/base.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block page_title %}🛒 {{ titulo }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .formset-row { background: rgba(255,255,255,.03); border-radius: 10px; padding: 1rem; margin-bottom: .75rem; border: 0.5px solid rgba(255,255,255,.08); }
+  .formset-row.marked-delete { opacity: .4; }
+  .total-line { font-size: 1.1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+
+    <form method="post" id="ventaForm">
+      {% csrf_token %}
+      {{ formset.management_form }}
+
+      <!-- Info de la venta -->
+      <div class="card stat-card mb-3">
+        <div class="card-header border-0 pt-3 pb-0">
+          <h6 class="fw-semibold mb-0">Datos de la venta</h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label fw-medium">{{ form.fecha.label }}</label>
+              {{ form.fecha }}
+            </div>
+            <div class="col-md-8">
+              <label class="form-label fw-medium">{{ form.cliente.label }}</label>
+              {{ form.cliente }}
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-medium">{{ form.notas.label }}</label>
+              {{ form.notas }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Productos -->
+      <div class="card stat-card mb-3">
+        <div class="card-header border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+          <h6 class="fw-semibold mb-0">Productos vendidos</h6>
+          <button type="button" class="btn btn-sm btn-outline-success" id="addRow">
+            <i class="bi bi-plus"></i> Agregar producto
+          </button>
+        </div>
+        <div class="card-body" id="formset-container">
+          {% for f in formset %}
+            <div class="formset-row" id="row-{{ forloop.counter0 }}">
+              {{ f.id }}
+              <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-5">
+                  <label class="form-label small fw-medium mb-1">Producto</label>
+                  {{ f.producto }}
+                </div>
+                <div class="col-4 col-md-2">
+                  <label class="form-label small fw-medium mb-1">Cantidad</label>
+                  {{ f.cantidad }}
+                </div>
+                <div class="col-5 col-md-3">
+                  <label class="form-label small fw-medium mb-1">Precio unitario</label>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">$</span>
+                    {{ f.precio_unitario }}
+                  </div>
+                </div>
+                <div class="col-3 col-md-1 text-end">
+                  <div class="subtotal-label small text-muted mb-1">Subtotal</div>
+                  <div class="subtotal-val fw-semibold small" style="color:#10b981;">$0.00</div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Total y enviar -->
+      <div class="card stat-card mb-3">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div class="total-line fw-bold" style="color:rgba(255,255,255,.9);">
+            Total: <span style="color:#10b981;" id="totalGeneral">$0.00</span>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="{% url 'venta_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-success px-4">
+              <i class="bi bi-cart-check me-1"></i>Registrar venta
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<template id="empty-form-template">
+  <div class="formset-row" id="row-__prefix__">
+    <div class="row g-2 align-items-end">
+      <div class="col-12 col-md-5">
+        <label class="form-label small fw-medium mb-1">Producto</label>
+        {{ formset.empty_form.producto }}
+      </div>
+      <div class="col-4 col-md-2">
+        <label class="form-label small fw-medium mb-1">Cantidad</label>
+        {{ formset.empty_form.cantidad }}
+      </div>
+      <div class="col-5 col-md-3">
+        <label class="form-label small fw-medium mb-1">Precio unitario</label>
+        <div class="input-group input-group-sm">
+          <span class="input-group-text">$</span>
+          {{ formset.empty_form.precio_unitario }}
+        </div>
+      </div>
+      <div class="col-3 col-md-1 text-end">
+        <div class="subtotal-label small text-muted mb-1">Subtotal</div>
+        <div class="subtotal-val fw-semibold small" style="color:#10b981;">$0.00</div>
+      </div>
+      <div class="col-auto mt-3">
+        <button type="button" class="btn btn-sm btn-outline-danger remove-row">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let formIdx = {{ formset.total_form_count }};
+
+function updateSubtotal(row) {
+  const qty = parseFloat(row.querySelector('[name$="-cantidad"]')?.value) || 0;
+  const price = parseFloat(row.querySelector('[name$="-precio_unitario"]')?.value) || 0;
+  row.querySelector('.subtotal-val').textContent = '$' + (qty * price).toFixed(2);
+  updateTotal();
+}
+
+function updateTotal() {
+  let total = 0;
+  document.querySelectorAll('.formset-row:not(.marked-delete)').forEach(row => {
+    const qty = parseFloat(row.querySelector('[name$="-cantidad"]')?.value) || 0;
+    const price = parseFloat(row.querySelector('[name$="-precio_unitario"]')?.value) || 0;
+    total += qty * price;
+  });
+  document.getElementById('totalGeneral').textContent = '$' + total.toFixed(2);
+}
+
+function attachRowEvents(row) {
+  const sel = row.querySelector('select');
+  if (sel) {
+    sel.addEventListener('change', async function() {
+      const pid = this.value;
+      if (!pid) return;
+      try {
+        const res = await fetch('/api/producto/' + pid + '/precio/');
+        const data = await res.json();
+        const priceInput = row.querySelector('[name$="-precio_unitario"]');
+        if (priceInput) {
+          priceInput.value = data.precio;
+        }
+        updateSubtotal(row);
+      } catch(e) {}
+    });
+  }
+
+  row.querySelectorAll('[name$="-cantidad"], [name$="-precio_unitario"]').forEach(el => {
+    el.addEventListener('input', () => updateSubtotal(row));
+  });
+
+  row.querySelector('.remove-row')?.addEventListener('click', function() {
+    const deleteChk = row.querySelector('[name$="-DELETE"]');
+    if (deleteChk) {
+      deleteChk.checked = true;
+      row.classList.add('marked-delete');
+    } else {
+      row.remove();
+    }
+    updateTotal();
+  });
+}
+
+document.querySelectorAll('.formset-row').forEach(attachRowEvents);
+
+document.getElementById('addRow').addEventListener('click', function() {
+  const tmpl = document.getElementById('empty-form-template');
+  const totalForms = document.getElementById('id_detalles-TOTAL_FORMS');
+  const clone = tmpl.content.cloneNode(true);
+  const newRow = clone.querySelector('.formset-row');
+  newRow.id = 'row-' + formIdx;
+  newRow.innerHTML = newRow.innerHTML.replaceAll('__prefix__', formIdx);
+  document.getElementById('formset-container').appendChild(newRow);
+  totalForms.value = ++formIdx;
+  attachRowEvents(newRow);
+});
+
+// Fecha de hoy automática
+document.addEventListener('DOMContentLoaded', function() {
+  const fechaInput = document.querySelector('input[name="fecha"]');
+  if (fechaInput && !fechaInput.value) {
+    fechaInput.value = new Date().toISOString().split('T')[0];
+  }
+});
+
+updateTotal();
+</script>
+{% endblock %}

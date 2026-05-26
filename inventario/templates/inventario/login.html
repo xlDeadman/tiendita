@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar sesión — Tiendita</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f5a623;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(255,255,255,.08) 0%, transparent 70%);
+      top: -200px;
+      right: -200px;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(0,0,0,.1) 0%, transparent 70%);
+      bottom: -100px;
+      left: -100px;
+      pointer-events: none;
+    }
+
+    /* Rayas decorativas estilo OXXO */
+    .stripes {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .stripe {
+      position: absolute;
+      width: 40px;
+      height: 200%;
+      background: rgba(255,255,255,.04);
+      transform: rotate(15deg);
+    }
+    .stripe:nth-child(1) { left: 5%; }
+    .stripe:nth-child(2) { left: 15%; }
+    .stripe:nth-child(3) { left: 25%; }
+    .stripe:nth-child(4) { right: 5%; }
+    .stripe:nth-child(5) { right: 15%; }
+
+    .login-wrap {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 400px;
+      padding: 1rem;
+    }
+
+    .login-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 2.5rem 2.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .brand-icon {
+      width: 80px;
+      height: 80px;
+      background: #e31837;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      margin: 0 auto 1rem;
+      box-shadow: 0 8px 24px rgba(227,24,55,.4);
+    }
+
+    .brand h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #e31837;
+      letter-spacing: -.01em;
+      margin-bottom: .2rem;
+      text-transform: uppercase;
+    }
+
+    .brand p {
+      color: #666;
+      font-size: .82rem;
+    }
+
+    .oxxo-bar {
+      display: flex;
+      height: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 1rem 0 1.5rem;
+    }
+    .oxxo-bar div:nth-child(1) { background: #e31837; flex: 3; }
+    .oxxo-bar div:nth-child(2) { background: #f5a623; flex: 1; }
+    .oxxo-bar div:nth-child(3) { background: #e31837; flex: 1; }
+
+    .form-group { margin-bottom: 1.1rem; }
+
+    .form-label {
+      display: block;
+      font-size: .78rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: .45rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .input-wrap { position: relative; }
+
+    .input-wrap i {
+      position: absolute;
+      left: .9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #e31837;
+      font-size: .95rem;
+      pointer-events: none;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      padding: .7rem .9rem .7rem 2.5rem;
+      background: #f8f8f8;
+      border: 2px solid #eee;
+      border-radius: 10px;
+      font-size: .9rem;
+      color: #333;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .input-wrap input::placeholder { color: #bbb; }
+
+    .input-wrap input:focus {
+      border-color: #e31837;
+      background: #fff;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: .8rem;
+      background: #e31837;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: .95rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 1rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      transition: background .15s, transform .1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      box-shadow: 0 4px 16px rgba(227,24,55,.35);
+    }
+
+    .btn-login:hover { background: #c01530; }
+    .btn-login:active { transform: scale(.98); }
+
+    .error-msg {
+      background: #fff0f2;
+      border: 2px solid #e31837;
+      color: #e31837;
+      border-radius: 10px;
+      padding: .65rem 1rem;
+      font-size: .83rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-weight: 600;
+    }
+
+    .footer-text {
+      text-align: center;
+      color: #bbb;
+      font-size: .72rem;
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="stripes">
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+  </div>
+
+  <div class="login-wrap">
+    <div class="login-box">
+
+      <div class="brand">
+        <div class="brand-icon">🏪</div>
+        <h1>Tiendita</h1>
+        <p>Control de inventario</p>
+        <div class="oxxo-bar">
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+
+      {% if form.errors %}
+      <div class="error-msg">
+        <i class="bi bi-exclamation-circle"></i>
+        Usuario o contraseña incorrectos.
+      </div>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label class="form-label">Usuario</label>
+          <div class="input-wrap">
+            <i class="bi bi-person"></i>
+            <input type="text" name="username" placeholder="Tu usuario" autofocus required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <div class="input-wrap">
+            <i class="bi bi-lock"></i>
+            <input type="password" name="password" placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-login">
+          <i class="bi bi-box-arrow-in-right"></i> Entrar
+        </button>
+      </form>
+
+      <div class="footer-text">Tiendita © 2026</div>
+    </div>
+  </div>
+
+</body>
+</html>

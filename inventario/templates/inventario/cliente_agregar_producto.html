@@ -1,0 +1,94 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Agregar producto a {{ cliente.nombre }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-cart-plus"></i>
+                    Agregar producto a {{ cliente.nombre }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ form.producto.label }}</label>
+                        {{ form.producto }}
+                        {% if form.producto.errors %}
+                            <div class="text-danger small">{{ form.producto.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ form.cantidad.label }}</label>
+                        {{ form.cantidad }}
+                        {% if form.cantidad.errors %}
+                            <div class="text-danger small">{{ form.cantidad.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ form.precio_unitario.label }}</label>
+                        {{ form.precio_unitario }}
+                        {% if form.precio_unitario.errors %}
+                            <div class="text-danger small">{{ form.precio_unitario.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3 p-3 rounded" style="background:rgba(99,102,241,.08); border:0.5px solid rgba(99,102,241,.2);">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span style="color:rgba(255,255,255,.6); font-size:.88rem;">Subtotal</span>
+                            <span id="subtotal" style="color:#10b981; font-weight:600; font-size:1.1rem;">$0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'cliente_detail' cliente.pk %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-cart-check"></i> Agregar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const productoSelect = document.querySelector('select[name="producto"]');
+    const precioInput = document.querySelector('input[name="precio_unitario"]');
+    const cantidadInput = document.querySelector('input[name="cantidad"]');
+    const subtotalEl = document.getElementById('subtotal');
+
+    function updateSubtotal() {
+        const qty = parseFloat(cantidadInput?.value) || 0;
+        const price = parseFloat(precioInput?.value) || 0;
+        subtotalEl.textContent = '$' + (qty * price).toFixed(2);
+    }
+
+    productoSelect?.addEventListener('change', async function() {
+        const pid = this.value;
+        if (!pid) return;
+        try {
+            const res = await fetch('/api/producto/' + pid + '/precio/');
+            const data = await res.json();
+            if (precioInput) {
+                precioInput.value = data.precio;
+            }
+            updateSubtotal();
+        } catch(e) {}
+    });
+
+    precioInput?.addEventListener('input', updateSubtotal);
+    cantidadInput?.addEventListener('input', updateSubtotal);
+</script>
+{% endblock %}
