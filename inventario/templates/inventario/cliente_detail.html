@@ -85,11 +85,11 @@
                         </td>
                         <td>
     {% if not cuenta.pagado %}
-    <a href="{% url 'cliente_detalle_edit' detalle.pk cliente.pk %}"
+    <a href="{% url 'cliente_detalle_edit' cliente.pk detalle.pk %}"
        class="btn btn-sm btn-outline-warning">
         <i class="bi bi-pencil"></i>
     </a>
-    <a href="{% url 'cliente_detalle_delete' detalle.pk cliente.pk %}"
+    <a href="{% url 'cliente_detalle_delete' cliente.pk detalle.pk %}"
        class="btn btn-sm btn-outline-danger">
         <i class="bi bi-trash"></i>
     </a>
