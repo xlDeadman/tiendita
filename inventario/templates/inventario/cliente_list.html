@@ -10,23 +10,23 @@
     </a>
 </div>
 
-<div class="card shadow-sm">
+<div class="card shadow-sm" style="overflow:hidden; border-radius:14px;">
     <div class="card-body p-0">
         <table class="table table-hover mb-0">
-            <thead class="table-dark">
-                <tr>
-                    <th>Cliente</th>
-                    <th>Deuda total</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
+            <thead>
+                <tr style="background:#e31837;">
+                    <th style="color:#fff;">Cliente</th>
+                    <th style="color:#fff;">Deuda total</th>
+                    <th style="color:#fff;">Estado</th>
+                    <th style="color:#fff;">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for cliente in clientes %}
-                <tr class="{% if cliente.bloqueado %}table-danger{% endif %}">
+                <tr style="background:{% if cliente.bloqueado %}#fee2e2{% else %}#fff{% endif %};">
                     <td>
-                        <i class="bi bi-person-circle"></i>
-                        {{ cliente.nombre }}
+                        <i class="bi bi-person-circle" style="color:#e31837;"></i>
+                        <strong>{{ cliente.nombre }}</strong>
                     </td>
                     <td>
                         {% if cliente.deuda %}
