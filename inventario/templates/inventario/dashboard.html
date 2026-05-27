@@ -12,13 +12,13 @@
 <div class="row g-3 mb-4">
   <div class="col-6 col-md-3">
     <div class="card stat-card h-100">
-      <div class="card-body d-flex align-items-center gap-3 py-4">
-        <div class="stat-icon" style="background:rgba(249,115,22,.15); color:#f97316; width:56px; height:56px; font-size:1.5rem;">
+      <div class="card-body d-flex align-items-center gap-3 py-5">
+        <div class="stat-icon" style="background:rgba(249,115,22,.15); color:#f97316; width:64px; height:64px; font-size:1.8rem;">
           <i class="bi bi-box-seam"></i>
         </div>
         <div>
-          <div style="font-size:2rem; font-weight:800; color:#1a1a1a;">{{ total_productos }}</div>
-          <div class="text-muted">Productos activos</div>
+          <div style="font-size:2.5rem; font-weight:800; color:#1a1a1a; line-height:1;">{{ total_productos }}</div>
+          <div class="text-muted mt-1">Productos activos</div>
         </div>
       </div>
     </div>
@@ -26,13 +26,13 @@
 
   <div class="col-6 col-md-3">
     <div class="card stat-card h-100">
-      <div class="card-body d-flex align-items-center gap-3 py-4">
-        <div class="stat-icon" style="background:rgba(239,68,68,.15); color:#ef4444; width:56px; height:56px; font-size:1.5rem;">
+      <div class="card-body d-flex align-items-center gap-3 py-5">
+        <div class="stat-icon" style="background:rgba(239,68,68,.15); color:#ef4444; width:64px; height:64px; font-size:1.8rem;">
           <i class="bi bi-exclamation-triangle"></i>
         </div>
         <div>
-          <div style="font-size:2rem; font-weight:800; color:#1a1a1a;">{{ agotados }}</div>
-          <div class="text-muted">Agotados 🔴</div>
+          <div style="font-size:2.5rem; font-weight:800; color:#1a1a1a; line-height:1;">{{ agotados }}</div>
+          <div class="text-muted mt-1">Agotados 🔴</div>
         </div>
       </div>
     </div>
@@ -40,13 +40,13 @@
 
   <div class="col-6 col-md-3">
     <div class="card stat-card h-100">
-      <div class="card-body d-flex align-items-center gap-3 py-4">
-        <div class="stat-icon" style="background:rgba(16,185,129,.15); color:#10b981; width:56px; height:56px; font-size:1.5rem;">
+      <div class="card-body d-flex align-items-center gap-3 py-5">
+        <div class="stat-icon" style="background:rgba(16,185,129,.15); color:#10b981; width:64px; height:64px; font-size:1.8rem;">
           <i class="bi bi-currency-dollar"></i>
         </div>
         <div>
-          <div style="font-size:2rem; font-weight:800; color:#1a1a1a;">${{ total_hoy|floatformat:2 }}</div>
-          <div class="text-muted">Ventas hoy ({{ num_ventas_hoy }})</div>
+          <div style="font-size:2.5rem; font-weight:800; color:#1a1a1a; line-height:1;">${{ total_hoy|floatformat:2 }}</div>
+          <div class="text-muted mt-1">Ventas hoy ({{ num_ventas_hoy }})</div>
         </div>
       </div>
     </div>
@@ -54,13 +54,13 @@
 
   <div class="col-6 col-md-3">
     <div class="card stat-card h-100">
-      <div class="card-body d-flex align-items-center gap-3 py-4">
-        <div class="stat-icon" style="background:rgba(99,102,241,.15); color:#818cf8; width:56px; height:56px; font-size:1.5rem;">
+      <div class="card-body d-flex align-items-center gap-3 py-5">
+        <div class="stat-icon" style="background:rgba(99,102,241,.15); color:#818cf8; width:64px; height:64px; font-size:1.8rem;">
           <i class="bi bi-calendar-month"></i>
         </div>
         <div>
-          <div style="font-size:2rem; font-weight:800; color:#1a1a1a;">${{ total_mes|floatformat:2 }}</div>
-          <div class="text-muted">Total este mes</div>
+          <div style="font-size:2.5rem; font-weight:800; color:#1a1a1a; line-height:1;">${{ total_mes|floatformat:2 }}</div>
+          <div class="text-muted mt-1">Total este mes</div>
         </div>
       </div>
     </div>
@@ -68,7 +68,7 @@
 </div>
 
 <!-- Segunda fila -->
-<div class="row g-3">
+<div class="row g-3" style="min-height:500px;">
 
   <!-- Semáforo -->
   <div class="col-12 col-md-4">
@@ -76,22 +76,22 @@
       <div class="card-header">
         <i class="bi bi-traffic-light me-1" style="color:#f97316;"></i> Semáforo de stock
       </div>
-      <div class="card-body">
-        <div class="d-flex justify-content-around text-center">
+      <div class="card-body d-flex align-items-center">
+        <div class="d-flex justify-content-around text-center w-100">
           <a href="{% url 'producto_list' %}?semaforo=rojo" class="text-decoration-none">
-            <div class="fs-1">🔴</div>
-            <div class="fs-3 fw-bold text-danger">{{ agotados }}</div>
-            <div class="text-muted small">Agotados</div>
+            <div style="font-size:4rem;">🔴</div>
+            <div style="font-size:2.5rem; font-weight:800;" class="text-danger">{{ agotados }}</div>
+            <div class="text-muted">Agotados</div>
           </a>
           <a href="{% url 'producto_list' %}?semaforo=naranja" class="text-decoration-none">
-            <div class="fs-1">🟠</div>
-            <div class="fs-3 fw-bold text-warning">{{ stock_bajo }}</div>
-            <div class="text-muted small">Stock bajo</div>
+            <div style="font-size:4rem;">🟠</div>
+            <div style="font-size:2.5rem; font-weight:800;" class="text-warning">{{ stock_bajo }}</div>
+            <div class="text-muted">Stock bajo</div>
           </a>
           <a href="{% url 'producto_list' %}?semaforo=verde" class="text-decoration-none">
-            <div class="fs-1">🟢</div>
-            <div class="fs-3 fw-bold text-success">{{ disponibles }}</div>
-            <div class="text-muted small">Disponibles</div>
+            <div style="font-size:4rem;">🟢</div>
+            <div style="font-size:2.5rem; font-weight:800;" class="text-success">{{ disponibles }}</div>
+            <div class="text-muted">Disponibles</div>
           </a>
         </div>
       </div>
@@ -109,8 +109,8 @@
         {% if productos_criticos %}
         <ul class="list-group list-group-flush">
           {% for p in productos_criticos %}
-          <li class="list-group-item d-flex justify-content-between align-items-center py-2">
-            <span class="small fw-medium">{{ p.nombre }}</span>
+          <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+            <span class="fw-medium">{{ p.nombre }}</span>
             <div class="d-flex gap-2 align-items-center">
               <span class="badge bg-{% if p.stock_actual <= 0 %}danger{% else %}warning text-dark{% endif %}">
                 {{ p.stock_actual }} pzs
@@ -123,8 +123,8 @@
           {% endfor %}
         </ul>
         {% else %}
-        <div class="text-center py-4 text-muted small">
-          <i class="bi bi-check-circle-fill text-success fs-4 d-block mb-1"></i>
+        <div class="text-center py-5 text-muted">
+          <i class="bi bi-check-circle-fill text-success fs-2 d-block mb-2"></i>
           ¡Todo el stock está bien!
         </div>
         {% endif %}
@@ -140,10 +140,10 @@
       </div>
       <div class="card-body d-flex align-items-center justify-content-center">
         {% if top_productos %}
-        <canvas id="chartVendidos" style="max-height:220px;"></canvas>
+        <canvas id="chartVendidos"></canvas>
         {% else %}
-        <div class="text-center text-muted small">
-          <i class="bi bi-graph-up fs-4 d-block mb-1"></i>
+        <div class="text-center text-muted">
+          <i class="bi bi-graph-up fs-2 d-block mb-2"></i>
           Aún no hay ventas registradas
         </div>
         {% endif %}
@@ -181,6 +181,7 @@
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
       },
