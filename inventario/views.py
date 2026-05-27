@@ -339,7 +339,6 @@ def cliente_create(request):
     return render(request, 'inventario/cliente_form.html', {
         'form': form, 'titulo': 'Nuevo cliente',
     })
-            detalles = formset.save(commit=False)
             total = 0
             for detalle in detalles:
                 detalle.venta = venta
