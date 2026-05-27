@@ -285,11 +285,6 @@
       <i class="bi bi-cash"></i> Efectivo
     </a>
 
-    <div class="sidebar-label">Clientes</div>
-    <a href="{% url 'cliente_create' %}" class="nav-link-side">
-      <i class="bi bi-person-plus-fill"></i> Nuevo cliente
-    </a>
-
     <div class="sidebar-label">Catálogo</div>
     <a href="{% url 'producto_list' %}" class="nav-link-side {% if 'producto' in request.resolver_match.url_name %}active{% endif %}">
       <i class="bi bi-box-seam"></i> Productos
