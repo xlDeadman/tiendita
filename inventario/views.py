@@ -330,13 +330,15 @@ def cliente_list(request):
 def cliente_create(request):
     if request.method == 'POST':
         form = ClienteForm(request.POST)
-        venta_temp = Venta(total=0, pagado=False)
-        formset = ClienteDetalleFormSet(request.POST, instance=venta_temp)
-        if form.is_valid() and formset.is_valid():
+        if form.is_valid():
             cliente = form.save()
-            venta = Venta.objects.create(
-                cliente_fk=cliente, pagado=False, total=0, fecha=date.today()
-            )
+            messages.success(request, f'✅ Cliente "{cliente.nombre}" creado. Ahora agrega sus productos.')
+            return redirect('cliente_agregar_producto', pk=cliente.pk)
+    else:
+        form = ClienteForm()
+    return render(request, 'inventario/cliente_form.html', {
+        'form': form, 'titulo': 'Nuevo cliente',
+    })
             detalles = formset.save(commit=False)
             total = 0
             for detalle in detalles:
