@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -223,7 +224,9 @@
     <div class="login-box">
 
       <div class="brand">
-        <div class="brand-icon">🏪</div>
+        <div class="brand-icon" style="background:none; box-shadow:none;">
+  <img src="{% static 'inventario/img/logo.png' %}" style="width:80px; height:80px; object-fit:contain;">
+</div>
         <h1>Tienda DSEI</h1>
         <p>Control de inventario</p>
         <div class="oxxo-bar">
