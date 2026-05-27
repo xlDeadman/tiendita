@@ -47,9 +47,6 @@
                         <a href="{% url 'cliente_detail' cliente.pk %}" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-eye"></i> Ver cuenta
                         </a>
-                        <a href="{% url 'cliente_edit' cliente.pk %}" class="btn btn-sm btn-outline-warning">
-                            <i class="bi bi-pencil"></i> Editar
-                        </a>
                         {% if cliente.bloqueado %}
                         <form method="post" action="{% url 'cliente_desbloquear' cliente.pk %}" class="d-inline">
                             {% csrf_token %}
