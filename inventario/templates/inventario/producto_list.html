@@ -2,6 +2,12 @@
 {% block title %}Productos{% endblock %}
 {% block page_title %}📦 Productos{% endblock %}
 
+{% block topbar_actions %}
+<a href="{% url 'producto_create' %}" class="btn-topbar-primary">
+  <i class="bi bi-plus-lg"></i> Nuevo producto
+</a>
+{% endblock %}
+
 {% block content %}
 
 <div class="table-card">
@@ -39,11 +45,6 @@
       <div class="col-6 col-md-2 d-flex gap-1">
         <button type="submit" class="btn btn-primary btn-sm flex-fill">Filtrar</button>
         <a href="{% url 'producto_list' %}" class="btn btn-outline-secondary btn-sm">✕</a>
-      </div>
-      <div class="col-auto">
-        <a href="{% url 'producto_create' %}" class="btn btn-primary btn-sm">
-          <i class="bi bi-plus-lg"></i> Nuevo producto
-        </a>
       </div>
     </form>
   </div>
