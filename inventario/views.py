@@ -437,11 +437,15 @@ def cliente_detalle_edit(request, pk, cliente_pk):
             detalle.producto.stock_actual -= diferencia
             detalle.producto.save()
             detalle.save()
+            fecha = form.cleaned_data.get('fecha')
+            if fecha:
+                detalle.venta.fecha = fecha
+                detalle.venta.save()
             detalle.venta.calcular_total()
             messages.success(request, '✅ Producto actualizado.')
-            return redirect('cliente_edit', pk=cliente_pk)
+            return redirect('cliente_detail', pk=cliente_pk)
     else:
-        form = AgregarProductoClienteForm(instance=detalle)
+        form = AgregarProductoClienteForm(instance=detalle, initial={'fecha': detalle.venta.fecha})
     return render(request, 'inventario/cliente_agregar_producto.html', {
         'form': form, 'cliente': cliente, 'titulo': 'Editar producto'
     })
@@ -458,7 +462,7 @@ def cliente_detalle_delete(request, pk, cliente_pk):
         detalle.delete()
         venta.calcular_total()
         messages.success(request, '🗑️ Producto eliminado de la cuenta.')
-        return redirect('cliente_edit', pk=cliente_pk)
+        return redirect('cliente_detail', pk=cliente_pk)
     return render(request, 'inventario/cliente_detalle_confirm_delete.html', {
         'detalle': detalle, 'cliente': cliente
     })

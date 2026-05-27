@@ -135,6 +135,12 @@ class ClienteForm(forms.ModelForm):
 
 
 class AgregarProductoClienteForm(forms.ModelForm):
+    fecha = forms.DateField(
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}, format='%Y-%m-%d'),
+        label='Fecha',
+        required=False,
+    )
+
     class Meta:
         model = DetalleVenta
         fields = ['producto', 'cantidad', 'precio_unitario']
