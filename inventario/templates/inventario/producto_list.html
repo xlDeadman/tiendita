@@ -4,7 +4,6 @@
 
 {% block content %}
 
-<!-- Filtros + Tabla juntos -->
 <div class="table-card">
 
   <!-- Filtros -->
@@ -41,21 +40,18 @@
         <button type="submit" class="btn btn-primary btn-sm flex-fill">Filtrar</button>
         <a href="{% url 'producto_list' %}" class="btn btn-outline-secondary btn-sm">✕</a>
       </div>
+      <div class="col-auto">
+        <a href="{% url 'producto_create' %}" class="btn btn-primary btn-sm">
+          <i class="bi bi-plus-lg"></i> Nuevo producto
+        </a>
+      </div>
     </form>
-  </div>
-
-  <!-- Contador + Botón nuevo -->
-  <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom" style="border-color:#f0f0f0 !important;">
-    <span class="text-muted small">{{ productos.count }} producto{{ productos.count|pluralize:"s" }} encontrado{{ productos.count|pluralize:"s" }}</span>
-    <a href="{% url 'producto_create' %}" class="btn btn-primary btn-sm">
-      <i class="bi bi-plus-lg"></i> Nuevo producto
-    </a>
   </div>
 
   <!-- Tabla -->
   <div class="table-responsive" style="max-height:600px; overflow-y:auto;">
     <table class="table table-hover align-middle mb-0">
-      <thead style="position:sticky; top:0; z-index:10; background:#e31837;">
+      <thead style="position:sticky; top:0; z-index:10; background:#1f2937;">
         <tr>
           <th>Producto</th>
           <th>Categoría</th>
