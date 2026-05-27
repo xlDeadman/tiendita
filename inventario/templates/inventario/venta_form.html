@@ -1,10 +1,10 @@
 {% extends 'inventario/base.html' %}
 {% block title %}{{ titulo }}{% endblock %}
-{% block page_title %}🛒 {{ titulo }}{% endblock %}
+{% block page_title %}<i class="bi bi-cart-plus me-2"></i>{{ titulo }}{% endblock %}
 
 {% block extra_head %}
 <style>
-  .formset-row { background: rgba(255,255,255,.03); border-radius: 10px; padding: 1rem; margin-bottom: .75rem; border: 0.5px solid rgba(255,255,255,.08); }
+  .formset-row { background: #fff; border-radius: 10px; padding: 1rem; margin-bottom: .75rem; border: 1px solid #f0f0f0; }
   .formset-row.marked-delete { opacity: .4; }
   .total-line { font-size: 1.1rem; }
 </style>
@@ -20,8 +20,8 @@
 
       <!-- Info de la venta -->
       <div class="card stat-card mb-3">
-        <div class="card-header border-0 pt-3 pb-0">
-          <h6 class="fw-semibold mb-0">Datos de la venta</h6>
+        <div class="card-header">
+          <h6 class="fw-semibold mb-0"><i class="bi bi-receipt me-1"></i> Datos de la venta</h6>
         </div>
         <div class="card-body">
           <div class="row g-3">
@@ -43,8 +43,8 @@
 
       <!-- Productos -->
       <div class="card stat-card mb-3">
-        <div class="card-header border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
-          <h6 class="fw-semibold mb-0">Productos vendidos</h6>
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h6 class="fw-semibold mb-0"><i class="bi bi-box-seam me-1"></i> Productos vendidos</h6>
           <button type="button" class="btn btn-sm btn-outline-success" id="addRow">
             <i class="bi bi-plus"></i> Agregar producto
           </button>
@@ -82,7 +82,7 @@
       <!-- Total y enviar -->
       <div class="card stat-card mb-3">
         <div class="card-body d-flex justify-content-between align-items-center">
-          <div class="total-line fw-bold" style="color:rgba(255,255,255,.9);">
+          <div class="total-line fw-bold text-dark">
             Total: <span style="color:#10b981;" id="totalGeneral">$0.00</span>
           </div>
           <div class="d-flex gap-2">
@@ -200,7 +200,6 @@ document.getElementById('addRow').addEventListener('click', function() {
   attachRowEvents(newRow);
 });
 
-// Fecha de hoy automática
 document.addEventListener('DOMContentLoaded', function() {
   const fechaInput = document.querySelector('input[name="fecha"]');
   if (fechaInput && !fechaInput.value) {
