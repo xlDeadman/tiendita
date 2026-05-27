@@ -54,16 +54,8 @@
       padding: 1.5rem 1.25rem 1rem;
       border-bottom: 0.5px solid rgba(255,255,255,.15);
       background: #a01228;
+      text-align: center;
     }
-    .sidebar-brand h5 {
-      color: #fff;
-      margin: 0;
-      font-weight: 800;
-      font-size: 1.1rem;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-    }
-    .sidebar-brand small { color: rgba(255,255,255,.5); font-size: .72rem; }
 
     .sidebar-oxxo-bar { display: flex; height: 5px; }
     .sidebar-oxxo-bar div:nth-child(1) { background: #f5a623; flex: 3; }
@@ -135,38 +127,6 @@
       text-transform: uppercase;
       letter-spacing: .03em;
     }
-
-    .btn-topbar-primary {
-      background: #fff;
-      color: #e31837;
-      border: none;
-      padding: .4rem .9rem;
-      border-radius: 8px;
-      font-size: .82rem;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      text-decoration: none;
-      transition: opacity .15s;
-    }
-    .btn-topbar-primary:hover { opacity: .88; color: #e31837; }
-
-    .btn-topbar-success {
-      background: #f5a623;
-      color: #fff;
-      border: none;
-      padding: .4rem .9rem;
-      border-radius: 8px;
-      font-size: .82rem;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      text-decoration: none;
-      transition: opacity .15s;
-    }
-    .btn-topbar-success:hover { opacity: .88; color: #fff; }
 
     .page-body { padding: 1.75rem; }
 
@@ -301,9 +261,10 @@
 <body>
 
 {% if user.is_authenticated %}
-<div class="sidebar-brand" style="text-align:center;">
+<nav id="sidebar">
+  <div class="sidebar-brand">
     <img src="{% static 'inventario/img/logo23.png' %}" style="width:100px; height:auto; object-fit:contain;">
-</div>
+  </div>
   <div class="sidebar-oxxo-bar">
     <div></div>
     <div></div>
