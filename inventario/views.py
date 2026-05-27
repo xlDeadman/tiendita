@@ -339,24 +339,6 @@ def cliente_create(request):
     return render(request, 'inventario/cliente_form.html', {
         'form': form, 'titulo': 'Nuevo cliente',
     })
-            total = 0
-            for detalle in detalles:
-                detalle.venta = venta
-                detalle.precio_unitario = detalle.precio_unitario or detalle.producto.precio
-                detalle.save()
-                detalle.producto.stock_actual -= detalle.cantidad
-                detalle.producto.save()
-                total += detalle.subtotal
-            venta.total = total
-            venta.save()
-            messages.success(request, f'✅ Cliente "{cliente.nombre}" creado con productos.')
-            return redirect('cliente_list')
-    else:
-        form = ClienteForm()
-        formset = ClienteDetalleFormSet()
-    return render(request, 'inventario/cliente_form.html', {
-        'form': form, 'formset': formset, 'titulo': 'Nuevo cliente',
-    })
 
 
 @login_required
