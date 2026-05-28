@@ -1,3 +1,7 @@
+from django.core.management.base import BaseCommand
+from inventario.models import Producto, Categoria
+
+
 PRODUCTOS_INICIALES = [
     ('CHETOS NARANJA',              4,  25.00, 'BOTANAS'),
     ('HOT NUTS MORADO',             5,  25.00, 'BOTANAS'),
@@ -30,3 +34,36 @@ PRODUCTOS_INICIALES = [
     ('SPONCH',                      3,  26.00, 'POSTRES'),
     ('GANSITOS',                    5,  23.00, 'POSTRES'),
 ]
+
+
+class Command(BaseCommand):
+    help = 'Carga los productos iniciales de la tiendita'
+
+    def handle(self, *args, **options):
+        creados = 0
+        existentes = 0
+
+        for nombre, stock, precio, cat_nombre in PRODUCTOS_INICIALES:
+            categoria, _ = Categoria.objects.get_or_create(nombre=cat_nombre)
+
+            producto, created = Producto.objects.get_or_create(
+                nombre=nombre,
+                defaults={
+                    'categoria': categoria,
+                    'stock_inicial': stock,
+                    'stock_actual': stock,
+                    'precio': precio,
+                    'activo': True,
+                }
+            )
+
+            if created:
+                creados += 1
+                self.stdout.write(f'  ✅ {nombre} — ${precio} — stock: {stock}')
+            else:
+                existentes += 1
+                self.stdout.write(self.style.WARNING(f'  ⚠️  {nombre} ya existe, omitido.'))
+
+        self.stdout.write(self.style.SUCCESS(
+            f'\n✔ Listo. {creados} productos creados, {existentes} ya existían.'
+        ))
