@@ -26,12 +26,17 @@ def dashboard(request):
     disponibles = productos.filter(stock_actual__gt=2).count()
 
     hoy = date.today()
-    ventas_hoy = Venta.objects.filter(fecha=hoy)
+
+    # Ventas del día (efectivo)
+    ventas_hoy = Venta.objects.filter(fecha=hoy, cliente_fk__isnull=True)
     total_hoy = ventas_hoy.aggregate(t=Sum('total'))['t'] or 0
     num_ventas_hoy = ventas_hoy.count()
 
-    ventas_mes = Venta.objects.filter(fecha__year=hoy.year, fecha__month=hoy.month)
-    total_mes = ventas_mes.aggregate(t=Sum('total'))['t'] or 0
+    # Total del mes = efectivo + crédito (pagado o no)
+    total_mes = Venta.objects.filter(
+        fecha__year=hoy.year,
+        fecha__month=hoy.month
+    ).aggregate(t=Sum('total'))['t'] or 0
 
     top_productos = (
         DetalleVenta.objects
