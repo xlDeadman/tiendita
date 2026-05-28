@@ -366,7 +366,7 @@ def cliente_agregar_producto(request, pk):
         form = AgregarProductoClienteForm(request.POST)
         if form.is_valid():
             venta = Venta.objects.create(
-                cliente_fk=cliente, pagado=False, total=0
+                cliente_fk=cliente, pagado=False, total=0, fecha=date.today()
             )
             detalle = form.save(commit=False)
             detalle.venta = venta
@@ -389,10 +389,12 @@ def cliente_agregar_producto(request, pk):
 def cliente_pagar(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
     if request.method == 'POST':
-        nombre = cliente.nombre
-        cliente.delete()
-        messages.success(request, f'✅ Deuda de {nombre} saldada. ¡Borrón y cuenta nueva!')
-    return redirect('cliente_list')
+        # Solo marca las deudas como pagadas, NO borra al cliente
+        cliente.cuentas.filter(pagado=False).update(pagado=True)
+        cliente.bloqueado = False
+        cliente.save()
+        messages.success(request, f'✅ Deuda de {cliente.nombre} saldada.')
+    return redirect('cliente_detail', pk=pk)
 
 
 @login_required
