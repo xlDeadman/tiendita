@@ -113,6 +113,7 @@ class Venta(models.Model):
     pagado = models.BooleanField(default=True, verbose_name="Pagado")
     notas = models.TextField(blank=True, verbose_name="Notas")
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Total")
+    fecha_venta = models.DateField(blank=True, null=True)
     creado_en = models.DateTimeField(auto_now_add=True)
 
     class Meta:
