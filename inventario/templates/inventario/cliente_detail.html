@@ -28,15 +28,14 @@
 </div>
 
 <!-- Resumen deuda -->
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card text-white {% if deuda_total > 0 %}bg-danger{% else %}bg-success{% endif %} shadow-sm">
-            <div class="card-body text-center">
-                <h6 class="card-title">Deuda total</h6>
-                <h2>${{ deuda_total }}</h2>
-            </div>
+<div class="col-md-3">
+    <div class="card text-white {% if deuda_total > 0 %}bg-danger{% else %}bg-success{% endif %} shadow-sm">
+        <div class="card-body text-center py-2">
+            <h6 class="card-title mb-1" style="font-size:.85rem;">Deuda total</h6>
+            <h4 class="mb-0">${{ deuda_total }}</h4>
         </div>
     </div>
+</div>
     {% if cliente.notas %}
     <div class="col-md-4">
         <div class="card shadow-sm">
