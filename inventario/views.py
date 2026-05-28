@@ -389,11 +389,11 @@ def cliente_agregar_producto(request, pk):
 def cliente_pagar(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
     if request.method == 'POST':
-        # Solo marca las deudas como pagadas, NO borra al cliente
-        cliente.cuentas.filter(pagado=False).update(pagado=True)
+        # Borra todas las ventas del cliente (y sus detalles en cascada)
+        cliente.cuentas.all().delete()
         cliente.bloqueado = False
         cliente.save()
-        messages.success(request, f'✅ Deuda de {cliente.nombre} saldada.')
+        messages.success(request, f'✅ Deuda de {cliente.nombre} saldada. Historial limpio.')
     return redirect('cliente_detail', pk=pk)
 
 
