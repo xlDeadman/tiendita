@@ -162,7 +162,7 @@ class AgregarProductoClienteForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['producto'].queryset = Producto.objects.filter(
-            activo=True, stock_actual__gt=0).order_by('nombre')
+        activo=True).order_by('nombre')
         self.fields['producto'].empty_label = '— Selecciona un producto —'
 
 
