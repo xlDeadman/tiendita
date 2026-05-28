@@ -48,6 +48,12 @@ class CategoriaForm(forms.ModelForm):
             'descripcion': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Descripción opcional'}),
         }
 
+    def clean_nombre(self):
+        nombre = self.cleaned_data.get('nombre', '').strip().upper()
+        if Categoria.objects.filter(nombre__iexact=nombre).exclude(pk=self.instance.pk if self.instance else None).exists():
+            raise forms.ValidationError('⚠️ Ya existe una categoría con ese nombre.')
+        return nombre
+
 
 class AjusteStockForm(forms.Form):
     TIPO_CHOICES = [
@@ -162,7 +168,7 @@ class AgregarProductoClienteForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['producto'].queryset = Producto.objects.filter(
-        activo=True).order_by('nombre')
+            activo=True).order_by('nombre')
         self.fields['producto'].empty_label = '— Selecciona un producto —'
 
 
