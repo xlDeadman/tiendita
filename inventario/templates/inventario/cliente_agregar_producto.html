@@ -100,5 +100,11 @@
 
     precioInput?.addEventListener('input', updateSubtotal);
     cantidadInput?.addEventListener('input', updateSubtotal);
+
+    // Fecha de hoy automática
+    const fechaInput = document.querySelector('input[name="fecha"]');
+    if (fechaInput && !fechaInput.value) {
+        fechaInput.value = new Date().toISOString().split('T')[0];
+    }
 </script>
 {% endblock %}
