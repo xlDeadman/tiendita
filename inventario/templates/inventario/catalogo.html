@@ -20,16 +20,33 @@
       background: #fff;
       border-radius: 14px;
       box-shadow: 0 2px 12px rgba(0,0,0,.1);
-      padding: 1.25rem;
+      overflow: hidden;
       height: 100%;
       transition: transform .15s, box-shadow .15s;
     }
     .producto-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.15); }
-    .producto-nombre { font-weight: 700; font-size: 1rem; color: #1a1a1a; margin-bottom: .5rem; }
-    .producto-precio { font-size: 1.5rem; font-weight: 800; color: #e31837; }
-    .badge-disponible { background: #dcfce7; color: #166534; padding: .3rem .7rem; border-radius: 20px; font-size: .78rem; font-weight: 600; }
-    .badge-agotado { background: #fee2e2; color: #991b1b; padding: .3rem .7rem; border-radius: 20px; font-size: .78rem; font-weight: 600; }
-    .categoria-badge { background: rgba(227,24,55,.1); color: #e31837; padding: .2rem .6rem; border-radius: 20px; font-size: .72rem; font-weight: 600; }
+    .producto-img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      background: #f8f8f8;
+    }
+    .producto-img-placeholder {
+      width: 100%;
+      height: 140px;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: #ccc;
+    }
+    .producto-body { padding: 1rem; }
+    .producto-nombre { font-weight: 700; font-size: .95rem; color: #1a1a1a; margin-bottom: .4rem; }
+    .producto-precio { font-size: 1.4rem; font-weight: 800; color: #e31837; }
+    .badge-disponible { background: #dcfce7; color: #166534; padding: .3rem .7rem; border-radius: 20px; font-size: .75rem; font-weight: 600; }
+    .badge-agotado { background: #fee2e2; color: #991b1b; padding: .3rem .7rem; border-radius: 20px; font-size: .75rem; font-weight: 600; }
+    .categoria-badge { background: rgba(227,24,55,.1); color: #e31837; padding: .2rem .6rem; border-radius: 20px; font-size: .7rem; font-weight: 600; }
     .filtro-btn { border-radius: 20px; font-size: .82rem; font-weight: 600; }
     .filtro-btn.active { background: #e31837 !important; border-color: #e31837 !important; color: #fff !important; }
   </style>
@@ -45,7 +62,7 @@
 
   <!-- Buscador -->
   <div class="mb-3">
-    <input type="text" id="buscador" class="form-control" placeholder="🔍 Buscar producto..." 
+    <input type="text" id="buscador" class="form-control" placeholder="🔍 Buscar producto..."
            style="border-radius: 12px; border: 2px solid #e31837; font-size: .9rem;">
   </div>
 
@@ -62,18 +79,29 @@
     {% for p in productos %}
     <div class="col-6 col-md-4 col-lg-3 producto-item" data-categoria="{{ p.categoria.nombre|default:'' }}" data-nombre="{{ p.nombre }}">
       <div class="producto-card">
-        <div class="d-flex justify-content-between align-items-start mb-2">
-          {% if p.categoria %}
-          <span class="categoria-badge">{{ p.categoria.nombre }}</span>
-          {% endif %}
-          {% if p.stock_actual > 0 %}
-          <span class="badge-disponible">✅ Disponible</span>
-          {% else %}
-          <span class="badge-agotado">❌ Agotado</span>
+        {% if p.imagen_url %}
+        <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}" class="producto-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="producto-img-placeholder" style="display:none;">🛍️</div>
+        {% else %}
+        <div class="producto-img-placeholder">🛍️</div>
+        {% endif %}
+        <div class="producto-body">
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            {% if p.categoria %}
+            <span class="categoria-badge">{{ p.categoria.nombre }}</span>
+            {% endif %}
+            {% if p.stock_actual > 0 %}
+            <span class="badge-disponible">✅</span>
+            {% else %}
+            <span class="badge-agotado">❌</span>
+            {% endif %}
+          </div>
+          <div class="producto-nombre">{{ p.nombre }}</div>
+          <div class="producto-precio">${{ p.precio|floatformat:2 }}</div>
+          {% if p.stock_actual <= 0 %}
+          <small class="text-danger fw-600">Agotado</small>
           {% endif %}
         </div>
-        <div class="producto-nombre">{{ p.nombre }}</div>
-        <div class="producto-precio">${{ p.precio|floatformat:2 }}</div>
       </div>
     </div>
     {% empty %}
@@ -94,11 +122,7 @@ function filtrar(categoria, btn) {
   document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.querySelectorAll('.producto-item').forEach(item => {
-    if (categoria === 'todos' || item.dataset.categoria === categoria) {
-      item.style.display = '';
-    } else {
-      item.style.display = 'none';
-    }
+    item.style.display = (categoria === 'todos' || item.dataset.categoria === categoria) ? '' : 'none';
   });
 }
 

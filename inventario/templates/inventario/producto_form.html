@@ -64,6 +64,20 @@
             {% endif %}
           </div>
 
+          <!-- Imagen URL -->
+          <div class="mb-3">
+            <label class="form-label fw-medium">🖼️ URL de imagen <span class="text-muted fw-normal">(opcional)</span></label>
+            {{ form.imagen_url }}
+            <div class="form-text">Pega el link de una foto del producto de internet.</div>
+            {% if form.imagen_url.errors %}
+              <div class="text-danger small mt-1">{{ form.imagen_url.errors.0 }}</div>
+            {% endif %}
+            <!-- Preview de imagen -->
+            <div id="preview-container" class="mt-2" style="display:none;">
+              <img id="preview-img" src="" alt="Preview" style="max-height:120px; border-radius:8px; border:1.5px solid #ddd;">
+            </div>
+          </div>
+
           <!-- Activo -->
           <div class="mb-4 form-check">
             {{ form.activo }}
@@ -93,4 +107,25 @@
     </div>
   </div>
 </div>
+
+<script>
+// Preview de imagen al pegar URL
+const input = document.getElementById('{{ form.imagen_url.id_for_label }}') || document.querySelector('[name="imagen_url"]');
+if (input) {
+  // Mostrar preview si ya tiene valor
+  if (input.value) {
+    document.getElementById('preview-container').style.display = 'block';
+    document.getElementById('preview-img').src = input.value;
+  }
+  input.addEventListener('input', function() {
+    const url = this.value.trim();
+    if (url) {
+      document.getElementById('preview-container').style.display = 'block';
+      document.getElementById('preview-img').src = url;
+    } else {
+      document.getElementById('preview-container').style.display = 'none';
+    }
+  });
+}
+</script>
 {% endblock %}

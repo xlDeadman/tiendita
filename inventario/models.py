@@ -65,6 +65,7 @@ class Producto(models.Model):
     stock_inicial = models.PositiveIntegerField(default=0, verbose_name="Stock inicial")
     stock_actual = models.IntegerField(default=0, verbose_name="Stock actual")
     precio = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio de venta ($)")
+    imagen_url = models.URLField(max_length=500, blank=True, verbose_name="URL de imagen")
     activo = models.BooleanField(default=True, verbose_name="Activo")
     creado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
@@ -103,7 +104,6 @@ class Producto(models.Model):
 
 
 class SaldoCaja(models.Model):
-    """Registro único del saldo en efectivo y banco. Solo hay un registro."""
     efectivo = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Efectivo ($)")
     banco = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Banco ($)")
     actualizado_en = models.DateTimeField(auto_now=True)
@@ -117,7 +117,6 @@ class SaldoCaja(models.Model):
 
     @classmethod
     def get(cls):
-        """Obtiene el registro único o lo crea si no existe."""
         obj, _ = cls.objects.get_or_create(pk=1)
         return obj
 
