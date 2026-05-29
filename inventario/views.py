@@ -674,3 +674,13 @@ def egreso_edit(request, pk):
         egreso.save()
         messages.success(request, f'✅ Egreso "{nombre}" actualizado.')
     return redirect('egreso_list')
+
+    # ─────────────────────────── Catálogo público ───────────────────────────
+
+def catalogo(request):
+    productos = Producto.objects.filter(activo=True).select_related('categoria').order_by('nombre')
+    categorias = Categoria.objects.all()
+    return render(request, 'inventario/catalogo.html', {
+        'productos': productos,
+        'categorias': categorias,
+    })
