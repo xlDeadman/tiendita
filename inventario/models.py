@@ -79,12 +79,12 @@ class Producto(models.Model):
 
     @property
     def semaforo(self):
-    if self.stock_actual <= 0:
-        return 'rojo'
-    elif self.stock_actual <= 3:
-        return 'naranja'
-    else:
-        return 'verde'
+        if self.stock_actual <= 0:
+            return 'rojo'
+        elif self.stock_actual <= 3:
+            return 'naranja'
+        else:
+            return 'verde'
 
     @property
     def semaforo_badge(self):
