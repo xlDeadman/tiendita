@@ -61,7 +61,7 @@ def dashboard(request):
         .order_by('-total_vendido')[:5]
     )
 
-    productos_criticos = productos.filter(stock_actual__lte=3).order_by('stock_actual', 'nombre')[:20]
+    productos_criticos = productos.filter(stock_actual__lte=3).order_by('stock_actual', 'nombre')[:50]
     ultimas_ventas = Venta.objects.order_by('-fecha', '-creado_en')[:5]
 
     context = {
