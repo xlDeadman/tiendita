@@ -38,6 +38,11 @@ urlpatterns = [
     path('clientes/<int:cliente_pk>/detalle/<int:pk>/eliminar/', views.cliente_detalle_delete, name='cliente_detalle_delete'),
     path('clientes/<int:pk>/abonar/', views.cliente_abonar, name='cliente_abonar'),
 
+    # Egresos
+    path('egresos/', views.egreso_list, name='egreso_list'),
+    path('egresos/nuevo/', views.egreso_create, name='egreso_create'),
+    path('egresos/<int:pk>/eliminar/', views.egreso_delete, name='egreso_delete'),
+
     # API
     path('api/producto/<int:pk>/precio/', views.api_precio_producto, name='api_precio_producto'),
     
