@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from datetime import date, timedelta
 from decimal import Decimal
 
-from .models import Producto, Categoria, Venta, DetalleVenta, Cliente
+from .models import Producto, Categoria, Venta, DetalleVenta, Cliente, Egreso
 from .forms import (
     ProductoForm, CategoriaForm, AjusteStockForm,
     VentaForm, DetalleVentaFormSet, ClienteForm,
@@ -22,8 +22,8 @@ def dashboard(request):
     productos = Producto.objects.filter(activo=True)
     total_productos = productos.count()
     agotados = productos.filter(stock_actual__lte=0).count()
-    stock_bajo = productos.filter(stock_actual__gt=0, stock_actual__lte=2).count()
-    disponibles = productos.filter(stock_actual__gt=2).count()
+    stock_bajo = productos.filter(stock_actual__gt=0, stock_actual__lte=3).count()
+    disponibles = productos.filter(stock_actual__gt=3).count()
 
     hoy = date.today()
 
@@ -38,7 +38,7 @@ def dashboard(request):
         fecha__month=hoy.month
     ).aggregate(t=Sum('total'))['t'] or 0
 
-    # Por cobrar = total mes - lo que ya pagaron (cuentas pagadas del mes)
+    # Por cobrar = crédito del mes - lo que ya pagaron
     cobrado_mes = Venta.objects.filter(
         fecha__year=hoy.year,
         fecha__month=hoy.month,
@@ -61,7 +61,7 @@ def dashboard(request):
         .order_by('-total_vendido')[:5]
     )
 
-    productos_criticos = productos.filter(stock_actual__lte=2).order_by('stock_actual')[:10]
+    productos_criticos = productos.filter(stock_actual__lte=3).order_by('stock_actual', 'nombre')[:50]
     ultimas_ventas = Venta.objects.order_by('-fecha', '-creado_en')[:5]
 
     context = {
@@ -100,9 +100,9 @@ def producto_list(request):
     if semaforo == 'rojo':
         productos = productos.filter(stock_actual__lte=0)
     elif semaforo == 'naranja':
-        productos = productos.filter(stock_actual__gt=0, stock_actual__lte=2)
+        productos = productos.filter(stock_actual__gt=0, stock_actual__lte=3)
     elif semaforo == 'verde':
-        productos = productos.filter(stock_actual__gt=2)
+        productos = productos.filter(stock_actual__gt=3)
 
     categorias = Categoria.objects.all()
     context = {
@@ -406,7 +406,6 @@ def cliente_agregar_producto(request, pk):
 def cliente_pagar(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
     if request.method == 'POST':
-        # Borra todas las ventas del cliente (y sus detalles en cascada)
         cliente.cuentas.all().delete()
         cliente.bloqueado = False
         cliente.save()
@@ -549,7 +548,6 @@ def cliente_abonar(request, pk):
 
 @login_required
 def egreso_list(request):
-    from .models import Egreso
     hoy = date.today()
     egresos = Egreso.objects.select_related('categoria').all()
     total_mes = egresos.filter(
@@ -566,7 +564,6 @@ def egreso_list(request):
 
 @login_required
 def egreso_create(request):
-    from .models import Egreso
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
         categoria_id = request.POST.get('categoria') or None
@@ -587,7 +584,6 @@ def egreso_create(request):
 
 @login_required
 def egreso_delete(request, pk):
-    from .models import Egreso
     egreso = get_object_or_404(Egreso, pk=pk)
     if request.method == 'POST':
         egreso.delete()
