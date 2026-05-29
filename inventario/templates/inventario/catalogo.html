@@ -23,25 +23,26 @@
       overflow: hidden;
       height: 100%;
       transition: transform .15s, box-shadow .15s;
+      cursor: pointer;
     }
     .producto-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.15); }
-.producto-img {
-  width: 100%;
-  height: 100px;
-  object-fit: contain;
-  background: #fff;
-  mix-blend-mode: multiply;
-}
-.producto-img-placeholder {
-  width: 100%;
-  height: 100px;
-  background: #f0f0f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-  color: #ccc;
-}
+    .producto-img {
+      width: 100%;
+      height: 100px;
+      object-fit: contain;
+      background: #fff;
+      mix-blend-mode: multiply;
+    }
+    .producto-img-placeholder {
+      width: 100%;
+      height: 100px;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: #ccc;
+    }
     .producto-body { padding: 1rem; }
     .producto-nombre { font-weight: 700; font-size: .95rem; color: #1a1a1a; margin-bottom: .4rem; }
     .producto-precio { font-size: 1.4rem; font-weight: 800; color: #e31837; }
@@ -50,6 +51,45 @@
     .categoria-badge { background: rgba(227,24,55,.1); color: #e31837; padding: .2rem .6rem; border-radius: 20px; font-size: .7rem; font-weight: 600; }
     .filtro-btn { border-radius: 20px; font-size: .82rem; font-weight: 600; }
     .filtro-btn.active { background: #e31837 !important; border-color: #e31837 !important; color: #fff !important; }
+
+    /* Modal lightbox */
+    #lightbox {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,.85);
+      z-index: 99999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    #lightbox img {
+      max-width: 90%;
+      max-height: 70vh;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+    #lightbox .lb-nombre {
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-top: 1rem;
+    }
+    #lightbox .lb-precio {
+      color: #f5a623;
+      font-weight: 800;
+      font-size: 1.5rem;
+    }
+    #lightbox .lb-close {
+      position: absolute;
+      top: 1rem; right: 1.5rem;
+      color: #fff;
+      font-size: 2rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
   </style>
 </head>
 <body>
@@ -79,7 +119,7 @@
   <div class="row g-3" id="productos-grid">
     {% for p in productos %}
     <div class="col-6 col-md-4 col-lg-3 producto-item" data-categoria="{{ p.categoria.nombre|default:'' }}" data-nombre="{{ p.nombre }}">
-      <div class="producto-card">
+      <div class="producto-card" onclick="abrirLightbox('{{ p.imagen_url }}', '{{ p.nombre }}', '${{ p.precio|floatformat:2 }}', {{ p.stock_actual }})">
         {% if p.imagen_url %}
         <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}" class="producto-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
         <div class="producto-img-placeholder" style="display:none;">🛍️</div>
@@ -100,7 +140,7 @@
           <div class="producto-nombre">{{ p.nombre }}</div>
           <div class="producto-precio">${{ p.precio|floatformat:2 }}</div>
           {% if p.stock_actual <= 0 %}
-          <small class="text-danger fw-600">Agotado</small>
+          <small class="text-danger">Agotado</small>
           {% endif %}
         </div>
       </div>
@@ -118,6 +158,15 @@
   </p>
 </div>
 
+<!-- Lightbox modal -->
+<div id="lightbox" onclick="cerrarLightbox()">
+  <button class="lb-close" onclick="cerrarLightbox()">✕</button>
+  <img id="lb-img" src="" alt="">
+  <div class="lb-nombre" id="lb-nombre"></div>
+  <div class="lb-precio" id="lb-precio"></div>
+  <div id="lb-status" style="margin-top:.5rem;"></div>
+</div>
+
 <script>
 function filtrar(categoria, btn) {
   document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
@@ -132,6 +181,26 @@ document.getElementById('buscador').addEventListener('input', function() {
   document.querySelectorAll('.producto-item').forEach(item => {
     item.style.display = item.dataset.nombre.toLowerCase().includes(q) ? '' : 'none';
   });
+});
+
+function abrirLightbox(img, nombre, precio, stock) {
+  const lb = document.getElementById('lightbox');
+  document.getElementById('lb-img').src = img || '';
+  document.getElementById('lb-img').style.display = img ? 'block' : 'none';
+  document.getElementById('lb-nombre').textContent = nombre;
+  document.getElementById('lb-precio').textContent = precio;
+  document.getElementById('lb-status').innerHTML = stock > 0
+    ? '<span style="background:#dcfce7;color:#166534;padding:.3rem .8rem;border-radius:20px;font-weight:600;">✅ Disponible</span>'
+    : '<span style="background:#fee2e2;color:#991b1b;padding:.3rem .8rem;border-radius:20px;font-weight:600;">❌ Agotado</span>';
+  lb.style.display = 'flex';
+}
+
+function cerrarLightbox() {
+  document.getElementById('lightbox').style.display = 'none';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') cerrarLightbox();
 });
 </script>
 
