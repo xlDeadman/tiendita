@@ -38,6 +38,22 @@ def dashboard(request):
         fecha__month=hoy.month
     ).aggregate(t=Sum('total'))['t'] or 0
 
+    # Por cobrar = total mes - lo que ya pagaron (cuentas pagadas del mes)
+    cobrado_mes = Venta.objects.filter(
+        fecha__year=hoy.year,
+        fecha__month=hoy.month,
+        cliente_fk__isnull=False,
+        pagado=True
+    ).aggregate(t=Sum('total'))['t'] or 0
+
+    credito_mes = Venta.objects.filter(
+        fecha__year=hoy.year,
+        fecha__month=hoy.month,
+        cliente_fk__isnull=False
+    ).aggregate(t=Sum('total'))['t'] or 0
+
+    por_cobrar = credito_mes - cobrado_mes
+
     top_productos = (
         DetalleVenta.objects
         .values('producto__nombre')
@@ -56,6 +72,7 @@ def dashboard(request):
         'total_hoy': total_hoy,
         'num_ventas_hoy': num_ventas_hoy,
         'total_mes': total_mes,
+        'por_cobrar': por_cobrar,
         'top_productos': top_productos,
         'productos_criticos': productos_criticos,
         'ultimas_ventas': ultimas_ventas,
