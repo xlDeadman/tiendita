@@ -122,7 +122,7 @@
         <span><i class="bi bi-exclamation-circle me-1 text-danger"></i> Productos críticos</span>
         <a href="{% url 'producto_list' %}?semaforo=rojo" class="btn btn-outline-danger btn-sm py-0 px-2" style="font-size:.75rem;">Ver todos</a>
       </div>
-      <div class="card-body p-0">
+      <div class="card-body p-0" style="max-height:400px; overflow-y:auto;">
         {% if productos_criticos %}
         <ul class="list-group list-group-flush">
           {% for p in productos_criticos %}

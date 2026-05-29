@@ -23,7 +23,7 @@ def dashboard(request):
     total_productos = productos.count()
     agotados = productos.filter(stock_actual__lte=0).count()
     stock_bajo = productos.filter(stock_actual__gt=0, stock_actual__lte=2).count()
-    disponibles = productos.filter(stock_actual__gt=2).count()
+    disponibles = productos.filter(stock_actual__gt=3).count()
 
     hoy = date.today()
 
