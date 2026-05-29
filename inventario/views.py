@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from datetime import date, timedelta
 from decimal import Decimal
 
-from .models import Producto, Categoria, Venta, DetalleVenta, Cliente, Egreso
+from .models import Producto, Categoria, Venta, DetalleVenta, Cliente, Egreso, SaldoCaja
 from .forms import (
     ProductoForm, CategoriaForm, AjusteStockForm,
     VentaForm, DetalleVentaFormSet, ClienteForm,
@@ -27,18 +27,15 @@ def dashboard(request):
 
     hoy = date.today()
 
-    # Ventas del día (efectivo)
     ventas_hoy = Venta.objects.filter(fecha=hoy, cliente_fk__isnull=True)
     total_hoy = ventas_hoy.aggregate(t=Sum('total'))['t'] or 0
     num_ventas_hoy = ventas_hoy.count()
 
-    # Total del mes = efectivo + crédito (pagado o no)
     total_mes = Venta.objects.filter(
         fecha__year=hoy.year,
         fecha__month=hoy.month
     ).aggregate(t=Sum('total'))['t'] or 0
 
-    # Por cobrar = crédito del mes - lo que ya pagaron
     cobrado_mes = Venta.objects.filter(
         fecha__year=hoy.year,
         fecha__month=hoy.month,
@@ -555,10 +552,12 @@ def egreso_list(request):
         fecha__month=hoy.month
     ).aggregate(t=Sum('costo'))['t'] or 0
     categorias = Categoria.objects.all()
+    saldo = SaldoCaja.get()
     return render(request, 'inventario/egreso_list.html', {
         'egresos': egresos,
         'total_mes': total_mes,
         'categorias': categorias,
+        'saldo': saldo,
     })
 
 
@@ -569,13 +568,37 @@ def egreso_create(request):
         categoria_id = request.POST.get('categoria') or None
         piezas = request.POST.get('piezas', 0)
         costo = request.POST.get('costo', 0)
+        forma_pago = request.POST.get('forma_pago', 'efectivo')
+        monto_efectivo = Decimal(request.POST.get('monto_efectivo', 0) or 0)
+        monto_banco = Decimal(request.POST.get('monto_banco', 0) or 0)
+
         if nombre and piezas and costo:
+            costo = Decimal(costo)
+
+            # Si es efectivo o banco, el monto es el total
+            if forma_pago == 'efectivo':
+                monto_efectivo = costo
+                monto_banco = Decimal(0)
+            elif forma_pago == 'banco':
+                monto_banco = costo
+                monto_efectivo = Decimal(0)
+
             Egreso.objects.create(
                 nombre=nombre,
                 categoria_id=categoria_id,
                 piezas=int(piezas),
                 costo=costo,
+                forma_pago=forma_pago,
+                monto_efectivo=monto_efectivo,
+                monto_banco=monto_banco,
             )
+
+            # Descontar del saldo
+            saldo = SaldoCaja.get()
+            saldo.efectivo -= monto_efectivo
+            saldo.banco -= monto_banco
+            saldo.save()
+
             messages.success(request, f'✅ Egreso "{nombre}" registrado.')
         else:
             messages.error(request, '❌ Completa todos los campos.')
@@ -586,6 +609,29 @@ def egreso_create(request):
 def egreso_delete(request, pk):
     egreso = get_object_or_404(Egreso, pk=pk)
     if request.method == 'POST':
+        # Restaurar saldo al eliminar
+        saldo = SaldoCaja.get()
+        saldo.efectivo += egreso.monto_efectivo
+        saldo.banco += egreso.monto_banco
+        saldo.save()
         egreso.delete()
-        messages.success(request, '🗑️ Egreso eliminado.')
+        messages.success(request, '🗑️ Egreso eliminado. Saldo restaurado.')
     return redirect('egreso_list')
+
+
+# ─────────────────────────── Estado de cuenta ───────────────────────────
+
+@login_required
+def estado_cuenta(request):
+    saldo = SaldoCaja.get()
+    if request.method == 'POST':
+        try:
+            efectivo = Decimal(request.POST.get('efectivo', 0) or 0)
+            banco = Decimal(request.POST.get('banco', 0) or 0)
+            saldo.efectivo = efectivo
+            saldo.banco = banco
+            saldo.save()
+            messages.success(request, '✅ Saldo actualizado correctamente.')
+        except:
+            messages.error(request, '❌ Valores inválidos.')
+    return render(request, 'inventario/estado_cuenta.html', {'saldo': saldo})

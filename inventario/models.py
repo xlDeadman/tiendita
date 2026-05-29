@@ -102,14 +102,43 @@ class Producto(models.Model):
         return textos[self.semaforo]
 
 
+class SaldoCaja(models.Model):
+    """Registro único del saldo en efectivo y banco. Solo hay un registro."""
+    efectivo = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Efectivo ($)")
+    banco = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Banco ($)")
+    actualizado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Saldo de caja"
+        verbose_name_plural = "Saldo de caja"
+
+    def __str__(self):
+        return f"Efectivo: ${self.efectivo} | Banco: ${self.banco}"
+
+    @classmethod
+    def get(cls):
+        """Obtiene el registro único o lo crea si no existe."""
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
 class Egreso(models.Model):
+    FORMA_PAGO_CHOICES = [
+        ('efectivo', '💵 Efectivo'),
+        ('banco', '🏦 Banco'),
+        ('ambas', '🔀 Ambas'),
+    ]
+
     nombre = models.CharField(max_length=200, verbose_name="Producto")
     categoria = models.ForeignKey(
         Categoria, on_delete=models.SET_NULL, null=True, blank=True,
         verbose_name="Categoría", related_name='egresos'
     )
     piezas = models.PositiveIntegerField(verbose_name="Número de piezas")
-    costo = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Costo ($)")
+    costo = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Costo total ($)")
+    forma_pago = models.CharField(max_length=10, choices=FORMA_PAGO_CHOICES, default='efectivo', verbose_name="Forma de pago")
+    monto_efectivo = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Monto efectivo ($)")
+    monto_banco = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Monto banco ($)")
     fecha = models.DateField(default=timezone.now, verbose_name="Fecha")
     creado_en = models.DateTimeField(auto_now_add=True)
 
