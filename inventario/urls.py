@@ -18,6 +18,7 @@ urlpatterns = [
     path('egresos/', views.egreso_list, name='egreso_list'),
     path('egresos/nuevo/', views.egreso_create, name='egreso_create'),
     path('egresos/<int:pk>/eliminar/', views.egreso_delete, name='egreso_delete'),
+    path('egresos/<int:pk>/editar/', views.egreso_edit, name='egreso_edit'),
 
     path('estado-cuenta/', views.estado_cuenta, name='estado_cuenta'),
 

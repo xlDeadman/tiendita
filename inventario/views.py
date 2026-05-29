@@ -635,3 +635,42 @@ def estado_cuenta(request):
         except:
             messages.error(request, '❌ Valores inválidos.')
     return render(request, 'inventario/estado_cuenta.html', {'saldo': saldo})
+
+
+@login_required
+def egreso_edit(request, pk):
+    egreso = get_object_or_404(Egreso, pk=pk)
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        categoria_id = request.POST.get('categoria') or None
+        piezas = request.POST.get('piezas', 0)
+        costo = Decimal(request.POST.get('costo', 0))
+        forma_pago = request.POST.get('forma_pago', 'efectivo')
+        monto_efectivo = Decimal(request.POST.get('monto_efectivo', 0) or 0)
+        monto_banco = Decimal(request.POST.get('monto_banco', 0) or 0)
+
+        if forma_pago == 'efectivo':
+            monto_efectivo = costo
+            monto_banco = Decimal(0)
+        elif forma_pago == 'banco':
+            monto_banco = costo
+            monto_efectivo = Decimal(0)
+
+        # Restaurar saldo anterior y aplicar nuevo
+        saldo = SaldoCaja.get()
+        saldo.efectivo += egreso.monto_efectivo
+        saldo.banco += egreso.monto_banco
+        saldo.efectivo -= monto_efectivo
+        saldo.banco -= monto_banco
+        saldo.save()
+
+        egreso.nombre = nombre
+        egreso.categoria_id = categoria_id
+        egreso.piezas = int(piezas)
+        egreso.costo = costo
+        egreso.forma_pago = forma_pago
+        egreso.monto_efectivo = monto_efectivo
+        egreso.monto_banco = monto_banco
+        egreso.save()
+        messages.success(request, f'✅ Egreso "{nombre}" actualizado.')
+    return redirect('egreso_list')
