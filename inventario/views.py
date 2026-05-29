@@ -23,7 +23,7 @@ def dashboard(request):
     total_productos = productos.count()
     agotados = productos.filter(stock_actual__lte=0).count()
     stock_bajo = productos.filter(stock_actual__gt=0, stock_actual__lte=2).count()
-    disponibles = productos.filter(stock_actual__gt=3).count()
+    disponibles = productos.filter(stock_actual__gt=2).count()
 
     hoy = date.today()
 
@@ -61,7 +61,7 @@ def dashboard(request):
         .order_by('-total_vendido')[:5]
     )
 
-    productos_criticos = productos.filter(stock_actual__lte=3).order_by('stock_actual', 'nombre')[:50]
+    productos_criticos = productos.filter(stock_actual__lte=2).order_by('stock_actual')[:10]
     ultimas_ventas = Venta.objects.order_by('-fecha', '-creado_en')[:5]
 
     context = {
@@ -543,3 +543,53 @@ def cliente_abonar(request, pk):
 
         messages.success(request, f'✅ Abono de ${abono:.2f} registrado para {cliente.nombre}.')
     return redirect('cliente_detail', pk=pk)
+
+
+# ─────────────────────────── Egresos ───────────────────────────
+
+@login_required
+def egreso_list(request):
+    from .models import Egreso
+    hoy = date.today()
+    egresos = Egreso.objects.select_related('categoria').all()
+    total_mes = egresos.filter(
+        fecha__year=hoy.year,
+        fecha__month=hoy.month
+    ).aggregate(t=Sum('costo'))['t'] or 0
+    categorias = Categoria.objects.all()
+    return render(request, 'inventario/egreso_list.html', {
+        'egresos': egresos,
+        'total_mes': total_mes,
+        'categorias': categorias,
+    })
+
+
+@login_required
+def egreso_create(request):
+    from .models import Egreso
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        categoria_id = request.POST.get('categoria') or None
+        piezas = request.POST.get('piezas', 0)
+        costo = request.POST.get('costo', 0)
+        if nombre and piezas and costo:
+            Egreso.objects.create(
+                nombre=nombre,
+                categoria_id=categoria_id,
+                piezas=int(piezas),
+                costo=costo,
+            )
+            messages.success(request, f'✅ Egreso "{nombre}" registrado.')
+        else:
+            messages.error(request, '❌ Completa todos los campos.')
+    return redirect('egreso_list')
+
+
+@login_required
+def egreso_delete(request, pk):
+    from .models import Egreso
+    egreso = get_object_or_404(Egreso, pk=pk)
+    if request.method == 'POST':
+        egreso.delete()
+        messages.success(request, '🗑️ Egreso eliminado.')
+    return redirect('egreso_list')

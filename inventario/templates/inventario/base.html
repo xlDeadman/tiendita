@@ -146,13 +146,13 @@
     }
 
     .table-card {
-  background: #fff;
-  border-radius: 14px;
-  border: none;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0,0,0,.1);
-}
-.table-card table { border-collapse: separate; border-spacing: 0; }
+      background: #fff;
+      border-radius: 14px;
+      border: none;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,.1);
+    }
+    .table-card table { border-collapse: separate; border-spacing: 0; }
     .table { color: #333 !important; }
     .table thead th {
       background: #e31837;
@@ -295,6 +295,9 @@
     </a>
     <a href="{% url 'categoria_list' %}" class="nav-link-side {% if 'categoria' in request.resolver_match.url_name %}active{% endif %}">
       <i class="bi bi-tags"></i> Categorías
+    </a>
+    <a href="{% url 'egreso_list' %}" class="nav-link-side {% if 'egreso' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-cash-stack"></i> Egresos
     </a>
   </div>
 

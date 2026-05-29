@@ -1,0 +1,121 @@
+{% extends 'inventario/base.html' %}
+{% block title %}Egresos{% endblock %}
+{% block page_title %}Egresos{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-cash-stack"></i> Egresos</h2>
+    <button type="button" class="btn btn-primary" onclick="document.getElementById('modalEgreso').style.display='flex'">
+        <i class="bi bi-plus-circle"></i> Nuevo egreso
+    </button>
+</div>
+
+<!-- Resumen -->
+<div class="row mb-4">
+    <div class="col-auto">
+        <div class="card text-white bg-danger shadow-sm px-2">
+            <div class="card-body text-center py-2">
+                <h6 class="card-title mb-1">Total egresos del mes</h6>
+                <h4 class="mb-0">${{ total_mes|floatformat:2 }}</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla historial -->
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Historial de egresos</h5>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Piezas</th>
+                    <th>Costo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in egresos %}
+                <tr>
+                    <td>{{ e.fecha }}</td>
+                    <td>{{ e.nombre }}</td>
+                    <td>{{ e.categoria.nombre|default:"—" }}</td>
+                    <td>{{ e.piezas }}</td>
+                    <td>${{ e.costo|floatformat:2 }}</td>
+                    <td>
+                        <form method="post" action="{% url 'egreso_delete' e.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('¿Eliminar este egreso?')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">Sin egresos registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Nuevo Egreso -->
+<div id="modalEgreso" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.6); z-index:99999; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:420px; margin:1rem;">
+        <div style="background:#e31837; margin:-2rem -2rem 1.5rem; padding:1rem 1.5rem; border-radius:16px 16px 0 0; display:flex; justify-content:space-between; align-items:center;">
+            <h5 style="color:#fff; margin:0;"><i class="bi bi-cash-stack me-2"></i> Nuevo egreso</h5>
+            <button onclick="document.getElementById('modalEgreso').style.display='none'"
+                    style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">✕</button>
+        </div>
+        <form method="post" action="{% url 'egreso_create' %}">
+            {% csrf_token %}
+            <div style="margin-bottom:1rem;">
+                <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Nombre del producto</label>
+                <input type="text" name="nombre" required placeholder="Ej: Sabritas"
+                       style="width:100%; border:1.5px solid #ddd; border-radius:8px; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333;">
+            </div>
+            <div style="margin-bottom:1rem;">
+                <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Categoría</label>
+                <select name="categoria" style="width:100%; border:1.5px solid #ddd; border-radius:8px; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; background:#fff;">
+                    <option value="">— Sin categoría —</option>
+                    {% for cat in categorias %}
+                    <option value="{{ cat.pk }}">{{ cat.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="margin-bottom:1rem;">
+                <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Número de piezas</label>
+                <input type="number" name="piezas" required min="1" placeholder="0"
+                       style="width:100%; border:1.5px solid #ddd; border-radius:8px; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333;">
+            </div>
+            <div style="margin-bottom:1.5rem;">
+                <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Costo ($)</label>
+                <div style="display:flex;">
+                    <span style="background:#f8f8f8; border:1.5px solid #ddd; border-right:none; padding:.6rem .85rem; border-radius:8px 0 0 8px; color:#e31837; font-weight:700;">$</span>
+                    <input type="number" name="costo" required min="0.01" step="0.01" placeholder="0.00"
+                           style="flex:1; border:1.5px solid #ddd; border-left:none; border-radius:0 8px 8px 0; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; background:#fff;">
+                </div>
+            </div>
+            <div style="display:flex; gap:.75rem;">
+                <button type="button"
+                        onclick="document.getElementById('modalEgreso').style.display='none'"
+                        style="flex:1; padding:.65rem; background:#6b7280; color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer;">
+                    Cancelar
+                </button>
+                <button type="submit"
+                        style="flex:1; padding:.65rem; background:#e31837; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
+                    <i class="bi bi-save"></i> Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

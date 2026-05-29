@@ -102,6 +102,26 @@ class Producto(models.Model):
         return textos[self.semaforo]
 
 
+class Egreso(models.Model):
+    nombre = models.CharField(max_length=200, verbose_name="Producto")
+    categoria = models.ForeignKey(
+        Categoria, on_delete=models.SET_NULL, null=True, blank=True,
+        verbose_name="Categoría", related_name='egresos'
+    )
+    piezas = models.PositiveIntegerField(verbose_name="Número de piezas")
+    costo = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Costo ($)")
+    fecha = models.DateField(default=timezone.now, verbose_name="Fecha")
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Egreso"
+        verbose_name_plural = "Egresos"
+        ordering = ['-fecha', '-creado_en']
+
+    def __str__(self):
+        return f"{self.nombre} - ${self.costo}"
+
+
 class Venta(models.Model):
     fecha = models.DateField(default=timezone.now, verbose_name="Fecha")
     cliente = models.CharField(max_length=200, blank=True, verbose_name="Cliente")
