@@ -15,6 +15,14 @@ from .forms import (
 )
 
 
+# ─────────────────────────── Home redirect ───────────────────────────
+
+def home_redirect(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    return redirect('catalogo')
+
+
 # ─────────────────────────── Dashboard ───────────────────────────
 
 @login_required
@@ -575,7 +583,6 @@ def egreso_create(request):
         if nombre and piezas and costo:
             costo = Decimal(costo)
 
-            # Si es efectivo o banco, el monto es el total
             if forma_pago == 'efectivo':
                 monto_efectivo = costo
                 monto_banco = Decimal(0)
@@ -593,7 +600,6 @@ def egreso_create(request):
                 monto_banco=monto_banco,
             )
 
-            # Descontar del saldo
             saldo = SaldoCaja.get()
             saldo.efectivo -= monto_efectivo
             saldo.banco -= monto_banco
@@ -609,7 +615,6 @@ def egreso_create(request):
 def egreso_delete(request, pk):
     egreso = get_object_or_404(Egreso, pk=pk)
     if request.method == 'POST':
-        # Restaurar saldo al eliminar
         saldo = SaldoCaja.get()
         saldo.efectivo += egreso.monto_efectivo
         saldo.banco += egreso.monto_banco
@@ -656,7 +661,6 @@ def egreso_edit(request, pk):
             monto_banco = costo
             monto_efectivo = Decimal(0)
 
-        # Restaurar saldo anterior y aplicar nuevo
         saldo = SaldoCaja.get()
         saldo.efectivo += egreso.monto_efectivo
         saldo.banco += egreso.monto_banco
@@ -675,7 +679,8 @@ def egreso_edit(request, pk):
         messages.success(request, f'✅ Egreso "{nombre}" actualizado.')
     return redirect('egreso_list')
 
-    # ─────────────────────────── Catálogo público ───────────────────────────
+
+# ─────────────────────────── Catálogo público ───────────────────────────
 
 def catalogo(request):
     productos = Producto.objects.filter(activo=True).select_related('categoria').order_by('nombre')
