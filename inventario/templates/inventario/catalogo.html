@@ -26,26 +26,26 @@
       cursor: pointer;
     }
     .producto-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.15); }
-.producto-img {
-  width: 100%;
-  height: 100px;
-  object-fit: contain;
-  background: #fff;
-  mix-blend-mode: multiply;
-  -webkit-user-drag: none;
-  user-drag: none;
-  pointer-events: none;
-}
-.producto-img-placeholder {
-  width: 100%;
-  height: 100px;
-  background: #f0f0f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-  color: #ccc;
-}
+    .producto-img {
+      width: 100%;
+      height: 100px;
+      object-fit: contain;
+      background: #fff;
+      mix-blend-mode: multiply;
+      -webkit-user-drag: none;
+      user-drag: none;
+      pointer-events: none;
+    }
+    .producto-img-placeholder {
+      width: 100%;
+      height: 100px;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: #ccc;
+    }
     .producto-body { padding: 1rem; }
     .producto-nombre { font-weight: 700; font-size: .95rem; color: #1a1a1a; margin-bottom: .4rem; }
     .producto-precio { font-size: 1.4rem; font-weight: 800; color: #e31837; }
@@ -54,6 +54,21 @@
     .categoria-badge { background: rgba(227,24,55,.1); color: #e31837; padding: .2rem .6rem; border-radius: 20px; font-size: .7rem; font-weight: 600; }
     .filtro-btn { border-radius: 20px; font-size: .82rem; font-weight: 600; }
     .filtro-btn.active { background: #e31837 !important; border-color: #e31837 !important; color: #fff !important; }
+
+    /* Paginación */
+    .paginacion { display: flex; justify-content: center; gap: .5rem; flex-wrap: wrap; margin-top: 1.5rem; }
+    .paginacion button {
+      background: #fff;
+      border: 2px solid #e31837;
+      color: #e31837;
+      border-radius: 8px;
+      padding: .4rem .85rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: .85rem;
+    }
+    .paginacion button.active { background: #e31837; color: #fff; }
+    .paginacion button:hover { background: #e31837; color: #fff; }
 
     /* Modal lightbox */
     #lightbox {
@@ -156,6 +171,9 @@
     {% endfor %}
   </div>
 
+  <!-- Paginación -->
+  <div class="paginacion" id="paginacion"></div>
+
   <p class="text-center text-white mt-4" style="font-size:.8rem;">
     Última actualización: en tiempo real 🟢
   </p>
@@ -171,19 +189,74 @@
 </div>
 
 <script>
-function filtrar(categoria, btn) {
-  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.producto-item').forEach(item => {
-    item.style.display = (categoria === 'todos' || item.dataset.categoria === categoria) ? '' : 'none';
+const POR_PAGINA = 12;
+let paginaActual = 1;
+let categoriaActual = 'todos';
+let busquedaActual = '';
+
+function getItemsVisibles() {
+  return Array.from(document.querySelectorAll('.producto-item')).filter(item => {
+    const matchCat = categoriaActual === 'todos' || item.dataset.categoria === categoriaActual;
+    const matchBusq = item.dataset.nombre.toLowerCase().includes(busquedaActual);
+    return matchCat && matchBusq;
   });
 }
 
+function renderPagina() {
+  const items = getItemsVisibles();
+  const total = items.length;
+  const totalPaginas = Math.ceil(total / POR_PAGINA);
+  if (paginaActual > totalPaginas) paginaActual = 1;
+
+  const inicio = (paginaActual - 1) * POR_PAGINA;
+  const fin = inicio + POR_PAGINA;
+
+  // Ocultar todos
+  document.querySelectorAll('.producto-item').forEach(i => i.style.display = 'none');
+  // Mostrar solo los de esta página
+  items.slice(inicio, fin).forEach(i => i.style.display = '');
+
+  // Renderizar botones paginación
+  const pag = document.getElementById('paginacion');
+  pag.innerHTML = '';
+  if (totalPaginas <= 1) return;
+
+  // Anterior
+  const btnPrev = document.createElement('button');
+  btnPrev.innerHTML = '← Ant';
+  btnPrev.disabled = paginaActual === 1;
+  btnPrev.onclick = () => { paginaActual--; renderPagina(); window.scrollTo(0,0); };
+  pag.appendChild(btnPrev);
+
+  // Números
+  for (let i = 1; i <= totalPaginas; i++) {
+    const btn = document.createElement('button');
+    btn.textContent = i;
+    if (i === paginaActual) btn.classList.add('active');
+    btn.onclick = () => { paginaActual = i; renderPagina(); window.scrollTo(0,0); };
+    pag.appendChild(btn);
+  }
+
+  // Siguiente
+  const btnNext = document.createElement('button');
+  btnNext.innerHTML = 'Sig →';
+  btnNext.disabled = paginaActual === totalPaginas;
+  btnNext.onclick = () => { paginaActual++; renderPagina(); window.scrollTo(0,0); };
+  pag.appendChild(btnNext);
+}
+
+function filtrar(categoria, btn) {
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  categoriaActual = categoria;
+  paginaActual = 1;
+  renderPagina();
+}
+
 document.getElementById('buscador').addEventListener('input', function() {
-  const q = this.value.toLowerCase();
-  document.querySelectorAll('.producto-item').forEach(item => {
-    item.style.display = item.dataset.nombre.toLowerCase().includes(q) ? '' : 'none';
-  });
+  busquedaActual = this.value.toLowerCase();
+  paginaActual = 1;
+  renderPagina();
 });
 
 function abrirLightbox(img, nombre, precio, stock) {
@@ -205,6 +278,9 @@ function cerrarLightbox() {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') cerrarLightbox();
 });
+
+// Iniciar paginación
+renderPagina();
 </script>
 
 </body>
