@@ -20,7 +20,7 @@
             </div>
         </div>
     </div>
-    <div class="col-auto" style="cursor:pointer;" onclick="abrirSaldo('efectivo')">
+    <div class="col-auto" style="cursor:pointer;" onclick="document.getElementById('modalSaldo').style.display='flex'">
         <div class="card shadow-sm px-2" style="border-left: 4px solid #10b981 !important;">
             <div class="card-body text-center py-2">
                 <h6 class="card-title mb-1 text-muted">💵 Efectivo disponible <i class="bi bi-pencil-fill" style="font-size:.7rem; color:#10b981;"></i></h6>
@@ -28,7 +28,7 @@
             </div>
         </div>
     </div>
-    <div class="col-auto" style="cursor:pointer;" onclick="abrirSaldo('banco')">
+    <div class="col-auto" style="cursor:pointer;" onclick="document.getElementById('modalSaldo').style.display='flex'">
         <div class="card shadow-sm px-2" style="border-left: 4px solid #818cf8 !important;">
             <div class="card-body text-center py-2">
                 <h6 class="card-title mb-1 text-muted">🏦 Banco disponible <i class="bi bi-pencil-fill" style="font-size:.7rem; color:#818cf8;"></i></h6>
@@ -270,44 +270,39 @@
     </div>
 </div>
 
-<!-- Modal Editar Saldo (dinámico) -->
+<!-- Modal Editar Saldo -->
 <div id="modalSaldo" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.6); z-index:99999; align-items:center; justify-content:center;">
-    <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:380px; margin:1rem;">
-        <div id="modalSaldoHeader" style="margin:-2rem -2rem 1.5rem; padding:1rem 1.5rem; border-radius:16px 16px 0 0; display:flex; justify-content:space-between; align-items:center;">
-            <h5 id="modalSaldoTitulo" style="color:#fff; margin:0;"></h5>
+    <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:400px; margin:1rem;">
+        <div style="background:#6b7280; margin:-2rem -2rem 1.5rem; padding:1rem 1.5rem; border-radius:16px 16px 0 0; display:flex; justify-content:space-between; align-items:center;">
+            <h5 style="color:#fff; margin:0;"><i class="bi bi-wallet2 me-2"></i> Actualizar saldo</h5>
             <button onclick="document.getElementById('modalSaldo').style.display='none'"
                     style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">✕</button>
         </div>
         <form method="post" action="{% url 'estado_cuenta' %}">
             {% csrf_token %}
-            <!-- Campo efectivo -->
-            <div id="campoEfectivo" style="display:none; margin-bottom:1.5rem;">
+            <div style="margin-bottom:1rem;">
                 <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">💵 Efectivo ($)</label>
                 <div style="display:flex;">
                     <span style="background:#f8f8f8; border:1.5px solid #ddd; border-right:none; padding:.6rem .85rem; border-radius:8px 0 0 8px; color:#10b981; font-weight:700;">$</span>
-                    <input type="number" name="efectivo" id="input_efectivo" step="0.01" value="{{ saldo.efectivo }}"
+                    <input type="number" name="efectivo" step="0.01" min="0" value="{{ saldo.efectivo }}"
                            style="flex:1; border:1.5px solid #ddd; border-left:none; border-radius:0 8px 8px 0; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; background:#fff;">
                 </div>
             </div>
-            <!-- Campo banco -->
-            <div id="campoBanco" style="display:none; margin-bottom:1.5rem;">
+            <div style="margin-bottom:1.5rem;">
                 <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">🏦 Banco ($)</label>
                 <div style="display:flex;">
                     <span style="background:#f8f8f8; border:1.5px solid #ddd; border-right:none; padding:.6rem .85rem; border-radius:8px 0 0 8px; color:#818cf8; font-weight:700;">$</span>
-                    <input type="number" name="banco" id="input_banco" step="0.01" value="{{ saldo.banco }}"
+                    <input type="number" name="banco" step="0.01" min="0" value="{{ saldo.banco }}"
                            style="flex:1; border:1.5px solid #ddd; border-left:none; border-radius:0 8px 8px 0; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; background:#fff;">
                 </div>
             </div>
-            <!-- Campos ocultos para enviar ambos valores siempre -->
-            <input type="hidden" name="efectivo" id="hidden_efectivo" value="{{ saldo.efectivo }}">
-            <input type="hidden" name="banco" id="hidden_banco" value="{{ saldo.banco }}">
             <div style="display:flex; gap:.75rem;">
                 <button type="button" onclick="document.getElementById('modalSaldo').style.display='none'"
                         style="flex:1; padding:.65rem; background:#6b7280; color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer;">
                     Cancelar
                 </button>
-                <button type="submit" id="btnGuardarSaldo"
-                        style="flex:1; padding:.65rem; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
+                <button type="submit"
+                        style="flex:1; padding:.65rem; background:#10b981; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
                     <i class="bi bi-save"></i> Guardar
                 </button>
             </div>
@@ -337,32 +332,6 @@ function abrirEditar(pk, nombre, categoria, piezas, costo, forma_pago, monto_efe
     else document.getElementById('edit_ambas').checked = true;
     toggleAmbasEdit(forma_pago);
     document.getElementById('modalEditar').style.display = 'flex';
-}
-
-function abrirSaldo(tipo) {
-    // Ocultar ambos campos primero
-    document.getElementById('campoEfectivo').style.display = 'none';
-    document.getElementById('campoBanco').style.display = 'none';
-    // Remover nombres para evitar duplicados
-    document.getElementById('input_efectivo').removeAttribute('name');
-    document.getElementById('input_banco').removeAttribute('name');
-
-    if (tipo === 'efectivo') {
-        document.getElementById('modalSaldoHeader').style.background = '#10b981';
-        document.getElementById('modalSaldoTitulo').innerHTML = '<i class="bi bi-cash me-2"></i> Actualizar efectivo';
-        document.getElementById('btnGuardarSaldo').style.background = '#10b981';
-        document.getElementById('campoEfectivo').style.display = 'block';
-        document.getElementById('input_efectivo').setAttribute('name', 'efectivo');
-        document.getElementById('hidden_efectivo').removeAttribute('name');
-    } else {
-        document.getElementById('modalSaldoHeader').style.background = '#818cf8';
-        document.getElementById('modalSaldoTitulo').innerHTML = '<i class="bi bi-bank me-2"></i> Actualizar banco';
-        document.getElementById('btnGuardarSaldo').style.background = '#818cf8';
-        document.getElementById('campoBanco').style.display = 'block';
-        document.getElementById('input_banco').setAttribute('name', 'banco');
-        document.getElementById('hidden_banco').removeAttribute('name');
-    }
-    document.getElementById('modalSaldo').style.display = 'flex';
 }
 </script>
 {% endblock %}
