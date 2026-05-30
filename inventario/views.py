@@ -631,10 +631,10 @@ def estado_cuenta(request):
     saldo = SaldoCaja.get()
     if request.method == 'POST':
         try:
-            efectivo = Decimal(request.POST.get('efectivo', 0) or 0)
-            banco = Decimal(request.POST.get('banco', 0) or 0)
-            saldo.efectivo = efectivo
-            saldo.banco = banco
+            if 'efectivo' in request.POST and request.POST.get('efectivo') != '':
+                saldo.efectivo = Decimal(request.POST.get('efectivo'))
+            if 'banco' in request.POST and request.POST.get('banco') != '':
+                saldo.banco = Decimal(request.POST.get('banco'))
             saldo.save()
             messages.success(request, '✅ Saldo actualizado correctamente.')
         except:
