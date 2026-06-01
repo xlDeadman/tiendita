@@ -55,6 +55,21 @@
     .filtro-btn { border-radius: 20px; font-size: .82rem; font-weight: 600; }
     .filtro-btn.active { background: #e31837 !important; border-color: #e31837 !important; color: #fff !important; }
 
+    /* Paginación */
+    .paginacion { display: flex; justify-content: center; gap: .5rem; flex-wrap: wrap; margin-top: 1.5rem; }
+    .paginacion button {
+      background: #fff;
+      border: 2px solid #e31837;
+      color: #e31837;
+      border-radius: 8px;
+      padding: .4rem .85rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: .85rem;
+    }
+    .paginacion button.active { background: #e31837; color: #fff; }
+    .paginacion button:hover { background: #e31837; color: #fff; }
+
     /* Modal lightbox */
     #lightbox {
       display: none;
@@ -66,6 +81,7 @@
       align-items: center;
       justify-content: center;
       flex-direction: column;
+      pointer-events: none;
     }
     #lightbox img {
       max-width: 90%;
@@ -83,15 +99,6 @@
       color: #f5a623;
       font-weight: 800;
       font-size: 1.5rem;
-    }
-    #lightbox .lb-close {
-      position: absolute;
-      top: 1rem; right: 1.5rem;
-      color: #fff;
-      font-size: 2rem;
-      cursor: pointer;
-      background: none;
-      border: none;
     }
   </style>
 </head>
@@ -148,9 +155,6 @@
         </div>
       </div>
     </div>
-
-
-
     {% empty %}
     <div class="col-12 text-center py-5">
       <i class="bi bi-box-seam fs-1 text-white"></i>
@@ -159,14 +163,16 @@
     {% endfor %}
   </div>
 
+  <!-- Paginación -->
+  <div class="paginacion" id="paginacion"></div>
+
   <p class="text-center text-white mt-4" style="font-size:.8rem;">
     Última actualización: en tiempo real 🟢
   </p>
 </div>
 
-<!-- Lightbox modal -->
+<!-- Lightbox hover (no bloquea el mouse) -->
 <div id="lightbox">
-  <button class="lb-close" onclick="cerrarLightbox()">✕</button>
   <img id="lb-img" src="" alt="">
   <div class="lb-nombre" id="lb-nombre"></div>
   <div class="lb-precio" id="lb-precio"></div>
@@ -174,21 +180,69 @@
 </div>
 
 <script>
+const POR_PAGINA = 12;
+let paginaActual = 1;
+let categoriaActual = 'todos';
+let busquedaActual = '';
 let lightboxTimeout;
+
+function getItemsVisibles() {
+  return Array.from(document.querySelectorAll('.producto-item')).filter(item => {
+    const matchCat = categoriaActual === 'todos' || item.dataset.categoria === categoriaActual;
+    const matchBusq = item.dataset.nombre.toLowerCase().includes(busquedaActual);
+    return matchCat && matchBusq;
+  });
+}
+
+function renderPagina() {
+  const items = getItemsVisibles();
+  const total = items.length;
+  const totalPaginas = Math.ceil(total / POR_PAGINA);
+  if (paginaActual > totalPaginas) paginaActual = 1;
+
+  const inicio = (paginaActual - 1) * POR_PAGINA;
+  const fin = inicio + POR_PAGINA;
+
+  document.querySelectorAll('.producto-item').forEach(i => i.style.display = 'none');
+  items.slice(inicio, fin).forEach(i => i.style.display = '');
+
+  const pag = document.getElementById('paginacion');
+  pag.innerHTML = '';
+  if (totalPaginas <= 1) return;
+
+  const btnPrev = document.createElement('button');
+  btnPrev.innerHTML = '← Ant';
+  btnPrev.disabled = paginaActual === 1;
+  btnPrev.onclick = () => { paginaActual--; renderPagina(); window.scrollTo(0,0); };
+  pag.appendChild(btnPrev);
+
+  for (let i = 1; i <= totalPaginas; i++) {
+    const btn = document.createElement('button');
+    btn.textContent = i;
+    if (i === paginaActual) btn.classList.add('active');
+    btn.onclick = () => { paginaActual = i; renderPagina(); window.scrollTo(0,0); };
+    pag.appendChild(btn);
+  }
+
+  const btnNext = document.createElement('button');
+  btnNext.innerHTML = 'Sig →';
+  btnNext.disabled = paginaActual === totalPaginas;
+  btnNext.onclick = () => { paginaActual++; renderPagina(); window.scrollTo(0,0); };
+  pag.appendChild(btnNext);
+}
 
 function filtrar(categoria, btn) {
   document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  document.querySelectorAll('.producto-item').forEach(item => {
-    item.style.display = (categoria === 'todos' || item.dataset.categoria === categoria) ? '' : 'none';
-  });
+  categoriaActual = categoria;
+  paginaActual = 1;
+  renderPagina();
 }
 
 document.getElementById('buscador').addEventListener('input', function() {
-  const q = this.value.toLowerCase();
-  document.querySelectorAll('.producto-item').forEach(item => {
-    item.style.display = item.dataset.nombre.toLowerCase().includes(q) ? '' : 'none';
-  });
+  busquedaActual = this.value.toLowerCase();
+  paginaActual = 1;
+  renderPagina();
 });
 
 function abrirLightbox(img, nombre, precio, stock) {
@@ -207,12 +261,14 @@ function abrirLightbox(img, nombre, precio, stock) {
 function cerrarLightbox() {
   lightboxTimeout = setTimeout(() => {
     document.getElementById('lightbox').style.display = 'none';
-  }, 300);
+  }, 200);
 }
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') cerrarLightbox();
 });
+
+renderPagina();
 </script>
 
 </body>
