@@ -173,6 +173,8 @@
 </div>
 
 <script>
+let lightboxTimeout;
+
 function filtrar(categoria, btn) {
   document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -189,6 +191,7 @@ document.getElementById('buscador').addEventListener('input', function() {
 });
 
 function abrirLightbox(img, nombre, precio, stock) {
+  clearTimeout(lightboxTimeout);
   const lb = document.getElementById('lightbox');
   document.getElementById('lb-img').src = img || '';
   document.getElementById('lb-img').style.display = img ? 'block' : 'none';
@@ -201,7 +204,9 @@ function abrirLightbox(img, nombre, precio, stock) {
 }
 
 function cerrarLightbox() {
-  document.getElementById('lightbox').style.display = 'none';
+  lightboxTimeout = setTimeout(() => {
+    document.getElementById('lightbox').style.display = 'none';
+  }, 300);
 }
 
 document.addEventListener('keydown', e => {
