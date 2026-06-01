@@ -148,7 +148,13 @@
             {% endif %}
           </div>
           <div class="producto-nombre">{{ p.nombre }}</div>
-          <div class="producto-precio">${{ p.precio|floatformat:2 }}</div>
+          <div style="font-size:.8rem; color:#888; margin-top:.2rem;">
+  {% if p.stock_actual > 0 %}
+    📦 {{ p.stock_actual }} piezas
+  {% else %}
+    📦 Agotado
+  {% endif %}
+</div>
           {% if p.stock_actual <= 0 %}
           <small class="text-danger">Agotado</small>
           {% endif %}
