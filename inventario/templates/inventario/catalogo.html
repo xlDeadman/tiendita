@@ -137,24 +137,17 @@
         <div class="producto-img-placeholder">🛍️</div>
         {% endif %}
         <div class="producto-body">
-          <div class="d-flex justify-content-between align-items-start mb-1">
-            {% if p.categoria %}
-            <span class="categoria-badge">{{ p.categoria.nombre }}</span>
-            {% endif %}
-            {% if p.stock_actual > 0 %}
-            <span class="badge-disponible">✅</span>
-            {% else %}
-            <span class="badge-agotado">❌</span>
-            {% endif %}
-          </div>
-          <div class="producto-nombre">{{ p.nombre }}</div>
-          <div style="font-size:.8rem; color:#888; margin-top:.2rem;">
-  {% if p.stock_actual > 0 %}
-    📦 {{ p.stock_actual }} piezas
-  {% else %}
-    📦 Agotado
-  {% endif %}
-</div>
+  <div class="d-flex justify-content-between align-items-start mb-1">
+    {% if p.categoria %}
+    <span class="categoria-badge">{{ p.categoria.nombre }}</span>
+    {% endif %}
+    {% if p.stock_actual > 0 %}
+    <span class="badge-disponible">{{ p.stock_actual }} pzs</span>
+    {% else %}
+    <span class="badge-agotado">❌ Agotado</span>
+    {% endif %}
+  </div>
+  <div class="producto-nombre">{{ p.nombre }}</div>
           {% if p.stock_actual <= 0 %}
           <small class="text-danger">Agotado</small>
           {% endif %}
