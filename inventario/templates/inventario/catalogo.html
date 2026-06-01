@@ -241,20 +241,26 @@ document.getElementById('buscador').addEventListener('input', function() {
   renderPagina();
 });
 
+let abrirTimeout;
+
 function abrirLightbox(img, nombre, precio, stock) {
   clearTimeout(lightboxTimeout);
-  const lb = document.getElementById('lightbox');
-  document.getElementById('lb-img').src = img || '';
-  document.getElementById('lb-img').style.display = img ? 'block' : 'none';
-  document.getElementById('lb-nombre').textContent = nombre;
-  document.getElementById('lb-precio').textContent = precio;
-  document.getElementById('lb-status').innerHTML = stock > 0
-    ? '<span style="background:#dcfce7;color:#166534;padding:.3rem .8rem;border-radius:20px;font-weight:600;">✅ Disponible</span>'
-    : '<span style="background:#fee2e2;color:#991b1b;padding:.3rem .8rem;border-radius:20px;font-weight:600;">❌ Agotado</span>';
-  lb.style.display = 'flex';
+  clearTimeout(abrirTimeout);
+  abrirTimeout = setTimeout(() => {
+    const lb = document.getElementById('lightbox');
+    document.getElementById('lb-img').src = img || '';
+    document.getElementById('lb-img').style.display = img ? 'block' : 'none';
+    document.getElementById('lb-nombre').textContent = nombre;
+    document.getElementById('lb-precio').textContent = precio;
+    document.getElementById('lb-status').innerHTML = stock > 0
+      ? '<span style="background:#dcfce7;color:#166534;padding:.3rem .8rem;border-radius:20px;font-weight:600;">✅ Disponible</span>'
+      : '<span style="background:#fee2e2;color:#991b1b;padding:.3rem .8rem;border-radius:20px;font-weight:600;">❌ Agotado</span>';
+    lb.style.display = 'flex';
+  }, 500);
 }
 
 function cerrarLightbox() {
+  clearTimeout(abrirTimeout);
   lightboxTimeout = setTimeout(() => {
     document.getElementById('lightbox').style.display = 'none';
   }, 200);
