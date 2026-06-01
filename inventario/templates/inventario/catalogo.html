@@ -112,7 +112,6 @@
 
   <!-- Filtros por categoría -->
   <div class="d-flex flex-wrap gap-2 mb-4">
-    <button class="btn btn-outline-danger filtro-btn active" onclick="filtrar('todos', this)">Todos</button>
     {% for cat in categorias %}
     <button class="btn btn-outline-danger filtro-btn" onclick="filtrar('{{ cat.nombre }}', this)">{{ cat.nombre }}</button>
     {% endfor %}
