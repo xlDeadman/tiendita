@@ -122,7 +122,7 @@
   <div class="row g-3" id="productos-grid">
     {% for p in productos %}
     <div class="col-6 col-md-4 col-lg-3 producto-item" data-categoria="{{ p.categoria.nombre|default:'' }}" data-nombre="{{ p.nombre }}">
-      <div class="producto-card" onclick="abrirLightbox('{{ p.imagen_url }}', '{{ p.nombre }}', '${{ p.precio|floatformat:2 }}', {{ p.stock_actual }})">
+      <div class="producto-card" onmouseenter="abrirLightbox('{{ p.imagen_url }}', '{{ p.nombre }}', '${{ p.precio|floatformat:2 }}', {{ p.stock_actual }})" onmouseleave="cerrarLightbox()"></div>
         {% if p.imagen_url %}
         <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}" class="producto-img" draggable="false" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
         <div class="producto-img-placeholder" style="display:none;">🛍️</div>
