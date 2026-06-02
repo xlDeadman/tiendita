@@ -462,7 +462,7 @@
     <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:430px; margin:1rem; max-height:90vh; overflow-y:auto;">
 
         <div style="background:#6b7280; margin:-2rem -2rem 1.5rem; padding:1rem 1.5rem; border-radius:16px 16px 0 0; display:flex; justify-content:space-between; align-items:center;">
-            <h5 style="color:#fff; margin:0;"><i class="bi bi-wallet2 me-2"></i> Actualizar saldo</h5>
+            <h5 style="color:#fff; margin:0;"><i class="bi bi-wallet2 me-2"></i> Actualizar préstamo</h5>
             <button onclick="document.getElementById('modalSaldo').style.display='none'"
                     style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">✕</button>
         </div>
@@ -518,30 +518,6 @@
                 </label>
                 <textarea name="nota_prestamo" rows="3" placeholder="Ej: Compré Sabritas, refrescos o mercancía con mi dinero"
                           style="width:100%; border:1.5px solid #ddd; border-radius:8px; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; resize:none;">{{ saldo.nota_prestamo }}</textarea>
-            </div>
-
-            <hr>
-
-            <p class="text-muted small mb-2">
-                Ajustar saldos manualmente:
-            </p>
-
-            <div style="margin-bottom:1rem;">
-                <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">💵 Efectivo disponible ($)</label>
-                <div style="display:flex;">
-                    <span style="background:#f8f8f8; border:1.5px solid #ddd; border-right:none; padding:.6rem .85rem; border-radius:8px 0 0 8px; color:#10b981; font-weight:700;">$</span>
-                    <input type="number" name="efectivo" step="0.01" min="0" value="{{ saldo.efectivo }}"
-                           style="flex:1; border:1.5px solid #ddd; border-left:none; border-radius:0 8px 8px 0; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; background:#fff;">
-                </div>
-            </div>
-
-            <div style="margin-bottom:1.5rem;">
-                <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">🏦 Banco disponible ($)</label>
-                <div style="display:flex;">
-                    <span style="background:#f8f8f8; border:1.5px solid #ddd; border-right:none; padding:.6rem .85rem; border-radius:8px 0 0 8px; color:#818cf8; font-weight:700;">$</span>
-                    <input type="number" name="banco" step="0.01" min="0" value="{{ saldo.banco }}"
-                           style="flex:1; border:1.5px solid #ddd; border-left:none; border-radius:0 8px 8px 0; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; background:#fff;">
-                </div>
             </div>
 
             <div style="display:flex; gap:.75rem;">
