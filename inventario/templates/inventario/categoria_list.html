@@ -68,7 +68,6 @@
         <thead>
           <tr>
             <th>Categoría</th>
-            <th>Descripción</th>
             <th class="text-center">Productos</th>
             <th class="text-center">Acciones</th>
           </tr>
@@ -80,10 +79,6 @@
             <td class="fw-medium">
               <i class="bi bi-bookmark-fill" style="color:#e31837;"></i>
               {{ c.nombre }}
-            </td>
-
-            <td class="text-muted small">
-              {{ c.descripcion|default:"—" }}
             </td>
 
             <td class="text-center">
@@ -107,7 +102,7 @@
 
           {% empty %}
           <tr>
-            <td colspan="4" class="text-center py-5 text-muted">
+            <td colspan="3" class="text-center py-5 text-muted">
               <i class="bi bi-tags fs-2 d-block mb-2"></i>
               No hay categorías.
               <a href="{% url 'categoria_create' %}">Crear la primera</a>
