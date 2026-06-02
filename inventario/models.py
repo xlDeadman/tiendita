@@ -106,6 +106,7 @@ class Producto(models.Model):
 class SaldoCaja(models.Model):
     efectivo = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Efectivo ($)")
     banco = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Banco ($)")
+    prestamo = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Préstamo ($)")
     actualizado_en = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -113,7 +114,7 @@ class SaldoCaja(models.Model):
         verbose_name_plural = "Saldo de caja"
 
     def __str__(self):
-        return f"Efectivo: ${self.efectivo} | Banco: ${self.banco}"
+        return f"Efectivo: ${self.efectivo} | Banco: ${self.banco} | Préstamo: ${self.prestamo}"
 
     @classmethod
     def get(cls):
@@ -124,8 +125,9 @@ class SaldoCaja(models.Model):
 class Egreso(models.Model):
     FORMA_PAGO_CHOICES = [
         ('efectivo', '💵 Efectivo'),
-        ('banco', '🏦 Banco'),
+        ('banco', '🏦 Tarjeta / Banco'),
         ('ambas', '🔀 Ambas'),
+        ('prestamo', '🤝 Préstamo'),
     ]
 
     nombre = models.CharField(max_length=200, verbose_name="Producto")
@@ -135,9 +137,15 @@ class Egreso(models.Model):
     )
     piezas = models.PositiveIntegerField(verbose_name="Número de piezas")
     costo = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Costo total ($)")
-    forma_pago = models.CharField(max_length=10, choices=FORMA_PAGO_CHOICES, default='efectivo', verbose_name="Forma de pago")
+    forma_pago = models.CharField(
+        max_length=20,
+        choices=FORMA_PAGO_CHOICES,
+        default='efectivo',
+        verbose_name="Forma de pago"
+    )
     monto_efectivo = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Monto efectivo ($)")
     monto_banco = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Monto banco ($)")
+    monto_prestamo = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Monto préstamo ($)")
     fecha = models.DateField(default=timezone.now, verbose_name="Fecha")
     creado_en = models.DateTimeField(auto_now_add=True)
 

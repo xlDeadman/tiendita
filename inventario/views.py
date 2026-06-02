@@ -177,6 +177,7 @@ def producto_ajuste_stock(request, pk):
         if form.is_valid():
             tipo = form.cleaned_data['tipo']
             cantidad = form.cleaned_data['cantidad']
+
             if tipo == 'entrada':
                 producto.stock_actual += cantidad
                 msg = f'📦 +{cantidad} unidades agregadas a "{producto.nombre}".'
@@ -186,11 +187,13 @@ def producto_ajuste_stock(request, pk):
             else:
                 producto.stock_actual = cantidad
                 msg = f'✏️ Stock de "{producto.nombre}" ajustado a {cantidad}.'
+
             producto.save()
             messages.success(request, msg)
             return redirect('producto_list')
     else:
         form = AjusteStockForm()
+
     return render(request, 'inventario/producto_ajuste_stock.html', {
         'form': form, 'producto': producto,
     })
@@ -214,6 +217,7 @@ def categoria_create(request):
             return redirect('categoria_list')
     else:
         form = CategoriaForm()
+
     return render(request, 'inventario/categoria_form.html', {
         'form': form, 'titulo': 'Nueva categoría', 'boton': 'Guardar'
     })
@@ -230,6 +234,7 @@ def categoria_edit(request, pk):
             return redirect('categoria_list')
     else:
         form = CategoriaForm(instance=categoria)
+
     return render(request, 'inventario/categoria_form.html', {
         'form': form, 'titulo': f'Editar: {categoria.nombre}', 'boton': 'Guardar cambios'
     })
@@ -243,6 +248,7 @@ def categoria_delete(request, pk):
         categoria.delete()
         messages.success(request, f'🗑️ Categoría "{nombre}" eliminada.')
         return redirect('categoria_list')
+
     return render(request, 'inventario/categoria_confirm_delete.html', {'categoria': categoria})
 
 
@@ -253,11 +259,14 @@ def venta_list(request):
     ventas = Venta.objects.prefetch_related('detalles__producto').order_by('-fecha', '-creado_en')
     fecha_desde = request.GET.get('desde', '')
     fecha_hasta = request.GET.get('hasta', '')
+
     if fecha_desde:
         ventas = ventas.filter(fecha__gte=fecha_desde)
     if fecha_hasta:
         ventas = ventas.filter(fecha__lte=fecha_hasta)
+
     total_general = ventas.aggregate(t=Sum('total'))['t'] or 0
+
     context = {
         'ventas': ventas,
         'total_general': total_general,
@@ -272,16 +281,20 @@ def venta_create(request):
     if request.method == 'POST':
         form = VentaForm(request.POST)
         formset = DetalleVentaFormSet(request.POST)
+
         if form.is_valid() and formset.is_valid():
             venta = form.save(commit=False)
             venta.total = 0
             venta.save()
+
             detalles = formset.save(commit=False)
             total = 0
             errores = []
+
             for detalle in detalles:
                 detalle.venta = venta
                 producto = detalle.producto
+
                 if detalle.cantidad > producto.stock_actual:
                     errores.append(f'Stock insuficiente para {producto.nombre} (disponible: {producto.stock_actual})')
                 else:
@@ -290,6 +303,7 @@ def venta_create(request):
                     producto.stock_actual -= detalle.cantidad
                     producto.save()
                     total += detalle.subtotal
+
             if errores:
                 for e in errores:
                     messages.error(request, f'❌ {e}')
@@ -297,6 +311,7 @@ def venta_create(request):
                 return render(request, 'inventario/venta_form.html', {
                     'form': form, 'formset': formset, 'titulo': 'Nueva venta'
                 })
+
             venta.total = total
             venta.save()
             messages.success(request, f'✅ Venta registrada. Total: ${total:.2f}')
@@ -304,6 +319,7 @@ def venta_create(request):
     else:
         form = VentaForm(initial={'fecha': date.today()})
         formset = DetalleVentaFormSet()
+
     return render(request, 'inventario/venta_form.html', {
         'form': form, 'formset': formset, 'titulo': 'Registrar venta',
     })
@@ -313,6 +329,7 @@ def venta_create(request):
 def venta_detail(request, pk):
     venta = get_object_or_404(Venta, pk=pk)
     detalles = venta.detalles.select_related('producto').all()
+
     return render(request, 'inventario/venta_detail.html', {
         'venta': venta, 'detalles': detalles,
     })
@@ -321,13 +338,16 @@ def venta_detail(request, pk):
 @login_required
 def venta_delete(request, pk):
     venta = get_object_or_404(Venta, pk=pk)
+
     if request.method == 'POST':
         for detalle in venta.detalles.all():
             detalle.producto.stock_actual += detalle.cantidad
             detalle.producto.save()
+
         venta.delete()
         messages.success(request, '🗑️ Venta eliminada. Stock restaurado.')
         return redirect('venta_list')
+
     return render(request, 'inventario/venta_confirm_delete.html', {'venta': venta})
 
 
@@ -336,6 +356,7 @@ def venta_delete(request, pk):
 @login_required
 def api_precio_producto(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
+
     return JsonResponse({
         'precio': str(producto.precio),
         'stock': producto.stock_actual,
@@ -350,6 +371,7 @@ def cliente_list(request):
     clientes = Cliente.objects.filter(activo=True).annotate(
         deuda=Sum('cuentas__total', filter=Q(cuentas__pagado=False))
     )
+
     return render(request, 'inventario/cliente_list.html', {'clientes': clientes})
 
 
@@ -357,12 +379,14 @@ def cliente_list(request):
 def cliente_create(request):
     if request.method == 'POST':
         form = ClienteForm(request.POST)
+
         if form.is_valid():
             cliente = form.save()
             messages.success(request, f'✅ Cliente "{cliente.nombre}" creado. Ahora agrega sus productos.')
             return redirect('cliente_agregar_producto', pk=cliente.pk)
     else:
         form = ClienteForm()
+
     return render(request, 'inventario/cliente_form.html', {
         'form': form, 'titulo': 'Nuevo cliente',
     })
@@ -373,6 +397,7 @@ def cliente_detail(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
     cuentas = cliente.cuentas.prefetch_related('detalles__producto').order_by('-fecha')
     deuda_total = cuentas.filter(pagado=False).aggregate(t=Sum('total'))['t'] or 0
+
     return render(request, 'inventario/cliente_detail.html', {
         'cliente': cliente, 'cuentas': cuentas, 'deuda_total': deuda_total,
     })
@@ -381,43 +406,59 @@ def cliente_detail(request, pk):
 @login_required
 def cliente_agregar_producto(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
+
     if cliente.bloqueado:
         messages.error(request, f'⛔ {cliente.nombre} está bloqueado. No se pueden agregar productos.')
         return redirect('cliente_detail', pk=pk)
+
     if request.method == 'POST':
         total_filas = int(request.POST.get('total_filas', 1))
         productos_agregados = 0
+
         for i in range(total_filas):
             producto_id = request.POST.get(f'producto_{i}')
             cantidad = request.POST.get(f'cantidad_{i}')
             precio = request.POST.get(f'precio_{i}')
+
             if producto_id and cantidad and precio:
                 try:
                     producto = Producto.objects.get(pk=producto_id)
                     cantidad = int(cantidad)
                     precio = Decimal(precio)
+
                     venta = Venta.objects.create(
-                        cliente_fk=cliente, pagado=False, total=0, fecha=date.today()
+                        cliente_fk=cliente,
+                        pagado=False,
+                        total=0,
+                        fecha=date.today()
                     )
+
                     detalle = DetalleVenta.objects.create(
                         venta=venta,
                         producto=producto,
                         cantidad=cantidad,
                         precio_unitario=precio,
                     )
+
                     producto.stock_actual -= cantidad
                     producto.save()
+
                     venta.total = detalle.subtotal
                     venta.save()
+
                     productos_agregados += 1
                 except:
                     pass
+
         if productos_agregados > 0:
             messages.success(request, f'✅ {productos_agregados} producto(s) agregado(s) a {cliente.nombre}.')
         else:
             messages.error(request, '❌ No se agregó ningún producto.')
+
         return redirect('cliente_detail', pk=pk)
+
     productos = Producto.objects.filter(activo=True).order_by('nombre')
+
     return render(request, 'inventario/cliente_agregar_producto.html', {
         'cliente': cliente,
         'productos': productos,
@@ -427,22 +468,26 @@ def cliente_agregar_producto(request, pk):
 @login_required
 def cliente_pagar(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
+
     if request.method == 'POST':
         cliente.cuentas.all().delete()
         cliente.bloqueado = False
         cliente.save()
         messages.success(request, f'✅ Deuda de {cliente.nombre} saldada. Historial limpio.')
+
     return redirect('cliente_detail', pk=pk)
 
 
 @login_required
 def cliente_delete(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
+
     if request.method == 'POST':
         nombre = cliente.nombre
         cliente.delete()
         messages.success(request, f'🗑️ Cliente "{nombre}" eliminado.')
         return redirect('cliente_list')
+
     return render(request, 'inventario/cliente_confirm_delete.html', {'cliente': cliente})
 
 
@@ -453,14 +498,17 @@ def cliente_edit(request, pk):
         venta__cliente_fk=cliente,
         venta__pagado=False
     ).select_related('producto', 'venta')
+
     if request.method == 'POST':
         form = ClienteForm(request.POST, instance=cliente)
+
         if form.is_valid():
             form.save()
             messages.success(request, f'✅ Cliente "{cliente.nombre}" actualizado.')
             return redirect('cliente_list')
     else:
         form = ClienteForm(instance=cliente)
+
     return render(request, 'inventario/cliente_edit.html', {
         'form': form,
         'cliente': cliente,
@@ -474,23 +522,29 @@ def cliente_detalle_edit(request, pk, cliente_pk):
     detalle = get_object_or_404(DetalleVenta, pk=pk)
     cliente = get_object_or_404(Cliente, pk=cliente_pk)
     cantidad_anterior = detalle.cantidad
+
     if request.method == 'POST':
         form = AgregarProductoClienteForm(request.POST, instance=detalle)
+
         if form.is_valid():
             detalle = form.save(commit=False)
             diferencia = detalle.cantidad - cantidad_anterior
+
             detalle.producto.stock_actual -= diferencia
             detalle.producto.save()
             detalle.save()
+
             fecha = form.cleaned_data.get('fecha')
             if fecha:
                 detalle.venta.fecha = fecha
                 detalle.venta.save()
+
             detalle.venta.calcular_total()
             messages.success(request, '✅ Producto actualizado.')
             return redirect('cliente_detail', pk=cliente_pk)
     else:
         form = AgregarProductoClienteForm(instance=detalle, initial={'fecha': detalle.venta.fecha})
+
     return render(request, 'inventario/cliente_agregar_producto.html', {
         'form': form, 'cliente': cliente, 'titulo': 'Editar producto'
     })
@@ -500,14 +554,18 @@ def cliente_detalle_edit(request, pk, cliente_pk):
 def cliente_detalle_delete(request, pk, cliente_pk):
     detalle = get_object_or_404(DetalleVenta, pk=pk)
     cliente = get_object_or_404(Cliente, pk=cliente_pk)
+
     if request.method == 'POST':
         detalle.producto.stock_actual += detalle.cantidad
         detalle.producto.save()
+
         venta = detalle.venta
         detalle.delete()
         venta.calcular_total()
+
         messages.success(request, '🗑️ Producto eliminado de la cuenta.')
         return redirect('cliente_detail', pk=cliente_pk)
+
     return render(request, 'inventario/cliente_detalle_confirm_delete.html', {
         'detalle': detalle, 'cliente': cliente
     })
@@ -516,26 +574,31 @@ def cliente_detalle_delete(request, pk, cliente_pk):
 @login_required
 def cliente_bloquear(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
+
     if request.method == 'POST':
         cliente.bloqueado = True
         cliente.save()
         messages.warning(request, f'⛔ Cliente "{cliente.nombre}" bloqueado — No pagó.')
+
     return redirect('cliente_list')
 
 
 @login_required
 def cliente_desbloquear(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
+
     if request.method == 'POST':
         cliente.bloqueado = False
         cliente.save()
         messages.success(request, f'✅ Cliente "{cliente.nombre}" desbloqueado.')
+
     return redirect('cliente_list')
 
 
 @login_required
 def cliente_abonar(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
+
     if request.method == 'POST':
         try:
             abono = Decimal(request.POST.get('abono', 0))
@@ -553,6 +616,7 @@ def cliente_abonar(request, pk):
         for cuenta in cuentas_pendientes:
             if restante <= 0:
                 break
+
             if restante >= cuenta.total:
                 restante -= cuenta.total
                 cuenta.pagado = True
@@ -563,6 +627,7 @@ def cliente_abonar(request, pk):
                 restante = Decimal(0)
 
         messages.success(request, f'✅ Abono de ${abono:.2f} registrado para {cliente.nombre}.')
+
     return redirect('cliente_detail', pk=pk)
 
 
@@ -572,12 +637,15 @@ def cliente_abonar(request, pk):
 def egreso_list(request):
     hoy = date.today()
     egresos = Egreso.objects.select_related('categoria').all()
+
     total_mes = egresos.filter(
         fecha__year=hoy.year,
         fecha__month=hoy.month
     ).aggregate(t=Sum('costo'))['t'] or 0
+
     categorias = Categoria.objects.all()
     saldo = SaldoCaja.get()
+
     return render(request, 'inventario/egreso_list.html', {
         'egresos': egresos,
         'total_mes': total_mes,
@@ -594,8 +662,10 @@ def egreso_create(request):
         piezas = request.POST.get('piezas', 0)
         costo = request.POST.get('costo', 0)
         forma_pago = request.POST.get('forma_pago', 'efectivo')
+
         monto_efectivo = Decimal(request.POST.get('monto_efectivo', 0) or 0)
         monto_banco = Decimal(request.POST.get('monto_banco', 0) or 0)
+        monto_prestamo = Decimal(0)
 
         if nombre and piezas and costo:
             costo = Decimal(costo)
@@ -603,9 +673,20 @@ def egreso_create(request):
             if forma_pago == 'efectivo':
                 monto_efectivo = costo
                 monto_banco = Decimal(0)
+                monto_prestamo = Decimal(0)
+
             elif forma_pago == 'banco':
                 monto_banco = costo
                 monto_efectivo = Decimal(0)
+                monto_prestamo = Decimal(0)
+
+            elif forma_pago == 'prestamo':
+                monto_prestamo = costo
+                monto_efectivo = Decimal(0)
+                monto_banco = Decimal(0)
+
+            elif forma_pago == 'ambas':
+                monto_prestamo = Decimal(0)
 
             Egreso.objects.create(
                 nombre=nombre,
@@ -615,29 +696,40 @@ def egreso_create(request):
                 forma_pago=forma_pago,
                 monto_efectivo=monto_efectivo,
                 monto_banco=monto_banco,
+                monto_prestamo=monto_prestamo,
             )
 
             saldo = SaldoCaja.get()
+
             saldo.efectivo -= monto_efectivo
             saldo.banco -= monto_banco
+            saldo.prestamo += monto_prestamo
+
             saldo.save()
 
             messages.success(request, f'✅ Egreso "{nombre}" registrado.')
         else:
             messages.error(request, '❌ Completa todos los campos.')
+
     return redirect('egreso_list')
 
 
 @login_required
 def egreso_delete(request, pk):
     egreso = get_object_or_404(Egreso, pk=pk)
+
     if request.method == 'POST':
         saldo = SaldoCaja.get()
+
         saldo.efectivo += egreso.monto_efectivo
         saldo.banco += egreso.monto_banco
+        saldo.prestamo -= egreso.monto_prestamo
+
         saldo.save()
+
         egreso.delete()
         messages.success(request, '🗑️ Egreso eliminado. Saldo restaurado.')
+
     return redirect('egreso_list')
 
 
@@ -655,6 +747,9 @@ def estado_cuenta(request):
             if 'banco' in request.POST and request.POST.get('banco') != '':
                 saldo.banco = Decimal(request.POST.get('banco'))
 
+            if 'prestamo' in request.POST and request.POST.get('prestamo') != '':
+                saldo.prestamo = Decimal(request.POST.get('prestamo'))
+
             saldo.save()
             messages.success(request, '✅ Saldo actualizado correctamente.')
 
@@ -669,27 +764,48 @@ def estado_cuenta(request):
 @login_required
 def egreso_edit(request, pk):
     egreso = get_object_or_404(Egreso, pk=pk)
+
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
         categoria_id = request.POST.get('categoria') or None
         piezas = request.POST.get('piezas', 0)
         costo = Decimal(request.POST.get('costo', 0))
         forma_pago = request.POST.get('forma_pago', 'efectivo')
+
         monto_efectivo = Decimal(request.POST.get('monto_efectivo', 0) or 0)
         monto_banco = Decimal(request.POST.get('monto_banco', 0) or 0)
+        monto_prestamo = Decimal(0)
 
         if forma_pago == 'efectivo':
             monto_efectivo = costo
             monto_banco = Decimal(0)
+            monto_prestamo = Decimal(0)
+
         elif forma_pago == 'banco':
             monto_banco = costo
             monto_efectivo = Decimal(0)
+            monto_prestamo = Decimal(0)
+
+        elif forma_pago == 'prestamo':
+            monto_prestamo = costo
+            monto_efectivo = Decimal(0)
+            monto_banco = Decimal(0)
+
+        elif forma_pago == 'ambas':
+            monto_prestamo = Decimal(0)
 
         saldo = SaldoCaja.get()
+
+        # Deshacer movimiento anterior
         saldo.efectivo += egreso.monto_efectivo
         saldo.banco += egreso.monto_banco
+        saldo.prestamo -= egreso.monto_prestamo
+
+        # Aplicar movimiento nuevo
         saldo.efectivo -= monto_efectivo
         saldo.banco -= monto_banco
+        saldo.prestamo += monto_prestamo
+
         saldo.save()
 
         egreso.nombre = nombre
@@ -699,8 +815,11 @@ def egreso_edit(request, pk):
         egreso.forma_pago = forma_pago
         egreso.monto_efectivo = monto_efectivo
         egreso.monto_banco = monto_banco
+        egreso.monto_prestamo = monto_prestamo
         egreso.save()
+
         messages.success(request, f'✅ Egreso "{nombre}" actualizado.')
+
     return redirect('egreso_list')
 
 
@@ -709,6 +828,7 @@ def egreso_edit(request, pk):
 def catalogo(request):
     productos = Producto.objects.filter(activo=True).select_related('categoria').order_by('nombre')
     categorias = Categoria.objects.all()
+
     return render(request, 'inventario/catalogo.html', {
         'productos': productos,
         'categorias': categorias,

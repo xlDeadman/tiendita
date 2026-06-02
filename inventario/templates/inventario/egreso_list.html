@@ -3,116 +3,237 @@
 {% block page_title %}<i class="bi bi-wallet2"></i> Egresos{% endblock %}
 
 {% block content %}
+
+<style>
+    .resumen-card {
+        border: none;
+        border-radius: 14px;
+        min-width: 190px;
+    }
+
+    .tabla-dsei-card {
+        overflow: hidden;
+        border-radius: 14px;
+        border: none;
+    }
+
+    .tabla-dsei {
+        margin-bottom: 0;
+    }
+
+    .tabla-dsei thead tr {
+        background: #e31837 !important;
+    }
+
+    .tabla-dsei thead th {
+        background: #e31837 !important;
+        color: #fff !important;
+        font-weight: 600;
+        vertical-align: middle;
+        border: none;
+        padding: 14px 12px;
+        white-space: nowrap;
+    }
+
+    .tabla-dsei tbody td {
+        vertical-align: middle;
+        padding: 12px;
+    }
+
+    .tabla-dsei tbody tr:hover {
+        background: #fff5f5;
+    }
+
+    .btn-dsei-primary {
+        background: #e31837;
+        border-color: #e31837;
+        color: #fff;
+    }
+
+    .btn-dsei-primary:hover {
+        background: #b9122b;
+        border-color: #b9122b;
+        color: #fff;
+    }
+
+    .opcion-pago input:checked + span {
+        transform: scale(1.03);
+        font-weight: 800;
+    }
+</style>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="bi bi-cash-stack"></i> Egresos</h2>
-    <button type="button" class="btn btn-primary" onclick="document.getElementById('modalEgreso').style.display='flex'">
+
+    <button type="button" class="btn btn-dsei-primary" onclick="document.getElementById('modalEgreso').style.display='flex'">
         <i class="bi bi-plus-circle"></i> Nuevo egreso
     </button>
 </div>
 
 <!-- Resumen -->
 <div class="row mb-4 g-3">
+
     <div class="col-auto">
-        <div class="card text-white bg-danger shadow-sm px-2">
+        <div class="card text-white bg-danger shadow-sm px-2 resumen-card">
             <div class="card-body text-center py-2">
                 <h6 class="card-title mb-1">Total egresos del mes</h6>
                 <h4 class="mb-0">${{ total_mes|floatformat:2 }}</h4>
             </div>
         </div>
     </div>
+
     <div class="col-auto" style="cursor:pointer;" onclick="document.getElementById('modalSaldo').style.display='flex'">
-        <div class="card shadow-sm px-2" style="border-left: 4px solid #10b981 !important;">
+        <div class="card shadow-sm px-2 resumen-card" style="border-left: 4px solid #10b981 !important;">
             <div class="card-body text-center py-2">
-                <h6 class="card-title mb-1 text-muted">💵 Efectivo disponible <i class="bi bi-pencil-fill" style="font-size:.7rem; color:#10b981;"></i></h6>
+                <h6 class="card-title mb-1 text-muted">
+                    💵 Efectivo disponible
+                    <i class="bi bi-pencil-fill" style="font-size:.7rem; color:#10b981;"></i>
+                </h6>
                 <h4 class="mb-0" style="color:#10b981;">${{ saldo.efectivo|floatformat:2 }}</h4>
             </div>
         </div>
     </div>
+
     <div class="col-auto" style="cursor:pointer;" onclick="document.getElementById('modalSaldo').style.display='flex'">
-        <div class="card shadow-sm px-2" style="border-left: 4px solid #818cf8 !important;">
+        <div class="card shadow-sm px-2 resumen-card" style="border-left: 4px solid #818cf8 !important;">
             <div class="card-body text-center py-2">
-                <h6 class="card-title mb-1 text-muted">🏦 Banco disponible <i class="bi bi-pencil-fill" style="font-size:.7rem; color:#818cf8;"></i></h6>
+                <h6 class="card-title mb-1 text-muted">
+                    🏦 Banco disponible
+                    <i class="bi bi-pencil-fill" style="font-size:.7rem; color:#818cf8;"></i>
+                </h6>
                 <h4 class="mb-0" style="color:#818cf8;">${{ saldo.banco|floatformat:2 }}</h4>
             </div>
         </div>
     </div>
+
+    <div class="col-auto" style="cursor:pointer;" onclick="document.getElementById('modalSaldo').style.display='flex'">
+        <div class="card shadow-sm px-2 resumen-card" style="border-left: 4px solid #f59e0b !important;">
+            <div class="card-body text-center py-2">
+                <h6 class="card-title mb-1 text-muted">
+                    🤝 Préstamos
+                    <i class="bi bi-pencil-fill" style="font-size:.7rem; color:#f59e0b;"></i>
+                </h6>
+                <h4 class="mb-0" style="color:#f59e0b;">${{ saldo.prestamo|floatformat:2 }}</h4>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <!-- Tabla historial -->
-<div class="card shadow-sm">
-    <div class="card-header">
+<div class="card shadow-sm tabla-dsei-card">
+    <div class="card-header" style="background:#fff;">
         <h5 class="mb-0"><i class="bi bi-clock-history"></i> Historial de egresos</h5>
     </div>
+
     <div class="card-body p-0">
-        <table class="table table-hover mb-0">
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Producto</th>
-                    <th>Categoría</th>
-                    <th>Piezas</th>
-                    <th>Costo</th>
-                    <th>Forma de pago</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for e in egresos %}
-                <tr>
-                    <td>{{ e.fecha }}</td>
-                    <td>{{ e.nombre }}</td>
-                    <td>{{ e.categoria.nombre|default:"—" }}</td>
-                    <td>{{ e.piezas }}</td>
-                    <td>${{ e.costo|floatformat:2 }}</td>
-                    <td>
-                        {% if e.forma_pago == 'efectivo' %}
-                            <span class="badge bg-success">💵 Efectivo</span>
-                        {% elif e.forma_pago == 'banco' %}
-                            <span class="badge bg-primary">🏦 Banco</span>
-                        {% else %}
-                            <span class="badge bg-warning text-dark">🔀 Ambas</span>
-                            <small class="text-muted d-block">E: ${{ e.monto_efectivo|floatformat:2 }} | B: ${{ e.monto_banco|floatformat:2 }}</small>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-sm btn-outline-warning"
-                            onclick="abrirEditar({{ e.pk }}, '{{ e.nombre }}', '{{ e.categoria.pk|default:'' }}', {{ e.piezas }}, {{ e.costo }}, '{{ e.forma_pago }}', {{ e.monto_efectivo }}, {{ e.monto_banco }})">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <form method="post" action="{% url 'egreso_delete' e.pk %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-danger"
-                                onclick="return confirm('¿Eliminar este egreso?')">
-                                <i class="bi bi-trash"></i>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle tabla-dsei mb-0">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th class="text-center">Piezas</th>
+                        <th class="text-end">Costo</th>
+                        <th class="text-center">Forma de pago</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for e in egresos %}
+                    <tr>
+                        <td>{{ e.fecha }}</td>
+
+                        <td>
+                            <i class="bi bi-box-seam" style="color:#e31837;"></i>
+                            <strong>{{ e.nombre }}</strong>
+                        </td>
+
+                        <td>{{ e.categoria.nombre|default:"—" }}</td>
+
+                        <td class="text-center">{{ e.piezas }}</td>
+
+                        <td class="text-end fw-semibold">${{ e.costo|floatformat:2 }}</td>
+
+                        <td class="text-center">
+                            {% if e.forma_pago == 'efectivo' %}
+                                <span class="badge bg-success">💵 Efectivo</span>
+
+                            {% elif e.forma_pago == 'banco' %}
+                                <span class="badge bg-primary">🏦 Tarjeta / Banco</span>
+
+                            {% elif e.forma_pago == 'prestamo' %}
+                                <span class="badge bg-warning text-dark">🤝 Préstamo</span>
+                                <small class="text-muted d-block">P: ${{ e.monto_prestamo|floatformat:2 }}</small>
+
+                            {% else %}
+                                <span class="badge bg-warning text-dark">🔀 Ambas</span>
+                                <small class="text-muted d-block">
+                                    E: ${{ e.monto_efectivo|floatformat:2 }} | B: ${{ e.monto_banco|floatformat:2 }}
+                                </small>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-outline-warning"
+                                onclick="abrirEditar(
+                                    {{ e.pk }},
+                                    '{{ e.nombre|escapejs }}',
+                                    '{{ e.categoria.pk|default:'' }}',
+                                    {{ e.piezas }},
+                                    {{ e.costo }},
+                                    '{{ e.forma_pago }}',
+                                    {{ e.monto_efectivo }},
+                                    {{ e.monto_banco }},
+                                    {{ e.monto_prestamo }}
+                                )">
+                                <i class="bi bi-pencil"></i>
                             </button>
-                        </form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7" class="text-center text-muted py-4">Sin egresos registrados.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+                            <form method="post" action="{% url 'egreso_delete' e.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('¿Eliminar este egreso?')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            Sin egresos registrados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <!-- Modal Nuevo Egreso -->
 <div id="modalEgreso" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.6); z-index:99999; align-items:center; justify-content:center;">
-    <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:440px; margin:1rem; max-height:90vh; overflow-y:auto;">
+    <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:500px; margin:1rem; max-height:90vh; overflow-y:auto;">
+
         <div style="background:#e31837; margin:-2rem -2rem 1.5rem; padding:1rem 1.5rem; border-radius:16px 16px 0 0; display:flex; justify-content:space-between; align-items:center;">
             <h5 style="color:#fff; margin:0;"><i class="bi bi-cash-stack me-2"></i> Nuevo egreso</h5>
             <button onclick="document.getElementById('modalEgreso').style.display='none'"
                     style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">✕</button>
         </div>
+
         <form method="post" action="{% url 'egreso_create' %}">
             {% csrf_token %}
+
             <div style="margin-bottom:1rem;">
                 <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Nombre del producto</label>
                 <input type="text" name="nombre" required placeholder="Ej: Sabritas"
                        style="width:100%; border:1.5px solid #ddd; border-radius:8px; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333;">
             </div>
+
             <div style="margin-bottom:1rem;">
                 <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Categoría</label>
                 <select name="categoria" style="width:100%; border:1.5px solid #ddd; border-radius:8px; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; background:#fff;">
@@ -122,11 +243,13 @@
                     {% endfor %}
                 </select>
             </div>
+
             <div style="margin-bottom:1rem;">
                 <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Número de piezas</label>
                 <input type="number" name="piezas" required min="1" placeholder="0"
                        style="width:100%; border:1.5px solid #ddd; border-radius:8px; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333;">
             </div>
+
             <div style="margin-bottom:1rem;">
                 <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Costo total ($)</label>
                 <div style="display:flex;">
@@ -135,23 +258,35 @@
                            style="flex:1; border:1.5px solid #ddd; border-left:none; border-radius:0 8px 8px 0; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; background:#fff;">
                 </div>
             </div>
+
             <div style="margin-bottom:1rem;">
                 <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Forma de pago</label>
-                <div style="display:flex; gap:.5rem;">
-                    <label style="flex:1; text-align:center; border:1.5px solid #ddd; border-radius:8px; padding:.5rem; cursor:pointer;">
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:.5rem;">
+
+                    <label class="opcion-pago" style="text-align:center; border:1.5px solid #ddd; border-radius:8px; padding:.55rem; cursor:pointer;">
                         <input type="radio" name="forma_pago" value="efectivo" checked onchange="toggleAmbas(this.value)" style="display:none;">
                         <span style="display:block; font-weight:600; color:#10b981;">💵 Efectivo</span>
                     </label>
-                    <label style="flex:1; text-align:center; border:1.5px solid #ddd; border-radius:8px; padding:.5rem; cursor:pointer;">
+
+                    <label class="opcion-pago" style="text-align:center; border:1.5px solid #ddd; border-radius:8px; padding:.55rem; cursor:pointer;">
                         <input type="radio" name="forma_pago" value="banco" onchange="toggleAmbas(this.value)" style="display:none;">
-                        <span style="display:block; font-weight:600; color:#818cf8;">🏦 Banco</span>
+                        <span style="display:block; font-weight:600; color:#818cf8;">🏦 Tarjeta / Banco</span>
                     </label>
-                    <label style="flex:1; text-align:center; border:1.5px solid #ddd; border-radius:8px; padding:.5rem; cursor:pointer;">
+
+                    <label class="opcion-pago" style="text-align:center; border:1.5px solid #ddd; border-radius:8px; padding:.55rem; cursor:pointer;">
                         <input type="radio" name="forma_pago" value="ambas" onchange="toggleAmbas(this.value)" style="display:none;">
                         <span style="display:block; font-weight:600; color:#f5a623;">🔀 Ambas</span>
                     </label>
+
+                    <label class="opcion-pago" style="text-align:center; border:1.5px solid #ddd; border-radius:8px; padding:.55rem; cursor:pointer;">
+                        <input type="radio" name="forma_pago" value="prestamo" onchange="toggleAmbas(this.value)" style="display:none;">
+                        <span style="display:block; font-weight:600; color:#f59e0b;">🤝 Préstamo</span>
+                    </label>
+
                 </div>
             </div>
+
             <div id="camposAmbas" style="display:none; margin-bottom:1rem;">
                 <div style="margin-bottom:.75rem;">
                     <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">💵 Monto en efectivo</label>
@@ -161,6 +296,7 @@
                                style="flex:1; border:1.5px solid #ddd; border-left:none; border-radius:0 8px 8px 0; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; background:#fff;">
                     </div>
                 </div>
+
                 <div>
                     <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">🏦 Monto en banco</label>
                     <div style="display:flex;">
@@ -170,35 +306,42 @@
                     </div>
                 </div>
             </div>
+
             <div style="display:flex; gap:.75rem; margin-top:1rem;">
                 <button type="button" onclick="document.getElementById('modalEgreso').style.display='none'"
                         style="flex:1; padding:.65rem; background:#6b7280; color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer;">
                     Cancelar
                 </button>
+
                 <button type="submit"
                         style="flex:1; padding:.65rem; background:#e31837; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
                     <i class="bi bi-save"></i> Guardar
                 </button>
             </div>
+
         </form>
     </div>
 </div>
 
 <!-- Modal Editar Egreso -->
 <div id="modalEditar" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.6); z-index:99999; align-items:center; justify-content:center;">
-    <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:440px; margin:1rem; max-height:90vh; overflow-y:auto;">
+    <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:500px; margin:1rem; max-height:90vh; overflow-y:auto;">
+
         <div style="background:#f5a623; margin:-2rem -2rem 1.5rem; padding:1rem 1.5rem; border-radius:16px 16px 0 0; display:flex; justify-content:space-between; align-items:center;">
             <h5 style="color:#fff; margin:0;"><i class="bi bi-pencil me-2"></i> Editar egreso</h5>
             <button onclick="document.getElementById('modalEditar').style.display='none'"
                     style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">✕</button>
         </div>
+
         <form method="post" id="formEditar" action="">
             {% csrf_token %}
+
             <div style="margin-bottom:1rem;">
                 <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Nombre del producto</label>
                 <input type="text" name="nombre" id="edit_nombre" required
                        style="width:100%; border:1.5px solid #ddd; border-radius:8px; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333;">
             </div>
+
             <div style="margin-bottom:1rem;">
                 <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Categoría</label>
                 <select name="categoria" id="edit_categoria" style="width:100%; border:1.5px solid #ddd; border-radius:8px; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; background:#fff;">
@@ -208,11 +351,13 @@
                     {% endfor %}
                 </select>
             </div>
+
             <div style="margin-bottom:1rem;">
                 <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Número de piezas</label>
                 <input type="number" name="piezas" id="edit_piezas" required min="1"
                        style="width:100%; border:1.5px solid #ddd; border-radius:8px; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333;">
             </div>
+
             <div style="margin-bottom:1rem;">
                 <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Costo total ($)</label>
                 <div style="display:flex;">
@@ -221,23 +366,35 @@
                            style="flex:1; border:1.5px solid #ddd; border-left:none; border-radius:0 8px 8px 0; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; background:#fff;">
                 </div>
             </div>
+
             <div style="margin-bottom:1rem;">
                 <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Forma de pago</label>
-                <div style="display:flex; gap:.5rem;">
-                    <label style="flex:1; text-align:center; border:1.5px solid #ddd; border-radius:8px; padding:.5rem; cursor:pointer;">
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:.5rem;">
+
+                    <label class="opcion-pago" style="text-align:center; border:1.5px solid #ddd; border-radius:8px; padding:.55rem; cursor:pointer;">
                         <input type="radio" name="forma_pago" id="edit_efectivo" value="efectivo" onchange="toggleAmbasEdit(this.value)" style="display:none;">
                         <span style="display:block; font-weight:600; color:#10b981;">💵 Efectivo</span>
                     </label>
-                    <label style="flex:1; text-align:center; border:1.5px solid #ddd; border-radius:8px; padding:.5rem; cursor:pointer;">
+
+                    <label class="opcion-pago" style="text-align:center; border:1.5px solid #ddd; border-radius:8px; padding:.55rem; cursor:pointer;">
                         <input type="radio" name="forma_pago" id="edit_banco" value="banco" onchange="toggleAmbasEdit(this.value)" style="display:none;">
-                        <span style="display:block; font-weight:600; color:#818cf8;">🏦 Banco</span>
+                        <span style="display:block; font-weight:600; color:#818cf8;">🏦 Tarjeta / Banco</span>
                     </label>
-                    <label style="flex:1; text-align:center; border:1.5px solid #ddd; border-radius:8px; padding:.5rem; cursor:pointer;">
+
+                    <label class="opcion-pago" style="text-align:center; border:1.5px solid #ddd; border-radius:8px; padding:.55rem; cursor:pointer;">
                         <input type="radio" name="forma_pago" id="edit_ambas" value="ambas" onchange="toggleAmbasEdit(this.value)" style="display:none;">
                         <span style="display:block; font-weight:600; color:#f5a623;">🔀 Ambas</span>
                     </label>
+
+                    <label class="opcion-pago" style="text-align:center; border:1.5px solid #ddd; border-radius:8px; padding:.55rem; cursor:pointer;">
+                        <input type="radio" name="forma_pago" id="edit_prestamo" value="prestamo" onchange="toggleAmbasEdit(this.value)" style="display:none;">
+                        <span style="display:block; font-weight:600; color:#f59e0b;">🤝 Préstamo</span>
+                    </label>
+
                 </div>
             </div>
+
             <div id="camposAmbasEdit" style="display:none; margin-bottom:1rem;">
                 <div style="margin-bottom:.75rem;">
                     <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">💵 Monto en efectivo</label>
@@ -247,6 +404,7 @@
                                style="flex:1; border:1.5px solid #ddd; border-left:none; border-radius:0 8px 8px 0; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; background:#fff;">
                     </div>
                 </div>
+
                 <div>
                     <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">🏦 Monto en banco</label>
                     <div style="display:flex;">
@@ -256,16 +414,21 @@
                     </div>
                 </div>
             </div>
+
+            <input type="hidden" name="monto_prestamo" id="edit_monto_prestamo">
+
             <div style="display:flex; gap:.75rem; margin-top:1rem;">
                 <button type="button" onclick="document.getElementById('modalEditar').style.display='none'"
                         style="flex:1; padding:.65rem; background:#6b7280; color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer;">
                     Cancelar
                 </button>
+
                 <button type="submit"
                         style="flex:1; padding:.65rem; background:#f5a623; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
                     <i class="bi bi-save"></i> Guardar cambios
                 </button>
             </div>
+
         </form>
     </div>
 </div>
@@ -273,13 +436,16 @@
 <!-- Modal Editar Saldo -->
 <div id="modalSaldo" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.6); z-index:99999; align-items:center; justify-content:center;">
     <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:400px; margin:1rem;">
+
         <div style="background:#6b7280; margin:-2rem -2rem 1.5rem; padding:1rem 1.5rem; border-radius:16px 16px 0 0; display:flex; justify-content:space-between; align-items:center;">
             <h5 style="color:#fff; margin:0;"><i class="bi bi-wallet2 me-2"></i> Actualizar saldo</h5>
             <button onclick="document.getElementById('modalSaldo').style.display='none'"
                     style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">✕</button>
         </div>
+
         <form method="post" action="{% url 'estado_cuenta' %}">
             {% csrf_token %}
+
             <div style="margin-bottom:1rem;">
                 <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">💵 Efectivo ($)</label>
                 <div style="display:flex;">
@@ -288,7 +454,8 @@
                            style="flex:1; border:1.5px solid #ddd; border-left:none; border-radius:0 8px 8px 0; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; background:#fff;">
                 </div>
             </div>
-            <div style="margin-bottom:1.5rem;">
+
+            <div style="margin-bottom:1rem;">
                 <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">🏦 Banco ($)</label>
                 <div style="display:flex;">
                     <span style="background:#f8f8f8; border:1.5px solid #ddd; border-right:none; padding:.6rem .85rem; border-radius:8px 0 0 8px; color:#818cf8; font-weight:700;">$</span>
@@ -296,42 +463,68 @@
                            style="flex:1; border:1.5px solid #ddd; border-left:none; border-radius:0 8px 8px 0; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; background:#fff;">
                 </div>
             </div>
+
+            <div style="margin-bottom:1.5rem;">
+                <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">🤝 Préstamos ($)</label>
+                <div style="display:flex;">
+                    <span style="background:#f8f8f8; border:1.5px solid #ddd; border-right:none; padding:.6rem .85rem; border-radius:8px 0 0 8px; color:#f59e0b; font-weight:700;">$</span>
+                    <input type="number" name="prestamo" step="0.01" min="0" value="{{ saldo.prestamo }}"
+                           style="flex:1; border:1.5px solid #ddd; border-left:none; border-radius:0 8px 8px 0; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; background:#fff;">
+                </div>
+            </div>
+
             <div style="display:flex; gap:.75rem;">
                 <button type="button" onclick="document.getElementById('modalSaldo').style.display='none'"
                         style="flex:1; padding:.65rem; background:#6b7280; color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer;">
                     Cancelar
                 </button>
+
                 <button type="submit"
                         style="flex:1; padding:.65rem; background:#10b981; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
                     <i class="bi bi-save"></i> Guardar
                 </button>
             </div>
+
         </form>
     </div>
 </div>
 
 <script>
 function toggleAmbas(val) {
-    document.getElementById('camposAmbas').style.display = val === 'ambas' ? 'block' : 'none';
+    const camposAmbas = document.getElementById('camposAmbas');
+    camposAmbas.style.display = val === 'ambas' ? 'block' : 'none';
 }
 
 function toggleAmbasEdit(val) {
-    document.getElementById('camposAmbasEdit').style.display = val === 'ambas' ? 'block' : 'none';
+    const camposAmbasEdit = document.getElementById('camposAmbasEdit');
+    camposAmbasEdit.style.display = val === 'ambas' ? 'block' : 'none';
 }
 
-function abrirEditar(pk, nombre, categoria, piezas, costo, forma_pago, monto_efectivo, monto_banco) {
+function abrirEditar(pk, nombre, categoria, piezas, costo, forma_pago, monto_efectivo, monto_banco, monto_prestamo) {
     document.getElementById('formEditar').action = '/egresos/' + pk + '/editar/';
+
     document.getElementById('edit_nombre').value = nombre;
     document.getElementById('edit_categoria').value = categoria;
     document.getElementById('edit_piezas').value = piezas;
     document.getElementById('edit_costo').value = costo;
+
     document.getElementById('edit_monto_efectivo').value = monto_efectivo;
     document.getElementById('edit_monto_banco').value = monto_banco;
-    if (forma_pago === 'efectivo') document.getElementById('edit_efectivo').checked = true;
-    else if (forma_pago === 'banco') document.getElementById('edit_banco').checked = true;
-    else document.getElementById('edit_ambas').checked = true;
+    document.getElementById('edit_monto_prestamo').value = monto_prestamo;
+
+    if (forma_pago === 'efectivo') {
+        document.getElementById('edit_efectivo').checked = true;
+    } else if (forma_pago === 'banco') {
+        document.getElementById('edit_banco').checked = true;
+    } else if (forma_pago === 'prestamo') {
+        document.getElementById('edit_prestamo').checked = true;
+    } else {
+        document.getElementById('edit_ambas').checked = true;
+    }
+
     toggleAmbasEdit(forma_pago);
     document.getElementById('modalEditar').style.display = 'flex';
 }
 </script>
+
 {% endblock %}
