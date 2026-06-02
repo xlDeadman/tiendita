@@ -7,7 +7,11 @@ from django.http import JsonResponse
 from datetime import date, timedelta
 from decimal import Decimal
 
-from .models import Producto, Categoria, Venta, DetalleVenta, Cliente, Egreso, SaldoCaja
+from .models import (
+    Producto, Categoria, Venta, DetalleVenta,
+    Cliente, Egreso, SaldoCaja, MovimientoPrestamo
+)
+
 from .forms import (
     ProductoForm, CategoriaForm, AjusteStockForm,
     VentaForm, DetalleVentaFormSet, ClienteForm,
@@ -110,6 +114,7 @@ def producto_list(request):
         productos = productos.filter(stock_actual__gt=3)
 
     categorias = Categoria.objects.all()
+
     context = {
         'productos': productos,
         'categorias': categorias,
@@ -125,39 +130,50 @@ def producto_list(request):
 def producto_create(request):
     if request.method == 'POST':
         form = ProductoForm(request.POST)
+
         if form.is_valid():
             producto = form.save()
             messages.success(request, f'✅ Producto "{producto.nombre}" creado correctamente.')
             return redirect('producto_list')
     else:
         form = ProductoForm()
+
     return render(request, 'inventario/producto_form.html', {
-        'form': form, 'titulo': 'Nuevo producto', 'boton': 'Guardar producto',
+        'form': form,
+        'titulo': 'Nuevo producto',
+        'boton': 'Guardar producto',
     })
 
 
 @login_required
 def producto_edit(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
+
     if request.method == 'POST':
         form = ProductoForm(request.POST, instance=producto)
+
         if form.is_valid():
             form.save()
             messages.success(request, f'✅ Producto "{producto.nombre}" actualizado.')
             return redirect('producto_list')
     else:
         form = ProductoForm(instance=producto)
+
     return render(request, 'inventario/producto_form.html', {
-        'form': form, 'producto': producto,
-        'titulo': f'Editar: {producto.nombre}', 'boton': 'Guardar cambios',
+        'form': form,
+        'producto': producto,
+        'titulo': f'Editar: {producto.nombre}',
+        'boton': 'Guardar cambios',
     })
 
 
 @login_required
 def producto_delete(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
+
     if request.method == 'POST':
         nombre = producto.nombre
+
         if producto.detalles_venta.exists():
             producto.activo = False
             producto.save()
@@ -165,15 +181,19 @@ def producto_delete(request, pk):
         else:
             producto.delete()
             messages.success(request, f'🗑️ Producto "{nombre}" eliminado.')
+
         return redirect('producto_list')
+
     return render(request, 'inventario/producto_confirm_delete.html', {'producto': producto})
 
 
 @login_required
 def producto_ajuste_stock(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
+
     if request.method == 'POST':
         form = AjusteStockForm(request.POST)
+
         if form.is_valid():
             tipo = form.cleaned_data['tipo']
             cantidad = form.cleaned_data['cantidad']
@@ -195,7 +215,8 @@ def producto_ajuste_stock(request, pk):
         form = AjusteStockForm()
 
     return render(request, 'inventario/producto_ajuste_stock.html', {
-        'form': form, 'producto': producto,
+        'form': form,
+        'producto': producto,
     })
 
 
@@ -211,6 +232,7 @@ def categoria_list(request):
 def categoria_create(request):
     if request.method == 'POST':
         form = CategoriaForm(request.POST)
+
         if form.is_valid():
             form.save()
             messages.success(request, '✅ Categoría creada.')
@@ -219,15 +241,19 @@ def categoria_create(request):
         form = CategoriaForm()
 
     return render(request, 'inventario/categoria_form.html', {
-        'form': form, 'titulo': 'Nueva categoría', 'boton': 'Guardar'
+        'form': form,
+        'titulo': 'Nueva categoría',
+        'boton': 'Guardar'
     })
 
 
 @login_required
 def categoria_edit(request, pk):
     categoria = get_object_or_404(Categoria, pk=pk)
+
     if request.method == 'POST':
         form = CategoriaForm(request.POST, instance=categoria)
+
         if form.is_valid():
             form.save()
             messages.success(request, '✅ Categoría actualizada.')
@@ -236,13 +262,16 @@ def categoria_edit(request, pk):
         form = CategoriaForm(instance=categoria)
 
     return render(request, 'inventario/categoria_form.html', {
-        'form': form, 'titulo': f'Editar: {categoria.nombre}', 'boton': 'Guardar cambios'
+        'form': form,
+        'titulo': f'Editar: {categoria.nombre}',
+        'boton': 'Guardar cambios'
     })
 
 
 @login_required
 def categoria_delete(request, pk):
     categoria = get_object_or_404(Categoria, pk=pk)
+
     if request.method == 'POST':
         nombre = categoria.nombre
         categoria.delete()
@@ -262,6 +291,7 @@ def venta_list(request):
 
     if fecha_desde:
         ventas = ventas.filter(fecha__gte=fecha_desde)
+
     if fecha_hasta:
         ventas = ventas.filter(fecha__lte=fecha_hasta)
 
@@ -308,8 +338,11 @@ def venta_create(request):
                 for e in errores:
                     messages.error(request, f'❌ {e}')
                 venta.delete()
+
                 return render(request, 'inventario/venta_form.html', {
-                    'form': form, 'formset': formset, 'titulo': 'Nueva venta'
+                    'form': form,
+                    'formset': formset,
+                    'titulo': 'Nueva venta'
                 })
 
             venta.total = total
@@ -321,7 +354,9 @@ def venta_create(request):
         formset = DetalleVentaFormSet()
 
     return render(request, 'inventario/venta_form.html', {
-        'form': form, 'formset': formset, 'titulo': 'Registrar venta',
+        'form': form,
+        'formset': formset,
+        'titulo': 'Registrar venta',
     })
 
 
@@ -331,7 +366,8 @@ def venta_detail(request, pk):
     detalles = venta.detalles.select_related('producto').all()
 
     return render(request, 'inventario/venta_detail.html', {
-        'venta': venta, 'detalles': detalles,
+        'venta': venta,
+        'detalles': detalles,
     })
 
 
@@ -388,7 +424,8 @@ def cliente_create(request):
         form = ClienteForm()
 
     return render(request, 'inventario/cliente_form.html', {
-        'form': form, 'titulo': 'Nuevo cliente',
+        'form': form,
+        'titulo': 'Nuevo cliente',
     })
 
 
@@ -399,7 +436,9 @@ def cliente_detail(request, pk):
     deuda_total = cuentas.filter(pagado=False).aggregate(t=Sum('total'))['t'] or 0
 
     return render(request, 'inventario/cliente_detail.html', {
-        'cliente': cliente, 'cuentas': cuentas, 'deuda_total': deuda_total,
+        'cliente': cliente,
+        'cuentas': cuentas,
+        'deuda_total': deuda_total,
     })
 
 
@@ -535,6 +574,7 @@ def cliente_detalle_edit(request, pk, cliente_pk):
             detalle.save()
 
             fecha = form.cleaned_data.get('fecha')
+
             if fecha:
                 detalle.venta.fecha = fecha
                 detalle.venta.save()
@@ -546,7 +586,9 @@ def cliente_detalle_edit(request, pk, cliente_pk):
         form = AgregarProductoClienteForm(instance=detalle, initial={'fecha': detalle.venta.fecha})
 
     return render(request, 'inventario/cliente_agregar_producto.html', {
-        'form': form, 'cliente': cliente, 'titulo': 'Editar producto'
+        'form': form,
+        'cliente': cliente,
+        'titulo': 'Editar producto'
     })
 
 
@@ -567,7 +609,8 @@ def cliente_detalle_delete(request, pk, cliente_pk):
         return redirect('cliente_detail', pk=cliente_pk)
 
     return render(request, 'inventario/cliente_detalle_confirm_delete.html', {
-        'detalle': detalle, 'cliente': cliente
+        'detalle': detalle,
+        'cliente': cliente
     })
 
 
@@ -645,12 +688,14 @@ def egreso_list(request):
 
     categorias = Categoria.objects.all()
     saldo = SaldoCaja.get()
+    movimientos_prestamo = MovimientoPrestamo.objects.all()[:10]
 
     return render(request, 'inventario/egreso_list.html', {
         'egresos': egresos,
         'total_mes': total_mes,
         'categorias': categorias,
         'saldo': saldo,
+        'movimientos_prestamo': movimientos_prestamo,
     })
 
 
@@ -662,6 +707,7 @@ def egreso_create(request):
         piezas = request.POST.get('piezas', 0)
         costo = request.POST.get('costo', 0)
         forma_pago = request.POST.get('forma_pago', 'efectivo')
+        nota_prestamo = request.POST.get('nota_prestamo', '').strip()
 
         monto_efectivo = Decimal(request.POST.get('monto_efectivo', 0) or 0)
         monto_banco = Decimal(request.POST.get('monto_banco', 0) or 0)
@@ -707,6 +753,15 @@ def egreso_create(request):
 
             saldo.save()
 
+            if forma_pago == 'prestamo' and monto_prestamo > 0:
+                MovimientoPrestamo.objects.create(
+                    tipo='agregado',
+                    monto=monto_prestamo,
+                    monto_efectivo=Decimal(0),
+                    monto_banco=Decimal(0),
+                    nota=nota_prestamo or f'Préstamo agregado por egreso: {nombre}'
+                )
+
             messages.success(request, f'✅ Egreso "{nombre}" registrado.')
         else:
             messages.error(request, '❌ Completa todos los campos.')
@@ -727,6 +782,15 @@ def egreso_delete(request, pk):
 
         saldo.save()
 
+        if egreso.monto_prestamo > 0:
+            MovimientoPrestamo.objects.create(
+                tipo='ajuste',
+                monto=egreso.monto_prestamo,
+                monto_efectivo=Decimal(0),
+                monto_banco=Decimal(0),
+                nota=f'Se eliminó el egreso de préstamo: {egreso.nombre}'
+            )
+
         egreso.delete()
         messages.success(request, '🗑️ Egreso eliminado. Saldo restaurado.')
 
@@ -741,6 +805,50 @@ def estado_cuenta(request):
 
     if request.method == 'POST':
         try:
+            efectivo_anterior = saldo.efectivo
+            banco_anterior = saldo.banco
+            prestamo_anterior = saldo.prestamo
+
+            pagar_prestamo_efectivo = Decimal(request.POST.get('pagar_prestamo_efectivo', 0) or 0)
+            pagar_prestamo_banco = Decimal(request.POST.get('pagar_prestamo_banco', 0) or 0)
+            nota_cobro_prestamo = request.POST.get('nota_cobro_prestamo', '').strip()
+
+            total_pago_prestamo = pagar_prestamo_efectivo + pagar_prestamo_banco
+
+            if total_pago_prestamo > 0:
+                if total_pago_prestamo > saldo.prestamo:
+                    messages.error(request, '❌ No puedes cobrarte más de lo que la tienda te debe.')
+                    return redirect(request.META.get('HTTP_REFERER', 'estado_cuenta'))
+
+                if pagar_prestamo_efectivo > saldo.efectivo:
+                    messages.error(request, '❌ No hay suficiente efectivo disponible para cobrarte esa cantidad.')
+                    return redirect(request.META.get('HTTP_REFERER', 'estado_cuenta'))
+
+                if pagar_prestamo_banco > saldo.banco:
+                    messages.error(request, '❌ No hay suficiente dinero en banco para cobrarte esa cantidad.')
+                    return redirect(request.META.get('HTTP_REFERER', 'estado_cuenta'))
+
+                saldo.efectivo -= pagar_prestamo_efectivo
+                saldo.banco -= pagar_prestamo_banco
+                saldo.prestamo -= total_pago_prestamo
+
+                saldo.save()
+
+                MovimientoPrestamo.objects.create(
+                    tipo='cobro',
+                    monto=total_pago_prestamo,
+                    monto_efectivo=pagar_prestamo_efectivo,
+                    monto_banco=pagar_prestamo_banco,
+                    nota=nota_cobro_prestamo or 'Cobro de préstamo'
+                )
+
+                messages.success(
+                    request,
+                    f'✅ Te cobraste ${total_pago_prestamo:.2f} de préstamo correctamente.'
+                )
+
+                return redirect(request.META.get('HTTP_REFERER', 'estado_cuenta'))
+
             if 'efectivo' in request.POST and request.POST.get('efectivo') != '':
                 saldo.efectivo = Decimal(request.POST.get('efectivo'))
 
@@ -751,6 +859,18 @@ def estado_cuenta(request):
                 saldo.prestamo = Decimal(request.POST.get('prestamo'))
 
             saldo.save()
+
+            if saldo.prestamo != prestamo_anterior:
+                diferencia = saldo.prestamo - prestamo_anterior
+
+                MovimientoPrestamo.objects.create(
+                    tipo='ajuste',
+                    monto=abs(diferencia),
+                    monto_efectivo=Decimal(0),
+                    monto_banco=Decimal(0),
+                    nota='Ajuste manual de préstamo'
+                )
+
             messages.success(request, '✅ Saldo actualizado correctamente.')
 
         except:
@@ -771,6 +891,7 @@ def egreso_edit(request, pk):
         piezas = request.POST.get('piezas', 0)
         costo = Decimal(request.POST.get('costo', 0))
         forma_pago = request.POST.get('forma_pago', 'efectivo')
+        nota_prestamo = request.POST.get('nota_prestamo', '').strip()
 
         monto_efectivo = Decimal(request.POST.get('monto_efectivo', 0) or 0)
         monto_banco = Decimal(request.POST.get('monto_banco', 0) or 0)
@@ -796,12 +917,12 @@ def egreso_edit(request, pk):
 
         saldo = SaldoCaja.get()
 
-        # Deshacer movimiento anterior
+        prestamo_anterior_egreso = egreso.monto_prestamo
+
         saldo.efectivo += egreso.monto_efectivo
         saldo.banco += egreso.monto_banco
         saldo.prestamo -= egreso.monto_prestamo
 
-        # Aplicar movimiento nuevo
         saldo.efectivo -= monto_efectivo
         saldo.banco -= monto_banco
         saldo.prestamo += monto_prestamo
@@ -817,6 +938,15 @@ def egreso_edit(request, pk):
         egreso.monto_banco = monto_banco
         egreso.monto_prestamo = monto_prestamo
         egreso.save()
+
+        if prestamo_anterior_egreso != monto_prestamo:
+            MovimientoPrestamo.objects.create(
+                tipo='ajuste',
+                monto=abs(monto_prestamo - prestamo_anterior_egreso),
+                monto_efectivo=Decimal(0),
+                monto_banco=Decimal(0),
+                nota=nota_prestamo or f'Ajuste de préstamo en egreso: {nombre}'
+            )
 
         messages.success(request, f'✅ Egreso "{nombre}" actualizado.')
 

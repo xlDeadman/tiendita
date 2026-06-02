@@ -158,6 +158,54 @@ class Egreso(models.Model):
         return f"{self.nombre} - ${self.costo}"
 
 
+class MovimientoPrestamo(models.Model):
+    TIPO_CHOICES = [
+        ('agregado', '🤝 Préstamo agregado'),
+        ('cobro', '💸 Cobro de préstamo'),
+        ('ajuste', '✏️ Ajuste manual'),
+    ]
+
+    tipo = models.CharField(
+        max_length=20,
+        choices=TIPO_CHOICES,
+        verbose_name="Tipo de movimiento"
+    )
+    monto = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        verbose_name="Monto ($)"
+    )
+    monto_efectivo = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        verbose_name="Monto efectivo ($)"
+    )
+    monto_banco = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        verbose_name="Monto banco ($)"
+    )
+    nota = models.TextField(
+        blank=True,
+        verbose_name="Nota"
+    )
+    fecha = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Fecha"
+    )
+
+    class Meta:
+        verbose_name = "Movimiento de préstamo"
+        verbose_name_plural = "Movimientos de préstamos"
+        ordering = ['-fecha']
+
+    def __str__(self):
+        return f"{self.get_tipo_display()} - ${self.monto}"
+
+
 class Venta(models.Model):
     fecha = models.DateField(default=timezone.now, verbose_name="Fecha")
     cliente = models.CharField(max_length=200, blank=True, verbose_name="Cliente")
