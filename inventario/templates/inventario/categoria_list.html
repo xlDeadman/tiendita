@@ -3,50 +3,121 @@
 {% block page_title %}<i class="bi bi-bookmark-star-fill"></i> Categorías{% endblock %}
 
 {% block content %}
+
+<style>
+  .tabla-dsei-card {
+    overflow: hidden;
+    border-radius: 14px;
+    border: none;
+  }
+
+  .tabla-dsei {
+    margin-bottom: 0;
+  }
+
+  .tabla-dsei thead tr {
+    background: #e31837 !important;
+  }
+
+  .tabla-dsei thead th {
+    background: #e31837 !important;
+    color: #fff !important;
+    font-weight: 600;
+    vertical-align: middle;
+    border: none;
+    padding: 14px 12px;
+  }
+
+  .tabla-dsei tbody td {
+    vertical-align: middle;
+    padding: 12px;
+  }
+
+  .tabla-dsei tbody tr:hover {
+    background: #fff5f5;
+  }
+
+  .btn-dsei-primary {
+    background: #e31837;
+    border-color: #e31837;
+    color: #fff;
+  }
+
+  .btn-dsei-primary:hover {
+    background: #b9122b;
+    border-color: #b9122b;
+    color: #fff;
+  }
+
+  .badge-dsei {
+    background: #e31837;
+    color: #fff;
+  }
+</style>
+
 <div class="d-flex justify-content-end mb-3">
-  <a href="{% url 'categoria_create' %}" class="btn btn-primary btn-sm">
+  <a href="{% url 'categoria_create' %}" class="btn btn-dsei-primary btn-sm">
     <i class="bi bi-plus-lg"></i> Nueva categoría
   </a>
 </div>
 
-<div class="table-card">
-  <div class="table-responsive">
-    <table class="table table-hover align-middle mb-0">
-      <thead>
-        <tr>
-          <th>Categoría</th>
-          <th>Descripción</th>
-          <th class="text-center">Productos</th>
-          <th class="text-center">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for c in categorias %}
-        <tr>
-          <td class="fw-medium">{{ c.nombre }}</td>
-          <td class="text-muted small">{{ c.descripcion|default:"—" }}</td>
-          <td class="text-center">
-            <a href="{% url 'producto_list' %}?categoria={{ c.pk }}" class="badge bg-primary text-decoration-none">
-              {{ c.num_productos }}
-            </a>
-          </td>
-          <td class="text-center">
-            <div class="btn-group btn-group-sm">
-              <a href="{% url 'categoria_edit' c.pk %}" class="btn btn-outline-primary"><i class="bi bi-pencil"></i></a>
-              <a href="{% url 'categoria_delete' c.pk %}" class="btn btn-outline-danger"><i class="bi bi-trash"></i></a>
-            </div>
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="4" class="text-center py-5 text-muted">
-            <i class="bi bi-tags fs-2 d-block mb-2"></i>
-            No hay categorías. <a href="{% url 'categoria_create' %}">Crear la primera</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+<div class="card shadow-sm tabla-dsei-card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle tabla-dsei mb-0">
+        <thead>
+          <tr>
+            <th>Categoría</th>
+            <th>Descripción</th>
+            <th class="text-center">Productos</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for c in categorias %}
+          <tr>
+            <td class="fw-medium">
+              <i class="bi bi-bookmark-fill" style="color:#e31837;"></i>
+              {{ c.nombre }}
+            </td>
+
+            <td class="text-muted small">
+              {{ c.descripcion|default:"—" }}
+            </td>
+
+            <td class="text-center">
+              <a href="{% url 'producto_list' %}?categoria={{ c.pk }}" class="badge badge-dsei text-decoration-none">
+                {{ c.num_productos }}
+              </a>
+            </td>
+
+            <td class="text-center">
+              <div class="btn-group btn-group-sm">
+                <a href="{% url 'categoria_edit' c.pk %}" class="btn btn-outline-primary">
+                  <i class="bi bi-pencil"></i>
+                </a>
+
+                <a href="{% url 'categoria_delete' c.pk %}" class="btn btn-outline-danger">
+                  <i class="bi bi-trash"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center py-5 text-muted">
+              <i class="bi bi-tags fs-2 d-block mb-2"></i>
+              No hay categorías.
+              <a href="{% url 'categoria_create' %}">Crear la primera</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
+
 {% endblock %}
