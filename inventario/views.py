@@ -385,25 +385,42 @@ def cliente_agregar_producto(request, pk):
         messages.error(request, f'⛔ {cliente.nombre} está bloqueado. No se pueden agregar productos.')
         return redirect('cliente_detail', pk=pk)
     if request.method == 'POST':
-        form = AgregarProductoClienteForm(request.POST)
-        if form.is_valid():
-            venta = Venta.objects.create(
-                cliente_fk=cliente, pagado=False, total=0, fecha=date.today()
-            )
-            detalle = form.save(commit=False)
-            detalle.venta = venta
-            detalle.save()
-            producto = detalle.producto
-            producto.stock_actual -= detalle.cantidad
-            producto.save()
-            venta.total = detalle.subtotal
-            venta.save()
-            messages.success(request, f'✅ Producto agregado a la cuenta de {cliente.nombre}.')
-            return redirect('cliente_detail', pk=pk)
-    else:
-        form = AgregarProductoClienteForm()
+        total_filas = int(request.POST.get('total_filas', 1))
+        productos_agregados = 0
+        for i in range(total_filas):
+            producto_id = request.POST.get(f'producto_{i}')
+            cantidad = request.POST.get(f'cantidad_{i}')
+            precio = request.POST.get(f'precio_{i}')
+            if producto_id and cantidad and precio:
+                try:
+                    producto = Producto.objects.get(pk=producto_id)
+                    cantidad = int(cantidad)
+                    precio = Decimal(precio)
+                    venta = Venta.objects.create(
+                        cliente_fk=cliente, pagado=False, total=0, fecha=date.today()
+                    )
+                    detalle = DetalleVenta.objects.create(
+                        venta=venta,
+                        producto=producto,
+                        cantidad=cantidad,
+                        precio_unitario=precio,
+                    )
+                    producto.stock_actual -= cantidad
+                    producto.save()
+                    venta.total = detalle.subtotal
+                    venta.save()
+                    productos_agregados += 1
+                except:
+                    pass
+        if productos_agregados > 0:
+            messages.success(request, f'✅ {productos_agregados} producto(s) agregado(s) a {cliente.nombre}.')
+        else:
+            messages.error(request, '❌ No se agregó ningún producto.')
+        return redirect('cliente_detail', pk=pk)
+    productos = Producto.objects.filter(activo=True).order_by('nombre')
     return render(request, 'inventario/cliente_agregar_producto.html', {
-        'form': form, 'cliente': cliente
+        'cliente': cliente,
+        'productos': productos,
     })
 
 

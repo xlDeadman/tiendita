@@ -1,59 +1,66 @@
 {% extends 'inventario/base.html' %}
 
-{% block title %}Agregar producto a {{ cliente.nombre }}{% endblock %}
+{% block title %}Agregar productos a {{ cliente.nombre }}{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-6">
+    <div class="col-md-8">
         <div class="card shadow-sm">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
                     <i class="bi bi-cart-plus"></i>
-                    Agregar producto a {{ cliente.nombre }}
+                    Agregar productos a {{ cliente.nombre }}
                 </h5>
+                <button type="button" class="btn btn-sm btn-success" onclick="agregarFila()">
+                    <i class="bi bi-plus-circle"></i> Agregar otro
+                </button>
             </div>
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">{{ form.producto.label }}</label>
-                        {{ form.producto }}
-                        {% if form.producto.errors %}
-                            <div class="text-danger small">{{ form.producto.errors }}</div>
-                        {% endif %}
+                    <div id="productos-container">
+                        <!-- Fila 1 -->
+                        <div class="producto-fila mb-3 p-3 rounded" style="background:#f8f9fa; border:1px solid #dee2e6;" data-index="0">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong style="font-size:.85rem;">Producto #1</strong>
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-quitar" onclick="quitarFila(this)" style="display:none;">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-12 col-md-5">
+                                    <label class="form-label fw-bold" style="font-size:.82rem;">Producto</label>
+                                    <select name="producto_0" class="form-select producto-select" required onchange="cargarPrecio(this, 0)">
+                                        <option value="">— Selecciona —</option>
+                                        {% for prod in productos %}
+                                        <option value="{{ prod.pk }}" data-precio="{{ prod.precio }}">{{ prod.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label fw-bold" style="font-size:.82rem;">Cantidad</label>
+                                    <input type="number" name="cantidad_0" class="form-control cantidad-input" min="1" value="1" required oninput="calcularSubtotal(0)">
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <label class="form-label fw-bold" style="font-size:.82rem;">Precio unit.</label>
+                                    <input type="number" name="precio_0" class="form-control precio-input" min="0" step="0.50" required oninput="calcularSubtotal(0)">
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <label class="form-label fw-bold" style="font-size:.82rem;">Subtotal</label>
+                                    <div class="subtotal-display" id="subtotal_0" style="color:#10b981; font-weight:700; font-size:1.1rem; padding-top:.4rem;">$0.00</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">{{ form.cantidad.label }}</label>
-                        {{ form.cantidad }}
-                        {% if form.cantidad.errors %}
-                            <div class="text-danger small">{{ form.cantidad.errors }}</div>
-                        {% endif %}
-                    </div>
+                    <input type="hidden" name="total_filas" id="total_filas" value="1">
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">{{ form.precio_unitario.label }}</label>
-                        {{ form.precio_unitario }}
-                        {% if form.precio_unitario.errors %}
-                            <div class="text-danger small">{{ form.precio_unitario.errors }}</div>
-                        {% endif %}
-                    </div>
-
-                    {% if form.fecha %}
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">{{ form.fecha.label }}</label>
-                        {{ form.fecha }}
-                        {% if form.fecha.errors %}
-                            <div class="text-danger small">{{ form.fecha.errors }}</div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-
-                    <div class="mb-3 p-3 rounded" style="background:rgba(99,102,241,.08); border:0.5px solid rgba(99,102,241,.2);">
+                    <!-- Total general -->
+                    <div class="p-3 rounded mb-3" style="background:rgba(227,24,55,.08); border:1px solid rgba(227,24,55,.2);">
                         <div class="d-flex justify-content-between align-items-center">
-                            <span style="color:rgba(255,255,255,.6); font-size:.88rem;">Subtotal</span>
-                            <span id="subtotal" style="color:#10b981; font-weight:600; font-size:1.1rem;">$0.00</span>
+                            <span style="font-weight:700; font-size:1rem;">Total general</span>
+                            <span id="total-general" style="color:#e31837; font-weight:800; font-size:1.3rem;">$0.00</span>
                         </div>
                     </div>
 
@@ -62,7 +69,7 @@
                             <i class="bi bi-arrow-left"></i> Cancelar
                         </a>
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-cart-check"></i> Agregar
+                            <i class="bi bi-cart-check"></i> Agregar todo
                         </button>
                     </div>
                 </form>
@@ -74,37 +81,96 @@
 
 {% block extra_js %}
 <script>
-    const productoSelect = document.querySelector('select[name="producto"]');
-    const precioInput = document.querySelector('input[name="precio_unitario"]');
-    const cantidadInput = document.querySelector('input[name="cantidad"]');
-    const subtotalEl = document.getElementById('subtotal');
+let filaCount = 1;
 
-    function updateSubtotal() {
-        const qty = parseFloat(cantidadInput?.value) || 0;
-        const price = parseFloat(precioInput?.value) || 0;
-        subtotalEl.textContent = '$' + (qty * price).toFixed(2);
-    }
+const productosData = [
+    {% for prod in productos %}
+    { id: {{ prod.pk }}, nombre: "{{ prod.nombre }}", precio: {{ prod.precio }} },
+    {% endfor %}
+];
 
-    productoSelect?.addEventListener('change', async function() {
-        const pid = this.value;
-        if (!pid) return;
-        try {
-            const res = await fetch('/api/producto/' + pid + '/precio/');
-            const data = await res.json();
-            if (precioInput) {
-                precioInput.value = data.precio;
-            }
-            updateSubtotal();
-        } catch(e) {}
+function agregarFila() {
+    const idx = filaCount;
+    const container = document.getElementById('productos-container');
+
+    let optionsHtml = '<option value="">— Selecciona —</option>';
+    productosData.forEach(p => {
+        optionsHtml += `<option value="${p.id}" data-precio="${p.precio}">${p.nombre}</option>`;
     });
 
-    precioInput?.addEventListener('input', updateSubtotal);
-    cantidadInput?.addEventListener('input', updateSubtotal);
+    const html = `
+    <div class="producto-fila mb-3 p-3 rounded" style="background:#f8f9fa; border:1px solid #dee2e6;" data-index="${idx}">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong style="font-size:.85rem;">Producto #${idx + 1}</strong>
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="quitarFila(this)">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="row g-2">
+            <div class="col-12 col-md-5">
+                <label class="form-label fw-bold" style="font-size:.82rem;">Producto</label>
+                <select name="producto_${idx}" class="form-select producto-select" required onchange="cargarPrecio(this, ${idx})">
+                    ${optionsHtml}
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label fw-bold" style="font-size:.82rem;">Cantidad</label>
+                <input type="number" name="cantidad_${idx}" class="form-control cantidad-input" min="1" value="1" required oninput="calcularSubtotal(${idx})">
+            </div>
+            <div class="col-6 col-md-3">
+                <label class="form-label fw-bold" style="font-size:.82rem;">Precio unit.</label>
+                <input type="number" name="precio_${idx}" class="form-control precio-input" min="0" step="0.50" required oninput="calcularSubtotal(${idx})">
+            </div>
+            <div class="col-12 col-md-2">
+                <label class="form-label fw-bold" style="font-size:.82rem;">Subtotal</label>
+                <div class="subtotal-display" id="subtotal_${idx}" style="color:#10b981; font-weight:700; font-size:1.1rem; padding-top:.4rem;">$0.00</div>
+            </div>
+        </div>
+    </div>`;
 
-    // Fecha de hoy automática
-    const fechaInput = document.querySelector('input[name="fecha"]');
-    if (fechaInput && !fechaInput.value) {
-        fechaInput.value = new Date().toISOString().split('T')[0];
-    }
+    container.insertAdjacentHTML('beforeend', html);
+    filaCount++;
+    document.getElementById('total_filas').value = filaCount;
+    actualizarBotonesQuitar();
+}
+
+function quitarFila(btn) {
+    btn.closest('.producto-fila').remove();
+    actualizarTotalGeneral();
+    actualizarBotonesQuitar();
+}
+
+function actualizarBotonesQuitar() {
+    const filas = document.querySelectorAll('.producto-fila');
+    filas.forEach(f => {
+        const btn = f.querySelector('.btn-quitar, .btn-outline-danger');
+        if (btn) btn.style.display = filas.length > 1 ? '' : 'none';
+    });
+}
+
+function cargarPrecio(select, idx) {
+    const option = select.options[select.selectedIndex];
+    const precio = option.dataset.precio || '';
+    const precioInput = document.querySelector(`input[name="precio_${idx}"]`);
+    if (precioInput) precioInput.value = precio;
+    calcularSubtotal(idx);
+}
+
+function calcularSubtotal(idx) {
+    const cant = parseFloat(document.querySelector(`input[name="cantidad_${idx}"]`)?.value) || 0;
+    const precio = parseFloat(document.querySelector(`input[name="precio_${idx}"]`)?.value) || 0;
+    const sub = cant * precio;
+    const el = document.getElementById(`subtotal_${idx}`);
+    if (el) el.textContent = '$' + sub.toFixed(2);
+    actualizarTotalGeneral();
+}
+
+function actualizarTotalGeneral() {
+    let total = 0;
+    document.querySelectorAll('.subtotal-display').forEach(el => {
+        total += parseFloat(el.textContent.replace('$', '')) || 0;
+    });
+    document.getElementById('total-general').textContent = '$' + total.toFixed(2);
+}
 </script>
 {% endblock %}
