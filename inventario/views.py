@@ -9,7 +9,7 @@ from decimal import Decimal
 
 from .models import (
     Producto, Categoria, Venta, DetalleVenta,
-    Cliente, Egreso, SaldoCaja, MovimientoPrestamo
+    Cliente, Egreso, SaldoCaja
 )
 
 from .forms import (
@@ -688,14 +688,12 @@ def egreso_list(request):
 
     categorias = Categoria.objects.all()
     saldo = SaldoCaja.get()
-    movimientos_prestamo = MovimientoPrestamo.objects.all()[:10]
 
     return render(request, 'inventario/egreso_list.html', {
         'egresos': egresos,
         'total_mes': total_mes,
         'categorias': categorias,
         'saldo': saldo,
-        'movimientos_prestamo': movimientos_prestamo,
     })
 
 
@@ -751,16 +749,10 @@ def egreso_create(request):
             saldo.banco -= monto_banco
             saldo.prestamo += monto_prestamo
 
-            saldo.save()
+            if forma_pago == 'prestamo' and nota_prestamo:
+                saldo.nota_prestamo = nota_prestamo
 
-            if forma_pago == 'prestamo' and monto_prestamo > 0:
-                MovimientoPrestamo.objects.create(
-                    tipo='agregado',
-                    monto=monto_prestamo,
-                    monto_efectivo=Decimal(0),
-                    monto_banco=Decimal(0),
-                    nota=nota_prestamo or f'Préstamo agregado por egreso: {nombre}'
-                )
+            saldo.save()
 
             messages.success(request, f'✅ Egreso "{nombre}" registrado.')
         else:
@@ -782,15 +774,6 @@ def egreso_delete(request, pk):
 
         saldo.save()
 
-        if egreso.monto_prestamo > 0:
-            MovimientoPrestamo.objects.create(
-                tipo='ajuste',
-                monto=egreso.monto_prestamo,
-                monto_efectivo=Decimal(0),
-                monto_banco=Decimal(0),
-                nota=f'Se eliminó el egreso de préstamo: {egreso.nombre}'
-            )
-
         egreso.delete()
         messages.success(request, '🗑️ Egreso eliminado. Saldo restaurado.')
 
@@ -805,13 +788,9 @@ def estado_cuenta(request):
 
     if request.method == 'POST':
         try:
-            efectivo_anterior = saldo.efectivo
-            banco_anterior = saldo.banco
-            prestamo_anterior = saldo.prestamo
-
             pagar_prestamo_efectivo = Decimal(request.POST.get('pagar_prestamo_efectivo', 0) or 0)
             pagar_prestamo_banco = Decimal(request.POST.get('pagar_prestamo_banco', 0) or 0)
-            nota_cobro_prestamo = request.POST.get('nota_cobro_prestamo', '').strip()
+            nota_prestamo = request.POST.get('nota_prestamo', '').strip()
 
             total_pago_prestamo = pagar_prestamo_efectivo + pagar_prestamo_banco
 
@@ -832,15 +811,10 @@ def estado_cuenta(request):
                 saldo.banco -= pagar_prestamo_banco
                 saldo.prestamo -= total_pago_prestamo
 
-                saldo.save()
+                if nota_prestamo:
+                    saldo.nota_prestamo = nota_prestamo
 
-                MovimientoPrestamo.objects.create(
-                    tipo='cobro',
-                    monto=total_pago_prestamo,
-                    monto_efectivo=pagar_prestamo_efectivo,
-                    monto_banco=pagar_prestamo_banco,
-                    nota=nota_cobro_prestamo or 'Cobro de préstamo'
-                )
+                saldo.save()
 
                 messages.success(
                     request,
@@ -849,28 +823,19 @@ def estado_cuenta(request):
 
                 return redirect(request.META.get('HTTP_REFERER', 'estado_cuenta'))
 
+            if 'prestamo' in request.POST and request.POST.get('prestamo') != '':
+                saldo.prestamo = Decimal(request.POST.get('prestamo'))
+
             if 'efectivo' in request.POST and request.POST.get('efectivo') != '':
                 saldo.efectivo = Decimal(request.POST.get('efectivo'))
 
             if 'banco' in request.POST and request.POST.get('banco') != '':
                 saldo.banco = Decimal(request.POST.get('banco'))
 
-            if 'prestamo' in request.POST and request.POST.get('prestamo') != '':
-                saldo.prestamo = Decimal(request.POST.get('prestamo'))
+            if nota_prestamo:
+                saldo.nota_prestamo = nota_prestamo
 
             saldo.save()
-
-            if saldo.prestamo != prestamo_anterior:
-                diferencia = saldo.prestamo - prestamo_anterior
-
-                MovimientoPrestamo.objects.create(
-                    tipo='ajuste',
-                    monto=abs(diferencia),
-                    monto_efectivo=Decimal(0),
-                    monto_banco=Decimal(0),
-                    nota='Ajuste manual de préstamo'
-                )
-
             messages.success(request, '✅ Saldo actualizado correctamente.')
 
         except:
@@ -917,8 +882,6 @@ def egreso_edit(request, pk):
 
         saldo = SaldoCaja.get()
 
-        prestamo_anterior_egreso = egreso.monto_prestamo
-
         saldo.efectivo += egreso.monto_efectivo
         saldo.banco += egreso.monto_banco
         saldo.prestamo -= egreso.monto_prestamo
@@ -926,6 +889,9 @@ def egreso_edit(request, pk):
         saldo.efectivo -= monto_efectivo
         saldo.banco -= monto_banco
         saldo.prestamo += monto_prestamo
+
+        if forma_pago == 'prestamo' and nota_prestamo:
+            saldo.nota_prestamo = nota_prestamo
 
         saldo.save()
 
@@ -938,15 +904,6 @@ def egreso_edit(request, pk):
         egreso.monto_banco = monto_banco
         egreso.monto_prestamo = monto_prestamo
         egreso.save()
-
-        if prestamo_anterior_egreso != monto_prestamo:
-            MovimientoPrestamo.objects.create(
-                tipo='ajuste',
-                monto=abs(monto_prestamo - prestamo_anterior_egreso),
-                monto_efectivo=Decimal(0),
-                monto_banco=Decimal(0),
-                nota=nota_prestamo or f'Ajuste de préstamo en egreso: {nombre}'
-            )
 
         messages.success(request, f'✅ Egreso "{nombre}" actualizado.')
 

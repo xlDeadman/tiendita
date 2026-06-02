@@ -223,56 +223,6 @@
     </div>
 </div>
 
-<!-- Historial de préstamos -->
-<div class="card shadow-sm tabla-dsei-card mb-4">
-    <div class="card-header" style="background:#fff;">
-        <h5 class="mb-0"><i class="bi bi-journal-text"></i> Historial de préstamos</h5>
-    </div>
-
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Tipo</th>
-                        <th class="text-end">Monto</th>
-                        <th class="text-center">Efectivo</th>
-                        <th class="text-center">Banco</th>
-                        <th>Nota</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for m in movimientos_prestamo %}
-                    <tr>
-                        <td>{{ m.fecha|date:"d/m/Y H:i" }}</td>
-                        <td>
-                            {% if m.tipo == 'agregado' %}
-                                <span class="badge bg-warning text-dark">🤝 Agregado</span>
-                            {% elif m.tipo == 'cobro' %}
-                                <span class="badge bg-success">💸 Cobro</span>
-                            {% else %}
-                                <span class="badge bg-secondary">✏️ Ajuste</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-end fw-semibold">${{ m.monto|floatformat:2 }}</td>
-                        <td class="text-center">${{ m.monto_efectivo|floatformat:2 }}</td>
-                        <td class="text-center">${{ m.monto_banco|floatformat:2 }}</td>
-                        <td class="text-muted small">{{ m.nota|default:"—" }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center text-muted py-4">
-                            No hay movimientos de préstamos registrados.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
 <!-- Modal Nuevo Egreso -->
 <div id="modalEgreso" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.6); z-index:99999; align-items:center; justify-content:center;">
     <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:500px; margin:1rem; max-height:90vh; overflow-y:auto;">
@@ -521,7 +471,9 @@
             {% csrf_token %}
 
             <div style="margin-bottom:1rem;">
-                <label style="color:#333; font-weight:700; font-size:.9rem; margin-bottom:.4rem; display:block;">🤝 Préstamos que te debe la tienda ($)</label>
+                <label style="color:#333; font-weight:700; font-size:.9rem; margin-bottom:.4rem; display:block;">
+                    🤝 Préstamos que me debe la tienda ($)
+                </label>
                 <div style="display:flex;">
                     <span style="background:#f8f8f8; border:1.5px solid #ddd; border-right:none; padding:.6rem .85rem; border-radius:8px 0 0 8px; color:#f59e0b; font-weight:700;">$</span>
                     <input type="number" name="prestamo" step="0.01" min="0" value="{{ saldo.prestamo }}"
@@ -531,7 +483,7 @@
 
             <div class="prestamo-box">
                 <strong style="color:#c2410c; display:block; margin-bottom:.25rem;">
-                    💸 Cobrarme préstamo con:
+                    💸 Pagar con:
                 </strong>
                 <small class="text-muted">
                     Lo que pongas aquí se restará de préstamos y también del efectivo o banco.
@@ -539,7 +491,9 @@
             </div>
 
             <div style="margin-bottom:1rem;">
-                <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">💵 Cobrar con efectivo ($)</label>
+                <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">
+                    💵 Efectivo ($)
+                </label>
                 <div style="display:flex;">
                     <span style="background:#f8f8f8; border:1.5px solid #ddd; border-right:none; padding:.6rem .85rem; border-radius:8px 0 0 8px; color:#10b981; font-weight:700;">$</span>
                     <input type="number" name="pagar_prestamo_efectivo" step="0.01" min="0" placeholder="0.00"
@@ -548,7 +502,9 @@
             </div>
 
             <div style="margin-bottom:1rem;">
-                <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">🏦 Cobrar con banco ($)</label>
+                <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">
+                    🏦 Banco ($)
+                </label>
                 <div style="display:flex;">
                     <span style="background:#f8f8f8; border:1.5px solid #ddd; border-right:none; padding:.6rem .85rem; border-radius:8px 0 0 8px; color:#818cf8; font-weight:700;">$</span>
                     <input type="number" name="pagar_prestamo_banco" step="0.01" min="0" placeholder="0.00"
@@ -557,9 +513,11 @@
             </div>
 
             <div style="margin-bottom:1.5rem;">
-                <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">📝 Nota del cobro</label>
-                <textarea name="nota_cobro_prestamo" rows="3" placeholder="Ej: Me cobré parte de la mercancía que compré con mi dinero"
-                          style="width:100%; border:1.5px solid #ddd; border-radius:8px; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; resize:none;"></textarea>
+                <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">
+                    📝 Nota
+                </label>
+                <textarea name="nota_prestamo" rows="3" placeholder="Ej: Compré Sabritas, refrescos o mercancía con mi dinero"
+                          style="width:100%; border:1.5px solid #ddd; border-radius:8px; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333; resize:none;">{{ saldo.nota_prestamo }}</textarea>
             </div>
 
             <hr>
