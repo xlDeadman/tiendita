@@ -646,16 +646,23 @@ def egreso_delete(request, pk):
 @login_required
 def estado_cuenta(request):
     saldo = SaldoCaja.get()
+
     if request.method == 'POST':
         try:
             if 'efectivo' in request.POST and request.POST.get('efectivo') != '':
                 saldo.efectivo = Decimal(request.POST.get('efectivo'))
+
             if 'banco' in request.POST and request.POST.get('banco') != '':
                 saldo.banco = Decimal(request.POST.get('banco'))
+
             saldo.save()
             messages.success(request, '✅ Saldo actualizado correctamente.')
+
         except:
             messages.error(request, '❌ Valores inválidos.')
+
+        return redirect(request.META.get('HTTP_REFERER', 'estado_cuenta'))
+
     return render(request, 'inventario/estado_cuenta.html', {'saldo': saldo})
 
 
