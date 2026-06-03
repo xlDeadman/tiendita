@@ -268,14 +268,14 @@
 <!-- Resumen -->
 <div class="resumen-grid">
 
-    <div class="resumen-card">
-        <div class="resumen-label">
-            <i class="bi bi-arrow-down-circle" style="color:#e31837;"></i>
-            Total egresos del mes
-        </div>
-        <div class="resumen-valor" style="color:#e31837;">${{ total_mes|floatformat:2 }}</div>
-        <div class="resumen-sub">Mes en curso</div>
+    <div class="resumen-card" style="background:#e31837; border-color:#e31837;">
+    <div class="resumen-label" style="color:rgba(255,255,255,.7);">
+        <i class="bi bi-arrow-down-circle" style="color:#fff;"></i>
+        Total egresos del mes
     </div>
+    <div class="resumen-valor" style="color:#fff;">${{ total_mes|floatformat:2 }}</div>
+    <div class="resumen-sub" style="color:rgba(255,255,255,.6);">Mes en curso</div>
+   </div>
 
     <div class="resumen-card clickable accent-left" style="--color:#16a34a;" onclick="document.getElementById('modalEfectivo').style.display='flex'">
         <div class="resumen-label">
