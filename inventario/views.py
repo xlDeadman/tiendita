@@ -314,11 +314,11 @@ def venta_create(request):
 
         if form.is_valid() and formset.is_valid():
             venta = form.save(commit=False)
-            venta.total = 0
+            venta.total = Decimal('0')
             venta.save()
 
             detalles = formset.save(commit=False)
-            total = 0
+            total = Decimal('0')
             errores = []
 
             for detalle in detalles:
@@ -330,13 +330,16 @@ def venta_create(request):
                 else:
                     detalle.precio_unitario = detalle.precio_unitario or producto.precio
                     detalle.save()
+
                     producto.stock_actual -= detalle.cantidad
                     producto.save()
+
                     total += detalle.subtotal
 
             if errores:
                 for e in errores:
                     messages.error(request, f'❌ {e}')
+
                 venta.delete()
 
                 return render(request, 'inventario/venta_form.html', {
@@ -347,7 +350,13 @@ def venta_create(request):
 
             venta.total = total
             venta.save()
-            messages.success(request, f'✅ Venta registrada. Total: ${total:.2f}')
+
+            # ✅ Sumar la venta de efectivo al saldo disponible
+            saldo = SaldoCaja.get()
+            saldo.efectivo += total
+            saldo.save()
+
+            messages.success(request, f'✅ Venta registrada. Total: ${total:.2f}. Se sumó al efectivo disponible.')
             return redirect('venta_list')
     else:
         form = VentaForm(initial={'fecha': date.today()})
@@ -380,8 +389,18 @@ def venta_delete(request, pk):
             detalle.producto.stock_actual += detalle.cantidad
             detalle.producto.save()
 
+        # ✅ Restar del efectivo disponible la venta eliminada
+        saldo = SaldoCaja.get()
+        saldo.efectivo -= venta.total
+
+        if saldo.efectivo < 0:
+            saldo.efectivo = Decimal('0')
+
+        saldo.save()
+
         venta.delete()
-        messages.success(request, '🗑️ Venta eliminada. Stock restaurado.')
+
+        messages.success(request, '🗑️ Venta eliminada. Stock restaurado y efectivo actualizado.')
         return redirect('venta_list')
 
     return render(request, 'inventario/venta_confirm_delete.html', {'venta': venta})
