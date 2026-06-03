@@ -1,87 +1,131 @@
 {% extends 'inventario/base.html' %}
-
 {% block title %}Clientes{% endblock %}
-{% block page_title %}<i class="bi bi-people-fill"></i> Clientes{% endblock %}
+{% block topbar_badge %}Crédito{% endblock %}
+{% block page_title %}Clientes{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'cliente_create' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-person-plus me-1"></i> Nuevo cliente
+</a>
+{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-people-fill"></i> Clientes</h2>
-    <a href="{% url 'cliente_create' %}" class="btn btn-primary">
-        <i class="bi bi-person-plus-fill"></i> Nuevo cliente
-    </a>
-</div>
 
-<div class="card shadow-sm" style="overflow:hidden; border-radius:14px;">
-    <div class="card-body p-0">
-        <table class="table table-hover mb-0" id="tablaClientes">
+<style>
+    .cliente-nombre {
+        font-size: 13.5px;
+        font-weight: 500;
+        color: #18181b;
+    }
+
+    .bloqueado-row {
+        background: #fef2f2 !important;
+    }
+
+    .deuda-badge {
+        font-size: 13px;
+        font-weight: 600;
+        color: #e31837;
+    }
+
+    .sin-deuda {
+        font-size: 12px;
+        color: #16a34a;
+        font-weight: 500;
+    }
+
+    th[onclick] { cursor: pointer; user-select: none; }
+    th[onclick]:hover { color: #18181b !important; }
+</style>
+
+<div class="table-card">
+    <!-- Cabecera con buscador -->
+    <div style="padding:12px 16px; border-bottom:1px solid #e8e8e4; display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:13px; font-weight:600; color:#18181b;">
+            <i class="bi bi-people" style="color:#a1a1aa; margin-right:5px;"></i>
+            Lista de clientes
+        </span>
+        <input type="text" id="buscador" placeholder="Buscar cliente..."
+            onkeyup="filtrar()"
+            style="border:1px solid #e8e8e4; border-radius:8px; padding:5px 12px; font-size:12.5px; color:#18181b; outline:none; width:200px;">
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="tablaClientes">
             <thead>
-    <tr style="background:#e31837;">
-        <th style="color:#fff !important; cursor:pointer;" onclick="ordenar('nombre')">
-            Cliente <i class="bi bi-arrow-down-up" style="font-size:.7rem;"></i>
-        </th>
-
-        <th style="color:#fff !important; cursor:pointer;" onclick="ordenar('deuda')">
-            Deuda total <i class="bi bi-arrow-down-up" style="font-size:.7rem;"></i>
-        </th>
-
-        <th style="color:#fff !important;">
-            Estado
-        </th>
-
-        <th style="color:#fff !important;">
-            Acciones
-        </th>
-    </tr>
-</thead>
+                <tr>
+                    <th onclick="ordenar('nombre')" style="cursor:pointer;">
+                        Cliente <i class="bi bi-arrow-down-up" style="font-size:.65rem; opacity:.5;"></i>
+                    </th>
+                    <th onclick="ordenar('deuda')" style="cursor:pointer;">
+                        Deuda total <i class="bi bi-arrow-down-up" style="font-size:.65rem; opacity:.5;"></i>
+                    </th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
             <tbody id="tbodyClientes">
                 {% for cliente in clientes %}
-                <tr style="background:{% if cliente.bloqueado %}#fee2e2{% else %}#fff{% endif %};" data-nombre="{{ cliente.nombre }}" data-deuda="{{ cliente.deuda|default:0 }}">
+                <tr {% if cliente.bloqueado %}class="bloqueado-row"{% endif %}
+                    data-nombre="{{ cliente.nombre }}"
+                    data-deuda="{{ cliente.deuda|default:0 }}">
+
                     <td>
-                        <i class="bi bi-person-circle" style="color:#e31837;"></i>
-                        <strong>{{ cliente.nombre }}</strong>
+                        <div class="cliente-nombre">
+                            <i class="bi bi-person-circle" style="color:#e31837; margin-right:5px;"></i>
+                            {{ cliente.nombre }}
+                        </div>
                     </td>
+
                     <td>
                         {% if cliente.deuda %}
-                            <span class="badge bg-danger fs-6">${{ cliente.deuda }}</span>
+                            <span class="deuda-badge">${{ cliente.deuda }}</span>
                         {% else %}
-                            <span class="badge bg-success">Sin deuda</span>
+                            <span class="sin-deuda">Sin deuda</span>
                         {% endif %}
                     </td>
+
                     <td>
                         {% if cliente.bloqueado %}
-                            <span class="badge bg-danger">⛔ Bloqueado — No pagó</span>
+                            <span class="badge" style="background:#fef2f2; color:#e31837; font-size:11px;">Bloqueado</span>
                         {% else %}
-                            <span class="badge bg-success">✅ Activo</span>
+                            <span class="badge" style="background:#f0fdf4; color:#16a34a; font-size:11px;">Activo</span>
                         {% endif %}
                     </td>
-                    <td>
-                        <a href="{% url 'cliente_detail' cliente.pk %}" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-eye"></i> Ver cuenta
-                        </a>
-                        {% if cliente.bloqueado %}
-                        <form method="post" action="{% url 'cliente_desbloquear' cliente.pk %}" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-success">
-                                <i class="bi bi-unlock"></i> Desbloquear
-                            </button>
-                        </form>
-                        {% else %}
-                        <form method="post" action="{% url 'cliente_bloquear' cliente.pk %}" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-secondary"
-                                onclick="return confirm('¿Bloquear a {{ cliente.nombre }}?')">
-                                <i class="bi bi-lock"></i> Bloquear
-                            </button>
-                        </form>
-                        {% endif %}
-                        <a href="{% url 'cliente_delete' cliente.pk %}" class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-trash"></i> Eliminar
-                        </a>
+
+                    <td class="text-center">
+                        <div style="display:flex; gap:6px; justify-content:center;">
+                            <a href="{% url 'cliente_detail' cliente.pk %}" class="btn btn-sm btn-outline-primary" title="Ver cuenta">
+                                <i class="bi bi-eye"></i>
+                            </a>
+
+                            {% if cliente.bloqueado %}
+                            <form method="post" action="{% url 'cliente_desbloquear' cliente.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-success" title="Desbloquear">
+                                    <i class="bi bi-unlock"></i>
+                                </button>
+                            </form>
+                            {% else %}
+                            <form method="post" action="{% url 'cliente_bloquear' cliente.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                    onclick="return confirm('¿Bloquear a {{ cliente.nombre }}?')" title="Bloquear">
+                                    <i class="bi bi-lock"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            <a href="{% url 'cliente_delete' cliente.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="text-center text-muted py-4">
+                    <td colspan="4" class="text-center py-5" style="color:#a1a1aa; font-size:13.5px;">
+                        <i class="bi bi-people" style="font-size:1.8rem; display:block; margin-bottom:8px; opacity:.4;"></i>
                         No hay clientes registrados.
                     </td>
                 </tr>
@@ -102,23 +146,30 @@ function ordenar(campo) {
         ordenActual.asc = !ordenActual.asc;
     } else {
         ordenActual.campo = campo;
-        ordenActual.asc = campo === 'nombre' ? true : false;
+        ordenActual.asc = campo === 'nombre';
     }
 
     filas.sort((a, b) => {
-        let valA, valB;
         if (campo === 'nombre') {
-            valA = a.dataset.nombre.toLowerCase();
-            valB = b.dataset.nombre.toLowerCase();
+            const valA = a.dataset.nombre.toLowerCase();
+            const valB = b.dataset.nombre.toLowerCase();
             return ordenActual.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
         } else {
-            valA = parseFloat(a.dataset.deuda) || 0;
-            valB = parseFloat(b.dataset.deuda) || 0;
+            const valA = parseFloat(a.dataset.deuda) || 0;
+            const valB = parseFloat(b.dataset.deuda) || 0;
             return ordenActual.asc ? valA - valB : valB - valA;
         }
     });
 
     filas.forEach(f => tbody.appendChild(f));
 }
+
+function filtrar() {
+    const q = document.getElementById('buscador').value.toLowerCase();
+    document.querySelectorAll('#tbodyClientes tr[data-nombre]').forEach(row => {
+        row.style.display = row.dataset.nombre.toLowerCase().includes(q) ? '' : 'none';
+    });
+}
 </script>
+
 {% endblock %}
