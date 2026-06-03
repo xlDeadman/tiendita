@@ -5,8 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Tienda DSEI{% endblock %} | Panel de Control</title>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
   <style>
     :root {
       --sidebar-width: 290px;
@@ -19,14 +21,23 @@
       --border: rgba(0,0,0,.08);
     }
 
-    * { box-sizing: border-box; }
-    body { background: var(--body-bg); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; }
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--body-bg);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      margin: 0;
+    }
 
     body::before {
       content: '';
       position: fixed;
-      top: 0; left: var(--sidebar-width);
-      right: 0; bottom: 0;
+      top: 0;
+      left: var(--sidebar-width);
+      right: 0;
+      bottom: 0;
       background: repeating-linear-gradient(
         -45deg,
         transparent,
@@ -43,7 +54,8 @@
       min-height: 100vh;
       background: var(--sidebar-bg);
       position: fixed;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
       display: flex;
       flex-direction: column;
       z-index: 100;
@@ -51,61 +63,112 @@
     }
 
     .sidebar-brand {
-      padding: 1.5rem 1.25rem 1rem;
+      padding: 2rem 1.5rem 1.25rem;
       border-bottom: 0.5px solid rgba(255,255,255,.15);
       background: #a01228;
       text-align: center;
     }
 
-    .sidebar-oxxo-bar { display: flex; height: 5px; }
-    .sidebar-oxxo-bar div:nth-child(1) { background: #f5a623; flex: 3; }
-    .sidebar-oxxo-bar div:nth-child(2) { background: #fff; flex: 1; }
-    .sidebar-oxxo-bar div:nth-child(3) { background: #f5a623; flex: 1; }
+    .sidebar-brand img {
+      width: 145px;
+      height: auto;
+      object-fit: contain;
+    }
 
-    .sidebar-nav { padding: .5rem 0; flex: 1; overflow-y: auto; }
+    .sidebar-oxxo-bar {
+      display: flex;
+      height: 6px;
+    }
+
+    .sidebar-oxxo-bar div:nth-child(1) {
+      background: #f5a623;
+      flex: 3;
+    }
+
+    .sidebar-oxxo-bar div:nth-child(2) {
+      background: #fff;
+      flex: 1;
+    }
+
+    .sidebar-oxxo-bar div:nth-child(3) {
+      background: #f5a623;
+      flex: 1;
+    }
+
+    .sidebar-nav {
+      padding: .75rem 0;
+      flex: 1;
+      overflow-y: auto;
+    }
 
     .sidebar-label {
-      color: rgba(255,255,255,.4);
-      font-size: .6rem;
-      font-weight: 700;
-      letter-spacing: .12em;
+      color: rgba(255,255,255,.45);
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .14em;
       text-transform: uppercase;
-      padding: .9rem 1.25rem .3rem;
+      padding: 1.15rem 1.55rem .45rem;
     }
 
     .nav-link-side {
       display: flex;
       align-items: center;
-      gap: .6rem;
-      color: rgba(255,255,255,.7);
-      padding: .55rem 1.25rem;
-      font-size: .84rem;
+      gap: .85rem;
+      color: rgba(255,255,255,.8);
+      padding: .85rem 1.55rem;
+      font-size: 1rem;
       text-decoration: none;
       transition: background .15s, color .15s;
-      border-left: 3px solid transparent;
+      border-left: 4px solid transparent;
     }
-    .nav-link-side:hover { background: rgba(0,0,0,.15); color: #fff; }
+
+    .nav-link-side:hover {
+      background: rgba(0,0,0,.15);
+      color: #fff;
+    }
+
     .nav-link-side.active {
-      background: rgba(0,0,0,.2);
+      background: rgba(0,0,0,.22);
       color: #f5a623;
-      border-left: 3px solid #f5a623;
-      padding-left: calc(1.25rem - 3px);
-      font-weight: 600;
+      border-left: 4px solid #f5a623;
+      padding-left: calc(1.55rem - 4px);
+      font-weight: 700;
     }
-    .nav-link-side i { font-size: .95rem; width: 1.1rem; text-align: center; }
+
+    .nav-link-side i {
+      font-size: 1.15rem;
+      width: 1.35rem;
+      text-align: center;
+    }
 
     .sidebar-footer {
-      padding: .85rem 1.25rem;
+      padding: 1rem 1.55rem;
       border-top: 0.5px solid rgba(255,255,255,.15);
       background: #a01228;
     }
+
     .sidebar-footer .user-info {
-      color: rgba(255,255,255,.5);
-      font-size: .75rem;
-      margin-bottom: .4rem;
+      color: rgba(255,255,255,.65);
+      font-size: .9rem;
+      margin-bottom: .55rem;
     }
 
-    #main-content { margin-left: var(--sidebar-width); min-height: 100vh; position: relative; z-index: 1; }
+    .logout-btn {
+      background: none;
+      border: none;
+      padding: .45rem 0;
+      font-size: .92rem;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    #main-content {
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
 
     .topbar {
       background: #e31837;
@@ -119,6 +182,7 @@
       z-index: 50;
       box-shadow: 0 2px 10px rgba(227,24,55,.3);
     }
+
     .topbar-title {
       font-weight: 700;
       color: #fff;
@@ -128,7 +192,9 @@
       letter-spacing: .03em;
     }
 
-    .page-body { padding: 1.75rem; }
+    .page-body {
+      padding: 1.75rem;
+    }
 
     .stat-card {
       border: none !important;
@@ -137,11 +203,19 @@
       transition: transform .15s, box-shadow .15s;
       box-shadow: 0 2px 12px rgba(0,0,0,.1);
     }
-    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.15); }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,.15);
+    }
+
     .stat-icon {
-      width: 44px; height: 44px;
+      width: 44px;
+      height: 44px;
       border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 1.2rem;
     }
 
@@ -152,8 +226,16 @@
       overflow: hidden;
       box-shadow: 0 2px 12px rgba(0,0,0,.1);
     }
-    .table-card table { border-collapse: separate; border-spacing: 0; }
-    .table { color: #333 !important; }
+
+    .table-card table {
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .table {
+      color: #333 !important;
+    }
+
     .table thead th {
       background: #e31837;
       color: #fff;
@@ -164,27 +246,64 @@
       border-bottom: none;
       padding: .65rem 1rem;
     }
+
     .table tbody td {
       padding: .65rem 1rem;
       font-size: .88rem;
       border-bottom: 0.5px solid #f0f0f0;
       color: #333;
     }
-    .table tbody tr:hover { background: #fff8f0; }
-    .table tbody tr:last-child td:first-child { border-bottom-left-radius: 14px; }
-    .table tbody tr:last-child td:last-child { border-bottom-right-radius: 14px; }
-    .table tbody tr:hover td { background: #fff8f0 !important; }
+
+    .table tbody tr:hover {
+      background: #fff8f0;
+    }
+
+    .table tbody tr:last-child td:first-child {
+      border-bottom-left-radius: 14px;
+    }
+
+    .table tbody tr:last-child td:last-child {
+      border-bottom-right-radius: 14px;
+    }
+
+    .table tbody tr:hover td {
+      background: #fff8f0 !important;
+    }
+
     .table > :not(caption) > * > * {
       background: transparent !important;
       color: #333 !important;
     }
 
-    .messages-container { padding: 1rem 1.75rem 0; }
-    .alert { border-radius: 10px; font-size: .88rem; border: none; }
-    .alert-success { background: #dcfce7; color: #166534; }
-    .alert-danger { background: #fee2e2; color: #991b1b; }
-    .alert-warning { background: #fef9c3; color: #854d0e; }
-    .alert-info { background: #dbeafe; color: #1e40af; }
+    .messages-container {
+      padding: 1rem 1.75rem 0;
+    }
+
+    .alert {
+      border-radius: 10px;
+      font-size: .88rem;
+      border: none;
+    }
+
+    .alert-success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .alert-danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .alert-warning {
+      background: #fef9c3;
+      color: #854d0e;
+    }
+
+    .alert-info {
+      background: #dbeafe;
+      color: #1e40af;
+    }
 
     .card {
       border: none !important;
@@ -192,6 +311,7 @@
       background: #fff !important;
       box-shadow: 0 2px 12px rgba(0,0,0,.08);
     }
+
     .card-header {
       border-radius: 14px 14px 0 0 !important;
       font-size: .88rem;
@@ -201,16 +321,23 @@
       color: #fff !important;
       background: #e31837 !important;
     }
-    .card-body { color: #333; }
+
+    .card-body {
+      color: #333;
+    }
 
     .list-group-item {
       background: transparent !important;
       border-color: #f0f0f0 !important;
       color: #333 !important;
     }
-    .list-group-item:hover { background: #fff8f0 !important; }
 
-    .form-control, .form-select {
+    .list-group-item:hover {
+      background: #fff8f0 !important;
+    }
+
+    .form-control,
+    .form-select {
       background: #fff !important;
       border: 1.5px solid #e0e0e0 !important;
       border-radius: 8px;
@@ -218,12 +345,23 @@
       padding: .5rem .85rem;
       color: #333 !important;
     }
-    .form-control::placeholder { color: #aaa !important; }
-    .form-control:focus, .form-select:focus {
+
+    .form-control::placeholder {
+      color: #aaa !important;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
       border-color: #e31837 !important;
       box-shadow: 0 0 0 3px rgba(227,24,55,.1) !important;
     }
-    .form-label { color: #555 !important; font-size: .85rem; font-weight: 600; }
+
+    .form-label {
+      color: #555 !important;
+      font-size: .85rem;
+      font-weight: 600;
+    }
+
     .input-group-text {
       background: #f8f8f8 !important;
       border: 1.5px solid #e0e0e0 !important;
@@ -231,44 +369,132 @@
       font-weight: 700;
     }
 
-    .btn { border-radius: 8px; font-size: .85rem; font-weight: 600; }
-    .btn-primary { background: #e31837 !important; border-color: #e31837 !important; color: #fff !important; }
-    .btn-primary:hover { background: #c01530 !important; border-color: #c01530 !important; }
-    .btn-success { background: #10b981 !important; border-color: #10b981 !important; color: #fff !important; }
-    .btn-success:hover { background: #059669 !important; border-color: #059669 !important; }
-    .btn-secondary { background: #6b7280 !important; border-color: #6b7280 !important; color: #fff !important; }
-    .btn-outline-primary { border-color: #e31837 !important; color: #e31837 !important; }
-    .btn-outline-primary:hover { background: rgba(227,24,55,.1) !important; }
-    .btn-outline-danger { border-color: #ef4444 !important; color: #ef4444 !important; }
-    .btn-outline-danger:hover { background: rgba(239,68,68,.1) !important; }
-    .btn-outline-warning { border-color: #f59e0b !important; color: #f59e0b !important; }
-    .btn-outline-warning:hover { background: rgba(245,158,11,.1) !important; }
-    .btn-outline-secondary { border-color: #9ca3af !important; color: #6b7280 !important; }
-    .btn-outline-secondary:hover { background: rgba(0,0,0,.05) !important; }
-    .btn-outline-success { border-color: #10b981 !important; color: #10b981 !important; }
-    .btn-outline-success:hover { background: rgba(16,185,129,.1) !important; }
+    .btn {
+      border-radius: 8px;
+      font-size: .85rem;
+      font-weight: 600;
+    }
 
-    .text-dark { color: #1a1a1a !important; }
-    .text-muted { color: #888 !important; }
-    .text-success { color: #10b981 !important; }
-    .text-danger { color: #e31837 !important; }
-    .text-warning { color: #f59e0b !important; }
+    .btn-primary {
+      background: #e31837 !important;
+      border-color: #e31837 !important;
+      color: #fff !important;
+    }
+
+    .btn-primary:hover {
+      background: #c01530 !important;
+      border-color: #c01530 !important;
+    }
+
+    .btn-success {
+      background: #10b981 !important;
+      border-color: #10b981 !important;
+      color: #fff !important;
+    }
+
+    .btn-success:hover {
+      background: #059669 !important;
+      border-color: #059669 !important;
+    }
+
+    .btn-secondary {
+      background: #6b7280 !important;
+      border-color: #6b7280 !important;
+      color: #fff !important;
+    }
+
+    .btn-outline-primary {
+      border-color: #e31837 !important;
+      color: #e31837 !important;
+    }
+
+    .btn-outline-primary:hover {
+      background: rgba(227,24,55,.1) !important;
+    }
+
+    .btn-outline-danger {
+      border-color: #ef4444 !important;
+      color: #ef4444 !important;
+    }
+
+    .btn-outline-danger:hover {
+      background: rgba(239,68,68,.1) !important;
+    }
+
+    .btn-outline-warning {
+      border-color: #f59e0b !important;
+      color: #f59e0b !important;
+    }
+
+    .btn-outline-warning:hover {
+      background: rgba(245,158,11,.1) !important;
+    }
+
+    .btn-outline-secondary {
+      border-color: #9ca3af !important;
+      color: #6b7280 !important;
+    }
+
+    .btn-outline-secondary:hover {
+      background: rgba(0,0,0,.05) !important;
+    }
+
+    .btn-outline-success {
+      border-color: #10b981 !important;
+      color: #10b981 !important;
+    }
+
+    .btn-outline-success:hover {
+      background: rgba(16,185,129,.1) !important;
+    }
+
+    .text-dark {
+      color: #1a1a1a !important;
+    }
+
+    .text-muted {
+      color: #888 !important;
+    }
+
+    .text-success {
+      color: #10b981 !important;
+    }
+
+    .text-danger {
+      color: #e31837 !important;
+    }
+
+    .text-warning {
+      color: #f59e0b !important;
+    }
 
     @media (max-width: 768px) {
-      #sidebar { width: 0; overflow: hidden; }
-      #main-content { margin-left: 0; }
-      body::before { left: 0; }
+      #sidebar {
+        width: 0;
+        overflow: hidden;
+      }
+
+      #main-content {
+        margin-left: 0;
+      }
+
+      body::before {
+        left: 0;
+      }
     }
   </style>
+
   {% block extra_head %}{% endblock %}
 </head>
+
 <body>
 
 {% if user.is_authenticated %}
 <nav id="sidebar">
   <div class="sidebar-brand">
-    <img src="{% static 'inventario/img/logo23.png' %}" style="width:100px; height:auto; object-fit:contain;">
+    <img src="{% static 'inventario/img/logo23.png' %}" alt="Tienda DSEI">
   </div>
+
   <div class="sidebar-oxxo-bar">
     <div></div>
     <div></div>
@@ -277,25 +503,31 @@
 
   <div class="sidebar-nav">
     <div class="sidebar-label">Principal</div>
+
     <a href="{% url 'dashboard' %}" class="nav-link-side {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
       <i class="bi bi-speedometer2"></i> Panel Principal
     </a>
 
     <div class="sidebar-label">Ventas</div>
+
     <a href="{% url 'cliente_list' %}" class="nav-link-side {% if 'cliente' in request.resolver_match.url_name %}active{% endif %}">
       <i class="bi bi-people-fill"></i> Crédito
     </a>
+
     <a href="{% url 'venta_create' %}" class="nav-link-side">
       <i class="bi bi-cash"></i> Efectivo
     </a>
 
     <div class="sidebar-label">Catálogo</div>
+
     <a href="{% url 'producto_list' %}" class="nav-link-side {% if 'producto' in request.resolver_match.url_name %}active{% endif %}">
       <i class="bi bi-box-seam"></i> Productos
     </a>
+
     <a href="{% url 'categoria_list' %}" class="nav-link-side {% if 'categoria' in request.resolver_match.url_name %}active{% endif %}">
       <i class="bi bi-tags"></i> Categorías
     </a>
+
     <a href="{% url 'egreso_list' %}" class="nav-link-side {% if 'egreso' in request.resolver_match.url_name %}active{% endif %}">
       <i class="bi bi-cash-stack"></i> Egresos
     </a>
@@ -305,9 +537,10 @@
     <div class="user-info">
       <i class="bi bi-person-circle"></i> {{ user.username }}
     </div>
+
     <form method="post" action="{% url 'logout' %}">
       {% csrf_token %}
-      <button type="submit" class="nav-link-side" style="background:none; border:none; padding:.35rem 0; font-size:.78rem; width:100%; text-align:left; cursor:pointer;">
+      <button type="submit" class="nav-link-side logout-btn">
         <i class="bi bi-box-arrow-left"></i> Cerrar sesión
       </button>
     </form>
@@ -316,7 +549,10 @@
 
 <div id="main-content">
   <div class="topbar">
-    <span class="topbar-title">{% block page_title %}<i class="bi bi-speedometer2"></i> Panel de Control{% endblock %}</span>
+    <span class="topbar-title">
+      {% block page_title %}<i class="bi bi-speedometer2"></i> Panel de Control{% endblock %}
+    </span>
+
     <div class="d-flex gap-2">
       {% block topbar_actions %}{% endblock %}
     </div>
@@ -344,5 +580,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 {% block extra_js %}{% endblock %}
+
 </body>
 </html>
