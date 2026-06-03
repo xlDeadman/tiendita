@@ -18,8 +18,8 @@
     }
 
     .kpi-grid-2 {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        display: flex;
+        justify-content: center;
         gap: 10px;
         margin-bottom: 14px;
     }
@@ -217,9 +217,9 @@
     </div>
 </div>
 
-<!-- Fila 2: Productos / Agotados -->
+<!-- Fila 2: Productos / Agotados centrados -->
 <div class="kpi-grid-2">
-    <div class="kpi-card">
+    <div class="kpi-card" style="width:calc(33.33% - 5px);">
         <div class="kpi-icon" style="background:#fff7ed; color:#f97316;">
             <i class="bi bi-box-seam"></i>
         </div>
@@ -229,7 +229,7 @@
         </div>
     </div>
 
-    <div class="kpi-card">
+    <div class="kpi-card" style="width:calc(33.33% - 5px);">
         <div class="kpi-icon" style="background:#fef2f2; color:#e31837;">
             <i class="bi bi-exclamation-triangle"></i>
         </div>
