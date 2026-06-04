@@ -4,65 +4,34 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-7">
-        <div class="card shadow-sm">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-person-plus-fill"></i> {{ titulo }}</h5>
+    <div class="col-12 col-md-5">
+        <div class="card shadow-sm" style="overflow:hidden;">
+            <div style="background:#e31837; padding:1.2rem 1.5rem;">
+                <h5 style="color:#fff; margin:0; font-weight:700;">
+                    <i class="bi bi-person-plus-fill me-2"></i> {{ titulo }}
+                </h5>
             </div>
-            <div class="card-body">
+            <div class="card-body p-4">
                 <form method="post">
                     {% csrf_token %}
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">{{ form.nombre.label }}</label>
-                        {{ form.nombre }}
+                    <div style="margin-bottom:1.25rem;">
+                        <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Nombre del cliente</label>
+                        <input type="text" name="nombre" value="{{ form.nombre.value|default:'' }}" required
+                               placeholder="Ej: Juan Pérez"
+                               style="width:100%; border:1.5px solid #ddd; border-radius:8px; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333;">
                         {% if form.nombre.errors %}
-                            <div class="text-danger small">{{ form.nombre.errors }}</div>
+                            <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
                         {% endif %}
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">{{ form.notas.label }}</label>
-                        {{ form.notas }}
-                        {% if form.notas.errors %}
-                            <div class="text-danger small">{{ form.notas.errors }}</div>
-                        {% endif %}
-                    </div>
-
-                    {% if formset %}
-                    <hr style="border-color:rgba(255,255,255,.1);">
-                    <h6 class="fw-bold mb-3"><i class="bi bi-cart-plus"></i> Productos</h6>
-                    {{ formset.management_form }}
-                    <div id="productos-container">
-                        {% for f in formset %}
-                        <div class="row g-2 mb-2 producto-row align-items-center">
-                            <div class="col-md-5">
-                                <label class="form-label small text-muted">Producto</label>
-                                {{ f.producto }}
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label small text-muted">Cantidad</label>
-                                {{ f.cantidad }}
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label small text-muted">Precio ($)</label>
-                                {{ f.precio_unitario }}
-                            </div>
-                            <div class="col-md-1 d-flex align-items-end">
-                                {% if f.DELETE %}
-                                    <div class="d-none">{{ f.DELETE }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-
-                    <div class="d-flex justify-content-between mt-4">
-                        <a href="{% url 'cliente_list' %}" class="btn btn-secondary">
+                    <div style="display:flex; gap:.75rem; margin-top:1.5rem;">
+                        <a href="{% url 'cliente_list' %}"
+                           style="flex:1; padding:.65rem; background:#6b7280; color:#fff; border:none; border-radius:8px; font-weight:600; text-align:center; text-decoration:none;">
                             <i class="bi bi-arrow-left"></i> Cancelar
                         </a>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit"
+                                style="flex:1; padding:.65rem; background:#e31837; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
                             <i class="bi bi-save"></i> Guardar
                         </button>
                     </div>
@@ -71,42 +40,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    function attachPrecioAuto(row) {
-        const select = row.querySelector('select');
-        const precioInput = row.querySelector('input[name$="-precio_unitario"]');
-        if (select && precioInput) {
-            select.addEventListener('change', async function() {
-                const pid = this.value;
-                if (!pid) return;
-                try {
-                    const res = await fetch('/api/producto/' + pid + '/precio/');
-                    const data = await res.json();
-                    precioInput.value = data.precio;
-                } catch(e) {}
-            });
-        }
-    }
-
-    // Attach a filas existentes
-    document.querySelectorAll('.producto-row').forEach(attachPrecioAuto);
-
-    // Agregar nueva fila
-    document.getElementById('agregar-producto')?.addEventListener('click', function () {
-        const container = document.getElementById('productos-container');
-        const totalForms = document.getElementById('id_detalleventa_set-TOTAL_FORMS');
-        const formNum = parseInt(totalForms.value);
-        const firstRow = container.querySelector('.producto-row');
-        const newRow = firstRow.cloneNode(true);
-
-        newRow.innerHTML = newRow.innerHTML.replace(/-0-/g, `-${formNum}-`).replace(/_0_/g, `_${formNum}_`);
-        newRow.querySelectorAll('input, select').forEach(el => el.value = '');
-        container.appendChild(newRow);
-        totalForms.value = formNum + 1;
-        attachPrecioAuto(newRow);
-    });
-</script>
 {% endblock %}
