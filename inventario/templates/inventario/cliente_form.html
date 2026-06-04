@@ -5,33 +5,27 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-12 col-md-5">
-        <div class="card shadow-sm" style="overflow:hidden;">
-            <div style="background:#e31837; padding:1.2rem 1.5rem;">
-                <h5 style="color:#fff; margin:0; font-weight:700;">
-                    <i class="bi bi-person-plus-fill me-2"></i> {{ titulo }}
-                </h5>
+        <div class="card stat-card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-person-plus-fill me-2"></i> {{ titulo }}</h5>
             </div>
             <div class="card-body p-4">
                 <form method="post">
                     {% csrf_token %}
 
-                    <div style="margin-bottom:1.25rem;">
-                        <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Nombre del cliente</label>
-                        <input type="text" name="nombre" value="{{ form.nombre.value|default:'' }}" required
-                               placeholder="Ej: Juan Pérez"
-                               style="width:100%; border:1.5px solid #ddd; border-radius:8px; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333;">
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Nombre del cliente</label>
+                        {{ form.nombre }}
                         {% if form.nombre.errors %}
                             <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
                         {% endif %}
                     </div>
 
-                    <div style="display:flex; gap:.75rem; margin-top:1.5rem;">
-                        <a href="{% url 'cliente_list' %}"
-                           style="flex:1; padding:.65rem; background:#6b7280; color:#fff; border:none; border-radius:8px; font-weight:600; text-align:center; text-decoration:none;">
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'cliente_list' %}" class="btn btn-secondary flex-fill">
                             <i class="bi bi-arrow-left"></i> Cancelar
                         </a>
-                        <button type="submit"
-                                style="flex:1; padding:.65rem; background:#e31837; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
+                        <button type="submit" class="btn btn-primary flex-fill">
                             <i class="bi bi-save"></i> Guardar
                         </button>
                     </div>
