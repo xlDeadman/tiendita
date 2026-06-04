@@ -939,3 +939,19 @@ def catalogo(request):
         'productos': productos,
         'categorias': categorias,
     })
+
+# ─────────────────────────── API crear categoría ───────────────────────────
+
+@login_required
+def api_categoria_crear(request):
+    if request.method == 'POST':
+        import json
+        data = json.loads(request.body)
+        nombre = data.get('nombre', '').strip().upper()
+        if nombre:
+            if Categoria.objects.filter(nombre__iexact=nombre).exists():
+                return JsonResponse({'error': 'Ya existe esa categoría'}, status=400)
+            cat = Categoria.objects.create(nombre=nombre)
+            return JsonResponse({'id': cat.pk, 'nombre': cat.nombre})
+        return JsonResponse({'error': 'Nombre vacío'}, status=400)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
