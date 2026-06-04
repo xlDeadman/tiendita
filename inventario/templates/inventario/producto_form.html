@@ -27,7 +27,7 @@
             <label class="form-label fw-medium">{{ form.categoria.label }}</label>
             {{ form.categoria }}
             <div class="form-text">
-              ¿No hay categoría? <a href="#" onclick="event.preventDefault(); document.getElementById('modalCategoria').style.display='flex'">Crea una aquí</a>
+              ¿No hay categoría? <a href="{% url 'categoria_create' %}">Crea una aquí</a>
             </div>
           </div>
 
@@ -106,35 +106,7 @@
   </div>
 </div>
 
-<!-- Modal crear categoría -->
-<div id="modalCategoria" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.6); z-index:99999; align-items:center; justify-content:center;">
-  <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:380px; margin:1rem;">
-    <div style="background:#e31837; margin:-2rem -2rem 1.5rem; padding:1rem 1.5rem; border-radius:16px 16px 0 0; display:flex; justify-content:space-between; align-items:center;">
-      <h5 style="color:#fff; margin:0;"><i class="bi bi-tags me-2"></i> Nueva categoría</h5>
-      <button onclick="document.getElementById('modalCategoria').style.display='none'"
-              style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">✕</button>
-    </div>
-    <div style="margin-bottom:1rem;">
-      <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">Nombre</label>
-      <input type="text" id="nueva_categoria" placeholder="Ej: Botanas"
-             style="width:100%; border:1.5px solid #ddd; border-radius:8px; padding:.6rem .85rem; font-size:.95rem; outline:none; color:#333;">
-      <div id="cat_error" style="color:#e31837; font-size:.8rem; margin-top:.3rem; display:none;"></div>
-    </div>
-    <div style="display:flex; gap:.75rem;">
-      <button type="button" onclick="document.getElementById('modalCategoria').style.display='none'"
-              style="flex:1; padding:.65rem; background:#6b7280; color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer;">
-        Cancelar
-      </button>
-      <button type="button" onclick="crearCategoria()"
-              style="flex:1; padding:.65rem; background:#e31837; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
-        <i class="bi bi-save"></i> Crear
-      </button>
-    </div>
-  </div>
-</div>
-
 <script>
-// Preview de imagen
 const input = document.getElementById('{{ form.imagen_url.id_for_label }}') || document.querySelector('[name="imagen_url"]');
 if (input) {
   if (input.value) {
@@ -150,42 +122,6 @@ if (input) {
       document.getElementById('preview-container').style.display = 'none';
     }
   });
-}
-
-// Crear categoría sin salir de la página
-async function crearCategoria() {
-  const nombre = document.getElementById('nueva_categoria').value.trim();
-  const errorDiv = document.getElementById('cat_error');
-  errorDiv.style.display = 'none';
-  if (!nombre) {
-    errorDiv.textContent = 'Escribe un nombre';
-    errorDiv.style.display = 'block';
-    return;
-  }
-  try {
-    const res = await fetch('/api/categoria/crear/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-      },
-      body: JSON.stringify({nombre: nombre})
-    });
-    const data = await res.json();
-    if (res.ok) {
-      const select = document.querySelector('select[name="categoria"]') || document.getElementById('id_categoria');
-      const option = new Option(data.nombre, data.id, true, true);
-      select.add(option);
-      document.getElementById('modalCategoria').style.display = 'none';
-      document.getElementById('nueva_categoria').value = '';
-    } else {
-      errorDiv.textContent = data.error;
-      errorDiv.style.display = 'block';
-    }
-  } catch(e) {
-    errorDiv.textContent = 'Error al crear';
-    errorDiv.style.display = 'block';
-  }
 }
 </script>
 {% endblock %}
