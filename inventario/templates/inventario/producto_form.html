@@ -6,9 +6,8 @@
 <div class="row justify-content-center">
   <div class="col-12 col-md-7 col-lg-6">
     <div class="card stat-card">
-      <div class="card-header border-0 bg-transparent pt-4 pb-0 px-4">
-        <h5 class="fw-semibold">{{ titulo }}</h5>
-        <p class="text-muted small mb-0">Todos los precios en pesos mexicanos.</p>
+      <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-box-seam me-2"></i>{{ titulo }}</h5>
       </div>
       <div class="card-body p-4">
         <form method="post">
@@ -72,7 +71,6 @@
             {% if form.imagen_url.errors %}
               <div class="text-danger small mt-1">{{ form.imagen_url.errors.0 }}</div>
             {% endif %}
-            <!-- Preview de imagen -->
             <div id="preview-container" class="mt-2" style="display:none;">
               <img id="preview-img" src="" alt="Preview" style="max-height:120px; border-radius:8px; border:1.5px solid #ddd;">
             </div>
@@ -100,7 +98,7 @@
             <button type="submit" class="btn btn-primary flex-fill">
               <i class="bi bi-check-lg me-1"></i>{{ boton }}
             </button>
-            <a href="{% url 'producto_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+            <a href="{% url 'producto_list' %}" class="btn btn-secondary">Cancelar</a>
           </div>
         </form>
       </div>
@@ -109,10 +107,8 @@
 </div>
 
 <script>
-// Preview de imagen al pegar URL
 const input = document.getElementById('{{ form.imagen_url.id_for_label }}') || document.querySelector('[name="imagen_url"]');
 if (input) {
-  // Mostrar preview si ya tiene valor
   if (input.value) {
     document.getElementById('preview-container').style.display = 'block';
     document.getElementById('preview-img').src = input.value;
