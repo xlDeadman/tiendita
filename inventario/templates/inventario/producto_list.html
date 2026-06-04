@@ -1,212 +1,195 @@
 {% extends 'inventario/base.html' %}
 {% block title %}Productos{% endblock %}
-{% block page_title %}<i class="bi bi-basket3-fill"></i> Productos{% endblock %}
+{% block topbar_badge %}Catálogo{% endblock %}
+{% block page_title %}Productos{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'producto_create' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-circle me-1"></i> Nuevo producto
+</a>
+{% endblock %}
 
 {% block content %}
 
 <style>
-  .tabla-dsei-card {
-    overflow: hidden;
-    border-radius: 14px;
-    border: none;
-  }
+    .filtros-bar {
+        background: #fff;
+        border: 1px solid #e8e8e4;
+        border-radius: 12px 12px 0 0;
+        padding: 12px 16px;
+        border-bottom: none;
+    }
 
-  .tabla-dsei {
-    margin-bottom: 0;
-  }
+    .filtros-bar .form-control,
+    .filtros-bar .form-select {
+        height: 34px;
+        font-size: 13px;
+    }
 
-  .tabla-dsei thead tr {
-    background: #e31837 !important;
-  }
+    .badge-cat {
+        background: #fef2f2;
+        color: #e31837;
+        border: 1px solid #fecaca;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 6px;
+    }
 
-  .tabla-dsei thead th {
-    background: #e31837 !important;
-    color: #fff !important;
-    font-weight: 600;
-    vertical-align: middle;
-    border: none;
-    padding: 14px 12px;
-    white-space: nowrap;
-  }
+    .stock-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 3px 9px;
+        border-radius: 6px;
+    }
 
-  .tabla-dsei tbody td {
-    vertical-align: middle;
-    padding: 12px;
-  }
+    .stock-rojo   { background: #fef2f2; color: #e31837; }
+    .stock-naranja{ background: #fffbeb; color: #d97706; }
+    .stock-verde  { background: #f0fdf4; color: #16a34a; }
 
-  .tabla-dsei tbody tr:hover {
-    background: #fff5f5;
-  }
+    .product-name {
+        font-size: 13.5px;
+        font-weight: 500;
+        color: #18181b;
+    }
 
-  .btn-dsei-primary {
-    background: #e31837;
-    border-color: #e31837;
-    color: #fff;
-  }
+    .inactivo-row { opacity: 0.5; }
 
-  .btn-dsei-primary:hover {
-    background: #b9122b;
-    border-color: #b9122b;
-    color: #fff;
-  }
-
-  .filtros-dsei {
-    background: #fff;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  .badge-categoria-dsei {
-    background: rgba(227, 24, 55, .12);
-    color: #e31837;
-    border: 1px solid rgba(227, 24, 55, .25);
-  }
-
-  .tabla-sticky-dsei {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
+    .table-wrap {
+        border: 1px solid #e8e8e4;
+        border-radius: 0 0 12px 12px;
+        overflow: hidden;
+    }
 </style>
 
-<div class="card shadow-sm tabla-dsei-card">
-
-  <!-- Filtros -->
-  <div class="p-3 filtros-dsei">
+<!-- Filtros -->
+<div class="filtros-bar">
     <form method="get" class="row g-2 align-items-center">
-      <div class="col-12 col-md-4">
-        <input 
-          type="text" 
-          name="q" 
-          value="{{ q }}" 
-          class="form-control form-control-sm"
-          placeholder="🔍 Buscar producto..."
-        >
-      </div>
-
-      <div class="col-6 col-md-2">
-        <select name="semaforo" class="form-select form-select-sm">
-          <option value="">Todos</option>
-          <option value="rojo" {% if semaforo == 'rojo' %}selected{% endif %}>🔴 Agotados</option>
-          <option value="naranja" {% if semaforo == 'naranja' %}selected{% endif %}>🟠 Stock bajo</option>
-          <option value="verde" {% if semaforo == 'verde' %}selected{% endif %}>🟢 Disponibles</option>
-        </select>
-      </div>
-
-      <div class="col-6 col-md-2">
-        <select name="categoria" class="form-select form-select-sm">
-          <option value="">Todas las categorías</option>
-          {% for c in categorias %}
-          <option value="{{ c.pk }}" {% if categoria_id == c.pk|stringformat:'s' %}selected{% endif %}>
-            {{ c.nombre }}
-          </option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <div class="col-auto ms-auto">
-        <a href="{% url 'producto_create' %}" class="btn btn-dsei-primary btn-sm">
-          <i class="bi bi-plus-lg"></i> Nuevo producto
-        </a>
-      </div>
+        <div class="col-12 col-md-4">
+            <input type="text" name="q" value="{{ q }}"
+                class="form-control form-control-sm"
+                placeholder="Buscar producto...">
+        </div>
+        <div class="col-6 col-md-2">
+            <select name="semaforo" class="form-select form-select-sm">
+                <option value="">Todos</option>
+                <option value="rojo"    {% if semaforo == 'rojo' %}selected{% endif %}>🔴 Agotados</option>
+                <option value="naranja" {% if semaforo == 'naranja' %}selected{% endif %}>🟠 Stock bajo</option>
+                <option value="verde"   {% if semaforo == 'verde' %}selected{% endif %}>🟢 Disponibles</option>
+            </select>
+        </div>
+        <div class="col-6 col-md-2">
+            <select name="categoria" class="form-select form-select-sm">
+                <option value="">Todas las categorías</option>
+                {% for c in categorias %}
+                <option value="{{ c.pk }}" {% if categoria_id == c.pk|stringformat:'s' %}selected{% endif %}>
+                    {{ c.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
     </form>
-  </div>
+</div>
 
-  <!-- Tabla -->
-  <div class="table-responsive" style="max-height:600px; overflow-y:auto;">
-    <table class="table table-hover align-middle tabla-dsei mb-0">
-      <thead class="tabla-sticky-dsei">
-        <tr>
-          <th>Producto</th>
-          <th>Categoría</th>
-          <th class="text-center">Stock inicial</th>
-          <th class="text-center">Stock actual</th>
-          <th class="text-end">Precio</th>
-          <th class="text-center">Estado</th>
-          <th class="text-center">Acciones</th>
-        </tr>
-      </thead>
+<!-- Tabla -->
+<div class="table-wrap">
+    <div class="table-responsive" style="max-height:600px; overflow-y:auto;">
+        <table class="table table-hover align-middle mb-0">
+            <thead style="position:sticky; top:0; z-index:10;">
+                <tr>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th class="text-center">Stock inicial</th>
+                    <th class="text-center">Stock actual</th>
+                    <th class="text-end">Precio</th>
+                    <th class="text-center">Estado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in productos %}
+                <tr {% if not p.activo %}class="inactivo-row"{% endif %}>
 
-      <tbody>
-        {% for p in productos %}
-        <tr {% if not p.activo %}class="table-secondary opacity-50"{% endif %}>
-          <td>
-            <i class="bi bi-box-seam" style="color:#e31837;"></i>
-            <span class="fw-medium">{{ p.nombre }}</span>
+                    <td>
+                        <div class="product-name">
+                            {{ p.nombre }}
+                            {% if not p.activo %}
+                            <span class="badge ms-1" style="background:#f5f5f3; color:#a1a1aa; font-size:10px;">Inactivo</span>
+                            {% endif %}
+                        </div>
+                    </td>
 
-            {% if not p.activo %}
-              <span class="badge bg-secondary ms-1" style="font-size:.65rem;">INACTIVO</span>
-            {% endif %}
-          </td>
+                    <td>
+                        {% if p.categoria %}
+                            <span class="badge-cat">{{ p.categoria.nombre }}</span>
+                        {% else %}
+                            <span style="color:#a1a1aa; font-size:12.5px;">—</span>
+                        {% endif %}
+                    </td>
 
-          <td>
-            {% if p.categoria %}
-              <span class="badge badge-categoria-dsei">
-                {{ p.categoria.nombre }}
-              </span>
-            {% else %}
-              <span class="text-muted small">—</span>
-            {% endif %}
-          </td>
+                    <td class="text-center" style="color:#a1a1aa; font-size:13px;">
+                        {{ p.stock_inicial }}
+                    </td>
 
-          <td class="text-center text-muted small">
-            {{ p.stock_inicial }}
-          </td>
+                    <td class="text-center">
+                        <span style="font-size:14px; font-weight:600;
+                            color:{% if p.stock_actual <= 0 %}#e31837{% elif p.stock_actual <= 2 %}#d97706{% else %}#16a34a{% endif %};">
+                            {{ p.stock_actual }}
+                        </span>
+                    </td>
 
-          <td class="text-center">
-            <span class="fw-semibold {% if p.stock_actual <= 0 %}text-danger{% elif p.stock_actual <= 2 %}text-warning{% else %}text-success{% endif %}">
-              {{ p.stock_actual }}
-            </span>
-          </td>
+                    <td class="text-end" style="font-weight:600; color:#18181b;">
+                        ${{ p.precio|floatformat:2 }}
+                    </td>
 
-          <td class="text-end fw-semibold">
-            ${{ p.precio|floatformat:2 }}
-          </td>
+                    <td class="text-center">
+                        <span class="stock-badge
+                            {% if p.semaforo == 'rojo' %}stock-rojo
+                            {% elif p.semaforo == 'naranja' %}stock-naranja
+                            {% else %}stock-verde{% endif %}">
+                            {{ p.semaforo_icon }} {{ p.semaforo_texto }}
+                        </span>
+                    </td>
 
-          <td class="text-center">
-            <span class="badge badge-semaforo bg-{{ p.semaforo_badge }}{% if p.semaforo == 'naranja' %} text-dark{% endif %}">
-              {{ p.semaforo_icon }} {{ p.semaforo_texto }}
-            </span>
-          </td>
-
-          <td class="text-center">
-            <div class="btn-group btn-group-sm">
-              <a href="{% url 'producto_ajuste_stock' p.pk %}" class="btn btn-outline-secondary" title="Ajustar stock">
-                <i class="bi bi-arrow-up-down"></i>
-              </a>
-
-              <a href="{% url 'producto_edit' p.pk %}" class="btn btn-outline-primary" title="Editar">
-                <i class="bi bi-pencil"></i>
-              </a>
-
-              <a href="{% url 'producto_delete' p.pk %}" class="btn btn-outline-danger" title="Eliminar">
-                <i class="bi bi-trash"></i>
-              </a>
-            </div>
-          </td>
-        </tr>
-
-        {% empty %}
-        <tr>
-          <td colspan="7" class="text-center py-5 text-muted">
-            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-            No se encontraron productos.
-            <a href="{% url 'producto_create' %}">Agrega el primero</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+                    <td class="text-center">
+                        <div style="display:flex; gap:6px; justify-content:center;">
+                            <a href="{% url 'producto_ajuste_stock' p.pk %}" class="btn btn-sm btn-outline-secondary" title="Ajustar stock">
+                                <i class="bi bi-arrow-up-down"></i>
+                            </a>
+                            <a href="{% url 'producto_edit' p.pk %}" class="btn btn-sm btn-outline-primary" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'producto_delete' p.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5" style="color:#a1a1aa; font-size:13.5px;">
+                        <i class="bi bi-inbox" style="font-size:1.8rem; display:block; margin-bottom:8px; opacity:.4;"></i>
+                        No se encontraron productos.
+                        <a href="{% url 'producto_create' %}" style="color:#e31837;">Agrega el primero</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
-  document.querySelectorAll('select[name="semaforo"], select[name="categoria"]').forEach(el => {
-    el.addEventListener('change', function() {
-      this.closest('form').submit();
+    document.querySelectorAll('select[name="semaforo"], select[name="categoria"]').forEach(el => {
+        el.addEventListener('change', function() {
+            this.closest('form').submit();
+        });
     });
-  });
 </script>
 {% endblock %}

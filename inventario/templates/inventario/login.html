@@ -4,229 +4,253 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tienda DSEI | Sistema de Inventario</title>
+  <title>Tienda DSEI | Iniciar sesión</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       min-height: 100vh;
       display: flex;
+      font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+      background: #f5f5f3;
+    }
+
+    /* Panel izquierdo oscuro */
+    .left-panel {
+      width: 420px;
+      min-height: 100vh;
+      background: #18181b;
+      display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #f5a623;
-      position: relative;
+      padding: 3rem 2.5rem;
+      flex-shrink: 0;
+    }
+
+    .left-panel .logo-wrap {
+      background: #e31837;
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
       overflow: hidden;
     }
 
-    body::before {
-      content: '';
-      position: absolute;
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, rgba(255,255,255,.08) 0%, transparent 70%);
-      top: -200px;
-      right: -200px;
-      pointer-events: none;
+    .left-panel .logo-wrap img {
+      width: 40px; height: 40px;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
     }
 
-    body::after {
-      content: '';
-      position: absolute;
-      width: 400px;
-      height: 400px;
-      background: radial-gradient(circle, rgba(0,0,0,.1) 0%, transparent 70%);
-      bottom: -100px;
-      left: -100px;
-      pointer-events: none;
+    .left-panel h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 6px;
     }
 
-    /* Rayas decorativas estilo OXXO */
-    .stripes {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-      overflow: hidden;
+    .left-panel p {
+      font-size: 13px;
+      color: #52525b;
+      text-align: center;
+      line-height: 1.6;
     }
-    .stripe {
-      position: absolute;
-      width: 40px;
-      height: 200%;
-      background: rgba(255,255,255,.04);
-      transform: rotate(15deg);
-    }
-    .stripe:nth-child(1) { left: 5%; }
-    .stripe:nth-child(2) { left: 15%; }
-    .stripe:nth-child(3) { left: 25%; }
-    .stripe:nth-child(4) { right: 5%; }
-    .stripe:nth-child(5) { right: 15%; }
 
-    .login-wrap {
-      position: relative;
-      z-index: 1;
+    .divider {
+      width: 40px; height: 3px;
+      background: #e31837;
+      border-radius: 99px;
+      margin: 24px auto;
+    }
+
+    .stat-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
       width: 100%;
-      max-width: 400px;
-      padding: 1rem;
+      margin-top: 8px;
+    }
+
+    .stat-item {
+      background: #27272a;
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .stat-item i {
+      font-size: 18px;
+      color: #e31837;
+      width: 24px;
+      text-align: center;
+    }
+
+    .stat-item span {
+      font-size: 12.5px;
+      color: #a1a1aa;
+      font-weight: 500;
+    }
+
+    /* Panel derecho formulario */
+    .right-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
     }
 
     .login-box {
-      background: #fff;
-      border-radius: 16px;
-      padding: 2.5rem 2.5rem;
-      box-shadow: 0 20px 60px rgba(0,0,0,.3);
+      width: 100%;
+      max-width: 360px;
     }
 
-    .brand {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-  .brand-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1rem;
-  }
-
-    .brand h1 {
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: #e31837;
-      letter-spacing: -.01em;
-      margin-bottom: .2rem;
-      text-transform: uppercase;
-    }
-
-    .brand p {
-      color: #666;
-      font-size: .82rem;
-    }
-
-    .oxxo-bar {
-      display: flex;
-      height: 6px;
-      border-radius: 3px;
-      overflow: hidden;
-      margin: 1rem 0 1.5rem;
-    }
-    .oxxo-bar div:nth-child(1) { background: #e31837; flex: 3; }
-    .oxxo-bar div:nth-child(2) { background: #f5a623; flex: 1; }
-    .oxxo-bar div:nth-child(3) { background: #e31837; flex: 1; }
-
-    .form-group { margin-bottom: 1.1rem; }
-
-    .form-label {
-      display: block;
-      font-size: .78rem;
+    .login-box h2 {
+      font-size: 1.3rem;
       font-weight: 700;
-      color: #333;
-      margin-bottom: .45rem;
-      letter-spacing: .04em;
-      text-transform: uppercase;
+      color: #18181b;
+      margin-bottom: 4px;
+    }
+
+    .login-box .subtitle {
+      font-size: 13px;
+      color: #a1a1aa;
+      margin-bottom: 28px;
+    }
+
+    .form-group { margin-bottom: 14px; }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #52525b;
+      margin-bottom: 5px;
     }
 
     .input-wrap { position: relative; }
 
     .input-wrap i {
       position: absolute;
-      left: .9rem;
+      left: 11px;
       top: 50%;
       transform: translateY(-50%);
-      color: #e31837;
-      font-size: .95rem;
+      color: #a1a1aa;
+      font-size: 14px;
       pointer-events: none;
     }
 
     .input-wrap input {
       width: 100%;
-      padding: .7rem .9rem .7rem 2.5rem;
-      background: #f8f8f8;
-      border: 2px solid #eee;
-      border-radius: 10px;
-      font-size: .9rem;
-      color: #333;
+      padding: 9px 12px 9px 34px;
+      background: #fff;
+      border: 1px solid #e8e8e4;
+      border-radius: 9px;
+      font-size: 13.5px;
+      color: #18181b;
+      font-family: 'DM Sans', system-ui, sans-serif;
       outline: none;
-      transition: border-color .2s;
+      transition: border-color .15s, box-shadow .15s;
     }
 
-    .input-wrap input::placeholder { color: #bbb; }
+    .input-wrap input::placeholder { color: #c4c4c0; }
 
     .input-wrap input:focus {
       border-color: #e31837;
-      background: #fff;
+      box-shadow: 0 0 0 3px rgba(227,24,55,.08);
     }
 
     .btn-login {
       width: 100%;
-      padding: .8rem;
+      padding: 10px;
       background: #e31837;
       color: #fff;
       border: none;
-      border-radius: 10px;
-      font-size: .95rem;
-      font-weight: 700;
+      border-radius: 9px;
+      font-size: 13.5px;
+      font-weight: 600;
       cursor: pointer;
-      margin-top: 1rem;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      transition: background .15s, transform .1s;
+      margin-top: 8px;
+      font-family: 'DM Sans', system-ui, sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: .5rem;
-      box-shadow: 0 4px 16px rgba(227,24,55,.35);
+      gap: 7px;
+      transition: background .15s;
     }
 
     .btn-login:hover { background: #c01530; }
-    .btn-login:active { transform: scale(.98); }
+    .btn-login:active { transform: scale(.99); }
 
     .error-msg {
-      background: #fff0f2;
-      border: 2px solid #e31837;
-      color: #e31837;
-      border-radius: 10px;
-      padding: .65rem 1rem;
-      font-size: .83rem;
-      margin-bottom: 1.25rem;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      border-radius: 9px;
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-bottom: 16px;
       display: flex;
       align-items: center;
-      gap: .5rem;
-      font-weight: 600;
+      gap: 8px;
+      font-weight: 500;
     }
 
     .footer-text {
       text-align: center;
-      color: #bbb;
-      font-size: .72rem;
-      margin-top: 1.5rem;
+      color: #c4c4c0;
+      font-size: 11.5px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 640px) {
+      .left-panel { display: none; }
     }
   </style>
 </head>
 <body>
 
-  <div class="stripes">
-    <div class="stripe"></div>
-    <div class="stripe"></div>
-    <div class="stripe"></div>
-    <div class="stripe"></div>
-    <div class="stripe"></div>
+  <!-- Panel izquierdo -->
+  <div class="left-panel">
+    <div class="logo-wrap">
+      <img src="{% static 'inventario/img/logo23.png' %}" alt="Tienda Dsei">
+    </div>
+    <h1>Tienda Dsei</h1>
+    <p>Sistema de punto de venta</p>
+
+    <div class="divider"></div>
+
+    <div class="stat-row">
+      <div class="stat-item">
+        <i class="bi bi-box-seam"></i>
+        <span>Control de inventario en tiempo real</span>
+      </div>
+      <div class="stat-item">
+        <i class="bi bi-people"></i>
+        <span>Gestión de clientes y créditos</span>
+      </div>
+      <div class="stat-item">
+        <i class="bi bi-graph-up"></i>
+        <span>Reportes de ventas y egresos</span>
+      </div>
+      <div class="stat-item">
+        <i class="bi bi-shield-check"></i>
+        <span>Acceso seguro con usuario y contraseña</span>
+      </div>
+    </div>
   </div>
 
-  <div class="login-wrap">
+  <!-- Panel derecho -->
+  <div class="right-panel">
     <div class="login-box">
-
-     <div class="brand">
-  <div class="brand-icon" style="background:none; box-shadow:none;">
-    <img src="{% static 'inventario/img/logo23.png' %}" style="width:300px; height:auto; object-fit:contain;">
-  </div>
-  <div class="oxxo-bar">
-    <div></div>
-    <div></div>
-    <div></div>
-  </div>
-</div>
+      <h2>Bienvenido</h2>
+      <p class="subtitle">Inicia sesión para continuar</p>
 
       {% if form.errors %}
       <div class="error-msg">
@@ -239,7 +263,7 @@
         {% csrf_token %}
 
         <div class="form-group">
-          <label class="form-label">Usuario</label>
+          <label>Usuario</label>
           <div class="input-wrap">
             <i class="bi bi-person"></i>
             <input type="text" name="username" placeholder="Tu usuario" autofocus required>
@@ -247,7 +271,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Contraseña</label>
+          <label>Contraseña</label>
           <div class="input-wrap">
             <i class="bi bi-lock"></i>
             <input type="password" name="password" placeholder="••••••••" required>
@@ -259,7 +283,7 @@
         </button>
       </form>
 
-      <div class="footer-text">Tiendita © 2026</div>
+      <div class="footer-text">Tienda Dsei © 2026</div>
     </div>
   </div>
 
