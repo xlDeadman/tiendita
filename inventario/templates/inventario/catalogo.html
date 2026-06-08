@@ -48,16 +48,8 @@
       filter: brightness(0) invert(1);
     }
 
-    .header-name {
-      font-size: 14px;
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .header-sub {
-      font-size: 11px;
-      color: #52525b;
-    }
+    .header-name { font-size: 14px; font-weight: 600; color: #fff; }
+    .header-sub  { font-size: 11px; color: #52525b; }
 
     .header-search input {
       background: #27272a;
@@ -76,11 +68,9 @@
     .header-search input:focus { border-color: #e31837; }
     .header-search { position: relative; }
     .header-search i {
-      position: absolute;
-      left: 11px; top: 50%;
+      position: absolute; left: 11px; top: 50%;
       transform: translateY(-50%);
-      color: #52525b;
-      font-size: 14px;
+      color: #52525b; font-size: 14px;
     }
 
     /* ── FILTROS ── */
@@ -88,10 +78,7 @@
       background: #fff;
       border-bottom: 1px solid #e8e8e4;
       padding: 10px 24px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
     }
 
     .filtro-btn {
@@ -99,10 +86,8 @@
       border: 1px solid #e8e8e4;
       border-radius: 20px;
       padding: 5px 14px;
-      font-size: 12.5px;
-      font-weight: 500;
-      color: #52525b;
-      cursor: pointer;
+      font-size: 12.5px; font-weight: 500;
+      color: #52525b; cursor: pointer;
       font-family: 'DM Sans', system-ui, sans-serif;
       transition: all .12s;
     }
@@ -111,7 +96,7 @@
     .filtro-btn.active { background: #e31837; border-color: #e31837; color: #fff; font-weight: 600; }
 
     /* ── GRID ── */
-    .catalogo-body { padding: 20px 24px; }
+    .catalogo-body { padding: 20px 24px 120px; }
 
     .producto-card {
       background: #fff;
@@ -123,95 +108,181 @@
       cursor: pointer;
     }
 
-    .producto-card:hover {
-      border-color: #d0d0cc;
-      transform: translateY(-2px);
-    }
+    .producto-card:hover { border-color: #d0d0cc; transform: translateY(-2px); }
 
     .producto-img {
-      width: 100%;
-      height: 80px;
+      width: 100%; height: 80px;
       object-fit: contain;
       background: #fafaf9;
       mix-blend-mode: multiply;
-      pointer-events: none;
-      user-select: none;
+      pointer-events: none; user-select: none;
     }
 
     .producto-img-placeholder {
-      width: 100%;
-      height: 80px;
+      width: 100%; height: 80px;
       background: #fafaf9;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #d4d4d8;
-      font-size: 2rem;
+      display: flex; align-items: center; justify-content: center;
+      color: #d4d4d8; font-size: 2rem;
     }
 
     .producto-body { padding: 12px 14px; }
 
     .producto-nombre {
-      font-size: 13px;
-      font-weight: 600;
-      color: #18181b;
-      margin-bottom: 6px;
-      line-height: 1.3;
+      font-size: 13px; font-weight: 600;
+      color: #18181b; margin-bottom: 6px; line-height: 1.3;
+    }
+
+    .producto-precio {
+      font-size: 14px; font-weight: 600;
+      color: #e31837; margin-bottom: 8px;
     }
 
     .producto-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 6px;
+      display: flex; align-items: center;
+      justify-content: space-between; margin-top: 6px;
     }
 
     .cat-badge {
-      background: #fef2f2;
-      color: #e31837;
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 20px;
+      background: #fef2f2; color: #e31837;
+      font-size: 10px; font-weight: 600;
+      padding: 2px 7px; border-radius: 20px;
     }
 
     .stock-badge-ok {
-      background: #f0fdf4;
-      color: #16a34a;
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 20px;
+      background: #f0fdf4; color: #16a34a;
+      font-size: 10px; font-weight: 600;
+      padding: 2px 7px; border-radius: 20px;
     }
 
     .stock-badge-no {
-      background: #fef2f2;
-      color: #e31837;
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 20px;
+      background: #fef2f2; color: #e31837;
+      font-size: 10px; font-weight: 600;
+      padding: 2px 7px; border-radius: 20px;
     }
+
+    /* ── BOTÓN AGREGAR ── */
+    .btn-agregar {
+      width: 100%; margin-top: 8px;
+      background: #f5f5f3;
+      border: 1px solid #e8e8e4;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px; font-weight: 500;
+      color: #52525b; cursor: pointer;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      transition: all .12s;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+    }
+
+    .btn-agregar:hover { border-color: #e31837; color: #e31837; }
+    .btn-agregar.en-carrito { background: #e31837; border-color: #e31837; color: #fff; }
+    .btn-agregar:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── CARRITO FLOTANTE ── */
+    #carrito-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #fff;
+      border-top: 1px solid #e8e8e4;
+      padding: 12px 24px;
+      z-index: 200;
+      display: none;
+      box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+    }
+
+    #carrito-bar.visible { display: block; }
+
+    .carrito-inner {
+      max-width: 700px; margin: 0 auto;
+    }
+
+    .carrito-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; margin-bottom: 0;
+    }
+
+    .carrito-titulo {
+      font-size: 13px; font-weight: 600; color: #18181b;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .carrito-badge {
+      background: #e31837; color: #fff;
+      font-size: 11px; font-weight: 700;
+      width: 20px; height: 20px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    #carrito-items-list {
+      display: none;
+      margin: 10px 0 0;
+      border-top: 1px solid #f0f0ec;
+      padding-top: 10px;
+    }
+
+    #carrito-items-list.open { display: block; }
+
+    .carrito-row {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px solid #f5f5f3;
+      font-size: 12.5px;
+    }
+
+    .carrito-row-nombre { color: #18181b; flex: 1; }
+
+    .qty-ctrl {
+      display: flex; align-items: center; gap: 6px; margin: 0 10px;
+    }
+
+    .qty-btn {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 1px solid #e8e8e4;
+      background: #f5f5f3; cursor: pointer;
+      font-size: 14px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      color: #18181b; line-height: 1;
+    }
+
+    .qty-btn:hover { border-color: #e31837; color: #e31837; }
+
+    .carrito-row-precio { color: #52525b; min-width: 50px; text-align: right; }
+
+    .carrito-total-row {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-top: 10px;
+      padding-top: 8px; border-top: 1px solid #e8e8e4;
+    }
+
+    .carrito-total-label { font-size: 13px; font-weight: 600; color: #18181b; }
+    .carrito-total-monto { font-size: 16px; font-weight: 700; color: #e31837; }
+
+    #btn-whatsapp {
+      width: 100%; margin-top: 10px;
+      background: #25D366; border: none;
+      border-radius: 10px; padding: 10px;
+      font-size: 14px; font-weight: 600;
+      color: #fff; cursor: pointer;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background .12s;
+    }
+
+    #btn-whatsapp:hover { background: #1ebe5d; }
 
     /* ── PAGINACIÓN ── */
     .paginacion {
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 24px;
-      padding-bottom: 32px;
+      display: flex; justify-content: center;
+      gap: 6px; flex-wrap: wrap;
+      margin-top: 24px; padding-bottom: 16px;
     }
 
     .paginacion button {
-      background: #fff;
-      border: 1px solid #e8e8e4;
-      border-radius: 8px;
-      padding: 5px 12px;
-      font-size: 13px;
-      font-weight: 500;
-      color: #52525b;
-      cursor: pointer;
+      background: #fff; border: 1px solid #e8e8e4;
+      border-radius: 8px; padding: 5px 12px;
+      font-size: 13px; font-weight: 500;
+      color: #52525b; cursor: pointer;
       font-family: 'DM Sans', system-ui, sans-serif;
       transition: all .12s;
     }
@@ -223,66 +294,35 @@
     /* ── LIGHTBOX ── */
     #lightbox {
       display: none;
-      position: fixed;
-      top: 0; left: 0;
+      position: fixed; top: 0; left: 0;
       width: 100%; height: 100%;
       background: rgba(0,0,0,.75);
       z-index: 99999;
-      align-items: center;
-      justify-content: center;
+      align-items: center; justify-content: center;
       flex-direction: column;
       pointer-events: none;
     }
 
     .lb-box {
-      background: #fff;
-      border-radius: 16px;
-      padding: 24px;
-      text-align: center;
-      max-width: 320px;
-      width: 90%;
+      background: #fff; border-radius: 16px;
+      padding: 24px; text-align: center;
+      max-width: 320px; width: 90%;
     }
 
-    #lb-img {
-    width: 160px;
-    height: 160px;
-    object-fit: contain;
-    mix-blend-mode: multiply;
-    margin: 0 auto 12px;
-    display: block;
-    }
+    #lb-img { width: 160px; height: 160px; object-fit: contain; mix-blend-mode: multiply; margin: 0 auto 12px; display: block; }
+    .lb-nombre { font-size: 15px; font-weight: 700; color: #18181b; margin-bottom: 4px; }
+    .lb-cat { font-size: 11px; color: #a1a1aa; margin-bottom: 10px; }
 
-    .lb-nombre {
-      font-size: 15px;
-      font-weight: 700;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
+    .live-dot { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: #a1a1aa; }
+    .live-dot span { width: 7px; height: 7px; background: #16a34a; border-radius: 50%; animation: pulse 1.5s infinite; }
 
-    .lb-cat {
-      font-size: 11px;
-      color: #a1a1aa;
-      margin-bottom: 10px;
-    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
 
-    .live-dot {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 11px;
-      color: #a1a1aa;
-    }
-
-    .live-dot span {
-      width: 7px; height: 7px;
-      background: #16a34a;
-      border-radius: 50%;
-      animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: .4; }
+    @media (max-width: 576px) {
+      .header { padding: 12px 16px; }
+      .header-search input { width: 160px; }
+      .catalogo-body { padding: 16px 12px 120px; }
+      #carrito-bar { padding: 12px 16px; }
     }
   </style>
 </head>
@@ -320,7 +360,9 @@
     {% for p in productos %}
     <div class="col-6 col-md-4 col-lg-3 producto-item"
          data-categoria="{{ p.categoria.nombre|default:'' }}"
-         data-nombre="{{ p.nombre }}">
+         data-nombre="{{ p.nombre }}"
+         data-precio="{{ p.precio }}"
+         data-stock="{{ p.stock_actual }}">
       <div class="producto-card"
            onmouseenter="abrirLightbox('{{ p.imagen_url }}', '{{ p.nombre }}', '{{ p.categoria.nombre|default:'' }}', {{ p.stock_actual }})"
            onmouseleave="cerrarLightbox()">
@@ -340,6 +382,7 @@
 
         <div class="producto-body">
           <div class="producto-nombre">{{ p.nombre }}</div>
+          <div class="producto-precio">${{ p.precio }}</div>
           <div class="producto-footer">
             {% if p.categoria %}
             <span class="cat-badge">{{ p.categoria.nombre }}</span>
@@ -350,6 +393,13 @@
             <span class="stock-badge-no">Agotado</span>
             {% endif %}
           </div>
+          {% if p.stock_actual > 0 %}
+          <button class="btn-agregar" onclick="agregarAlCarrito('{{ p.nombre }}', {{ p.precio }}, this)">
+            <i class="bi bi-cart-plus"></i> Agregar
+          </button>
+          {% else %}
+          <button class="btn-agregar" disabled>Agotado</button>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -368,6 +418,32 @@
   </div>
 </div>
 
+<!-- Carrito flotante -->
+<div id="carrito-bar">
+  <div class="carrito-inner">
+    <div class="carrito-toggle" onclick="toggleCarrito()">
+      <div class="carrito-titulo">
+        <i class="bi bi-cart3" style="font-size:16px;"></i>
+        Mi pedido
+        <span class="carrito-badge" id="carrito-count">0</span>
+      </div>
+      <span style="font-size:12px; color:#a1a1aa;" id="carrito-toggle-txt">▲ Ver pedido</span>
+    </div>
+
+    <div id="carrito-items-list">
+      <div id="carrito-filas"></div>
+      <div class="carrito-total-row">
+        <span class="carrito-total-label">Total</span>
+        <span class="carrito-total-monto" id="carrito-total">$0.00</span>
+      </div>
+      <button id="btn-whatsapp" onclick="enviarWhatsApp()">
+        <i class="bi bi-whatsapp" style="font-size:18px;"></i>
+        Enviar pedido por WhatsApp
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Lightbox -->
 <div id="lightbox">
   <div class="lb-box">
@@ -379,6 +455,7 @@
 </div>
 
 <script>
+/* ── PAGINACIÓN Y FILTROS ── */
 const POR_PAGINA = 20;
 let paginaActual = 1;
 let categoriaActual = 'todos';
@@ -441,6 +518,7 @@ document.getElementById('buscador').addEventListener('input', function() {
   renderPagina();
 });
 
+/* ── LIGHTBOX ── */
 function abrirLightbox(img, nombre, cat, stock) {
   clearTimeout(cerrarTimeout);
   clearTimeout(abrirTimeout);
@@ -466,6 +544,91 @@ function cerrarLightbox() {
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarLightbox(); });
+
+/* ── CARRITO ── */
+const carrito = {};
+let carritoAbierto = false;
+
+function agregarAlCarrito(nombre, precio, btn) {
+  if (carrito[nombre]) {
+    carrito[nombre].qty += 1;
+  } else {
+    carrito[nombre] = { precio: parseFloat(precio), qty: 1 };
+  }
+  btn.classList.add('en-carrito');
+  btn.innerHTML = '<i class="bi bi-check2"></i> Agregado';
+  setTimeout(() => {
+    btn.innerHTML = '<i class="bi bi-cart-plus"></i> + Agregar otro';
+  }, 800);
+  actualizarCarrito();
+}
+
+function cambiarCantidad(nombre, delta) {
+  if (!carrito[nombre]) return;
+  carrito[nombre].qty += delta;
+  if (carrito[nombre].qty <= 0) delete carrito[nombre];
+  actualizarCarrito();
+}
+
+function actualizarCarrito() {
+  const keys = Object.keys(carrito);
+  const totalItems = keys.reduce((s, k) => s + carrito[k].qty, 0);
+  const totalMonto = keys.reduce((s, k) => s + carrito[k].precio * carrito[k].qty, 0);
+
+  document.getElementById('carrito-count').textContent = totalItems;
+  document.getElementById('carrito-total').textContent = '$' + totalMonto.toFixed(2);
+
+  const filas = document.getElementById('carrito-filas');
+  filas.innerHTML = keys.map(nombre => {
+    const item = carrito[nombre];
+    const sub = (item.precio * item.qty).toFixed(2);
+    return `
+      <div class="carrito-row">
+        <span class="carrito-row-nombre">${nombre}</span>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="cambiarCantidad('${nombre}', -1)">−</button>
+          <span style="font-size:13px;font-weight:600;min-width:16px;text-align:center;">${item.qty}</span>
+          <button class="qty-btn" onclick="cambiarCantidad('${nombre}', 1)">+</button>
+        </div>
+        <span class="carrito-row-precio">$${sub}</span>
+      </div>`;
+  }).join('');
+
+  const bar = document.getElementById('carrito-bar');
+  if (keys.length > 0) {
+    bar.classList.add('visible');
+  } else {
+    bar.classList.remove('visible');
+    carritoAbierto = false;
+    document.getElementById('carrito-items-list').classList.remove('open');
+    document.getElementById('carrito-toggle-txt').textContent = '▲ Ver pedido';
+  }
+}
+
+function toggleCarrito() {
+  carritoAbierto = !carritoAbierto;
+  const lista = document.getElementById('carrito-items-list');
+  const txt = document.getElementById('carrito-toggle-txt');
+  if (carritoAbierto) {
+    lista.classList.add('open');
+    txt.textContent = '▼ Ocultar';
+  } else {
+    lista.classList.remove('open');
+    txt.textContent = '▲ Ver pedido';
+  }
+}
+
+function enviarWhatsApp() {
+  const keys = Object.keys(carrito);
+  if (keys.length === 0) return;
+  const total = keys.reduce((s, k) => s + carrito[k].precio * carrito[k].qty, 0);
+  let msg = 'Hola! Mi pedido:%0A';
+  keys.forEach(nombre => {
+    msg += `- ${carrito[nombre].qty} ${nombre}%0A`;
+  });
+  msg += `*Total: $${total.toFixed(2)}*`;
+  window.open(`https://wa.me/5219931914291?text=${msg}`, '_blank');
+}
 
 renderPagina();
 </script>
