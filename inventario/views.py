@@ -956,3 +956,13 @@ def api_categoria_crear(request):
             return JsonResponse({'id': cat.pk, 'nombre': cat.nombre})
         return JsonResponse({'error': 'Nombre vacío'}, status=400)
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+    # ─────────────────────────── Tendencia ───────────────────────────
+
+@login_required
+def producto_tendencia(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    if request.method == 'POST':
+        producto.tendencia = not producto.tendencia
+        producto.save()
+    return redirect('producto_list')
