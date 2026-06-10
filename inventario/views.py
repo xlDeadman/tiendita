@@ -934,12 +934,13 @@ def egreso_edit(request, pk):
 def catalogo(request):
     productos = Producto.objects.filter(activo=True).select_related('categoria').order_by('nombre')
     categorias = Categoria.objects.all()
+    tendencias = Producto.objects.filter(activo=True, tendencia=True).order_by('nombre')
 
     return render(request, 'inventario/catalogo.html', {
         'productos': productos,
         'categorias': categorias,
+        'tendencias': tendencias,
     })
-
 # ─────────────────────────── API crear categoría ───────────────────────────
 
 @login_required

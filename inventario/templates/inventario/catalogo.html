@@ -9,290 +9,90 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f5f5f3; font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif; color: #18181b; }
 
-    body {
-      background: #f5f5f3;
-      font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
-      color: #18181b;
-    }
-
-    /* ── HEADER ── */
-    .header {
-      background: #18181b;
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .header-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .header-logo {
-      width: 34px; height: 34px;
-      background: #e31837;
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden;
-    }
-
-    .header-logo img {
-      width: 24px; height: 24px;
-      object-fit: contain;
-      filter: brightness(0) invert(1);
-    }
-
-    .header-name {
-      font-size: 14px;
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .header-sub {
-      font-size: 11px;
-      color: #52525b;
-    }
-
-    .header-search input {
-      background: #27272a;
-      border: 1px solid #3f3f46;
-      border-radius: 8px;
-      padding: 7px 14px 7px 36px;
-      font-size: 13px;
-      color: #fff;
-      font-family: 'DM Sans', system-ui, sans-serif;
-      outline: none;
-      width: 240px;
-      transition: border-color .15s;
-    }
-
+    .header { background: #18181b; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .header-brand { display: flex; align-items: center; gap: 10px; }
+    .header-logo { width: 34px; height: 34px; background: #e31837; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .header-logo img { width: 24px; height: 24px; object-fit: contain; filter: brightness(0) invert(1); }
+    .header-name { font-size: 14px; font-weight: 600; color: #fff; }
+    .header-sub  { font-size: 11px; color: #52525b; }
+    .header-search input { background: #27272a; border: 1px solid #3f3f46; border-radius: 8px; padding: 7px 14px 7px 36px; font-size: 13px; color: #fff; font-family: 'DM Sans', system-ui, sans-serif; outline: none; width: 240px; transition: border-color .15s; }
     .header-search input::placeholder { color: #52525b; }
     .header-search input:focus { border-color: #e31837; }
     .header-search { position: relative; }
-    .header-search i {
-      position: absolute;
-      left: 11px; top: 50%;
-      transform: translateY(-50%);
-      color: #52525b;
-      font-size: 14px;
-    }
+    .header-search i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #52525b; font-size: 14px; }
 
-    /* ── FILTROS ── */
-    .filtros-bar {
-      background: #fff;
-      border-bottom: 1px solid #e8e8e4;
-      padding: 10px 24px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
+    /* CARRUSEL */
+    .tendencias-section { background: #fff; border-bottom: 1px solid #e8e8e4; padding: 16px 24px; }
+    .tendencias-titulo { font-size: 13px; font-weight: 600; color: #18181b; display: flex; align-items: center; gap: 7px; margin-bottom: 12px; }
+    .tendencias-titulo span { background: #e31837; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+    .carrusel-wrap { position: relative; padding: 0 18px; }
+    .carrusel-track-outer { overflow: hidden; }
+    .carrusel-track { display: flex; gap: 12px; transition: transform 0.35s ease; }
+    .tend-card { background: #fafaf9; border: 1px solid #e8e8e4; border-radius: 10px; padding: 10px 12px; min-width: 130px; max-width: 130px; display: flex; flex-direction: column; align-items: center; text-align: center; flex-shrink: 0; }
+    .tend-card img { width: 60px; height: 60px; object-fit: contain; mix-blend-mode: multiply; margin-bottom: 8px; }
+    .tend-card-placeholder { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; color: #d4d4d8; font-size: 1.8rem; margin-bottom: 8px; }
+    .tend-nombre { font-size: 11.5px; font-weight: 600; color: #18181b; line-height: 1.3; margin-bottom: 4px; }
+    .tend-precio { font-size: 13px; font-weight: 700; color: #e31837; }
+    .tend-stock { font-size: 10px; font-weight: 600; margin-top: 4px; }
+    .carrusel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: #fff; border: 1px solid #e8e8e4; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; color: #52525b; z-index: 10; transition: all .12s; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    .carrusel-btn:hover { border-color: #e31837; color: #e31837; }
+    .carrusel-btn.prev { left: 0; }
+    .carrusel-btn.next { right: 0; }
 
-    .filtro-btn {
-      background: #f5f5f3;
-      border: 1px solid #e8e8e4;
-      border-radius: 20px;
-      padding: 5px 14px;
-      font-size: 12.5px;
-      font-weight: 500;
-      color: #52525b;
-      cursor: pointer;
-      font-family: 'DM Sans', system-ui, sans-serif;
-      transition: all .12s;
-    }
-
+    /* FILTROS */
+    .filtros-bar { background: #fff; border-bottom: 1px solid #e8e8e4; padding: 10px 24px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .filtro-btn { background: #f5f5f3; border: 1px solid #e8e8e4; border-radius: 20px; padding: 5px 14px; font-size: 12.5px; font-weight: 500; color: #52525b; cursor: pointer; font-family: 'DM Sans', system-ui, sans-serif; transition: all .12s; }
     .filtro-btn:hover { border-color: #e31837; color: #e31837; }
     .filtro-btn.active { background: #e31837; border-color: #e31837; color: #fff; font-weight: 600; }
 
-    /* ── GRID ── */
-    .catalogo-body { padding: 20px 24px; }
-
-    .producto-card {
-      background: #fff;
-      border: 1px solid #e8e8e4;
-      border-radius: 12px;
-      overflow: hidden;
-      height: 100%;
-      transition: border-color .15s, transform .15s;
-      cursor: pointer;
-    }
-
-    .producto-card:hover {
-      border-color: #d0d0cc;
-      transform: translateY(-2px);
-    }
-
-    .producto-img {
-      width: 100%;
-      height: 80px;
-      object-fit: contain;
-      background: #fafaf9;
-      mix-blend-mode: multiply;
-      pointer-events: none;
-      user-select: none;
-    }
-
-    .producto-img-placeholder {
-      width: 100%;
-      height: 80px;
-      background: #fafaf9;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #d4d4d8;
-      font-size: 2rem;
-    }
-
+    /* GRID */
+    .catalogo-body { padding: 20px 24px 32px; }
+    .producto-card { background: #fff; border: 1px solid #e8e8e4; border-radius: 12px; overflow: hidden; height: 100%; transition: border-color .15s, transform .15s; cursor: pointer; }
+    .producto-card:hover { border-color: #d0d0cc; transform: translateY(-2px); }
+    .producto-img { width: 100%; height: 80px; object-fit: contain; background: #fafaf9; mix-blend-mode: multiply; pointer-events: none; user-select: none; }
+    .producto-img-placeholder { width: 100%; height: 80px; background: #fafaf9; display: flex; align-items: center; justify-content: center; color: #d4d4d8; font-size: 2rem; }
     .producto-body { padding: 12px 14px; }
+    .producto-nombre { font-size: 13px; font-weight: 600; color: #18181b; margin-bottom: 6px; line-height: 1.3; }
+    .producto-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+    .cat-badge { background: #fef2f2; color: #e31837; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
+    .stock-badge-ok { background: #f0fdf4; color: #16a34a; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
+    .stock-badge-no { background: #fef2f2; color: #e31837; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
 
-    .producto-nombre {
-      font-size: 13px;
-      font-weight: 600;
-      color: #18181b;
-      margin-bottom: 6px;
-      line-height: 1.3;
-    }
-
-    .producto-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 6px;
-    }
-
-    .cat-badge {
-      background: #fef2f2;
-      color: #e31837;
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 20px;
-    }
-
-    .stock-badge-ok {
-      background: #f0fdf4;
-      color: #16a34a;
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 20px;
-    }
-
-    .stock-badge-no {
-      background: #fef2f2;
-      color: #e31837;
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 20px;
-    }
-
-    /* ── PAGINACIÓN ── */
-    .paginacion {
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 24px;
-      padding-bottom: 32px;
-    }
-
-    .paginacion button {
-      background: #fff;
-      border: 1px solid #e8e8e4;
-      border-radius: 8px;
-      padding: 5px 12px;
-      font-size: 13px;
-      font-weight: 500;
-      color: #52525b;
-      cursor: pointer;
-      font-family: 'DM Sans', system-ui, sans-serif;
-      transition: all .12s;
-    }
-
+    /* PAGINACIÓN */
+    .paginacion { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin-top: 24px; padding-bottom: 32px; }
+    .paginacion button { background: #fff; border: 1px solid #e8e8e4; border-radius: 8px; padding: 5px 12px; font-size: 13px; font-weight: 500; color: #52525b; cursor: pointer; font-family: 'DM Sans', system-ui, sans-serif; transition: all .12s; }
     .paginacion button:hover { border-color: #e31837; color: #e31837; }
     .paginacion button.active { background: #e31837; border-color: #e31837; color: #fff; font-weight: 600; }
     .paginacion button:disabled { opacity: .4; cursor: default; }
 
-    /* ── LIGHTBOX ── */
-    #lightbox {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,.75);
-      z-index: 99999;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      pointer-events: none;
-    }
+    /* LIGHTBOX */
+    #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.75); z-index: 99999; align-items: center; justify-content: center; flex-direction: column; pointer-events: none; }
+    .lb-box { background: #fff; border-radius: 16px; padding: 24px; text-align: center; max-width: 320px; width: 90%; }
+    #lb-img { width: 160px; height: 160px; object-fit: contain; mix-blend-mode: multiply; margin: 0 auto 12px; display: block; }
+    .lb-nombre { font-size: 15px; font-weight: 700; color: #18181b; margin-bottom: 4px; }
+    .lb-cat { font-size: 11px; color: #a1a1aa; margin-bottom: 10px; }
+    .live-dot { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: #a1a1aa; }
+    .live-dot span { width: 7px; height: 7px; background: #16a34a; border-radius: 50%; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
 
-    .lb-box {
-      background: #fff;
-      border-radius: 16px;
-      padding: 24px;
-      text-align: center;
-      max-width: 320px;
-      width: 90%;
-    }
-
-    #lb-img {
-    width: 160px;
-    height: 160px;
-    object-fit: contain;
-    mix-blend-mode: multiply;
-    margin: 0 auto 12px;
-    display: block;
-    }
-
-    .lb-nombre {
-      font-size: 15px;
-      font-weight: 700;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-
-    .lb-cat {
-      font-size: 11px;
-      color: #a1a1aa;
-      margin-bottom: 10px;
-    }
-
-    .live-dot {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 11px;
-      color: #a1a1aa;
-    }
-
-    .live-dot span {
-      width: 7px; height: 7px;
-      background: #16a34a;
-      border-radius: 50%;
-      animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: .4; }
+    @media (max-width: 576px) {
+      .header { padding: 12px 16px; }
+      .header-search input { width: 150px; }
+      .catalogo-body { padding: 16px 12px 32px; }
+      .tendencias-section { padding: 14px 16px; }
     }
   </style>
 </head>
 <body>
 
+{% load static %}
+
 <!-- Header -->
 <div class="header">
   <div class="header-brand">
     <div class="header-logo">
-      {% load static %}
       <img src="{% static 'inventario/img/logo23.png' %}" alt="DS">
     </div>
     <div>
@@ -305,6 +105,41 @@
     <input type="text" id="buscador" placeholder="Buscar producto...">
   </div>
 </div>
+
+<!-- Carrusel Tendencias -->
+{% if tendencias %}
+<div class="tendencias-section">
+  <div class="tendencias-titulo">
+    🔥 En tendencia <span>HOT</span>
+  </div>
+  <div class="carrusel-wrap">
+    <button class="carrusel-btn prev" onclick="moverCarrusel(-1)"><i class="bi bi-chevron-left"></i></button>
+    <div class="carrusel-track-outer">
+      <div class="carrusel-track" id="carrusel-track">
+        {% for p in tendencias %}
+        <div class="tend-card">
+          {% if p.imagen_url %}
+          <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="tend-card-placeholder" style="display:none;"><i class="bi bi-bag"></i></div>
+          {% else %}
+          <div class="tend-card-placeholder"><i class="bi bi-bag"></i></div>
+          {% endif %}
+          <div class="tend-nombre">{{ p.nombre }}</div>
+          <div class="tend-precio">${{ p.precio }}</div>
+          {% if p.stock_actual > 0 %}
+          <div class="tend-stock" style="color:#16a34a;">{{ p.stock_actual }} pzs</div>
+          {% else %}
+          <div class="tend-stock" style="color:#e31837;">Agotado</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <button class="carrusel-btn next" onclick="moverCarrusel(1)"><i class="bi bi-chevron-right"></i></button>
+  </div>
+</div>
+{% endif %}
 
 <!-- Filtros -->
 <div class="filtros-bar">
@@ -324,31 +159,19 @@
       <div class="producto-card"
            onmouseenter="abrirLightbox('{{ p.imagen_url }}', '{{ p.nombre }}', '{{ p.categoria.nombre|default:'' }}', {{ p.stock_actual }})"
            onmouseleave="cerrarLightbox()">
-
         {% if p.imagen_url %}
-        <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}" class="producto-img"
-             draggable="false"
+        <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}" class="producto-img" draggable="false"
              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-        <div class="producto-img-placeholder" style="display:none;">
-          <i class="bi bi-bag"></i>
-        </div>
+        <div class="producto-img-placeholder" style="display:none;"><i class="bi bi-bag"></i></div>
         {% else %}
-        <div class="producto-img-placeholder">
-          <i class="bi bi-bag"></i>
-        </div>
+        <div class="producto-img-placeholder"><i class="bi bi-bag"></i></div>
         {% endif %}
-
         <div class="producto-body">
           <div class="producto-nombre">{{ p.nombre }}</div>
           <div class="producto-footer">
-            {% if p.categoria %}
-            <span class="cat-badge">{{ p.categoria.nombre }}</span>
-            {% else %}<span></span>{% endif %}
-            {% if p.stock_actual > 0 %}
-            <span class="stock-badge-ok">{{ p.stock_actual }} pzs</span>
-            {% else %}
-            <span class="stock-badge-no">Agotado</span>
-            {% endif %}
+            {% if p.categoria %}<span class="cat-badge">{{ p.categoria.nombre }}</span>{% else %}<span></span>{% endif %}
+            {% if p.stock_actual > 0 %}<span class="stock-badge-ok">{{ p.stock_actual }} pzs</span>
+            {% else %}<span class="stock-badge-no">Agotado</span>{% endif %}
           </div>
         </div>
       </div>
@@ -360,9 +183,7 @@
     </div>
     {% endfor %}
   </div>
-
   <div class="paginacion" id="paginacion"></div>
-
   <div class="text-center pb-4">
     <span class="live-dot"><span></span> Actualización en tiempo real</span>
   </div>
@@ -379,6 +200,19 @@
 </div>
 
 <script>
+let carruselPos = 0;
+const CARD_W = 142;
+
+function moverCarrusel(dir) {
+  const track = document.getElementById('carrusel-track');
+  if (!track) return;
+  const cards = track.children.length;
+  const visible = Math.floor(track.parentElement.offsetWidth / CARD_W);
+  const maxPos = Math.max(0, cards - visible);
+  carruselPos = Math.min(Math.max(carruselPos + dir, 0), maxPos);
+  track.style.transform = `translateX(-${carruselPos * CARD_W}px)`;
+}
+
 const POR_PAGINA = 20;
 let paginaActual = 1;
 let categoriaActual = 'todos';
@@ -398,20 +232,16 @@ function renderPagina() {
   const totalPaginas = Math.ceil(items.length / POR_PAGINA);
   if (paginaActual > totalPaginas) paginaActual = 1;
   const inicio = (paginaActual - 1) * POR_PAGINA;
-
   document.querySelectorAll('.producto-item').forEach(i => i.style.display = 'none');
   items.slice(inicio, inicio + POR_PAGINA).forEach(i => i.style.display = '');
-
   const pag = document.getElementById('paginacion');
   pag.innerHTML = '';
   if (totalPaginas <= 1) return;
-
   const btnPrev = document.createElement('button');
   btnPrev.innerHTML = '← Ant';
   btnPrev.disabled = paginaActual === 1;
   btnPrev.onclick = () => { paginaActual--; renderPagina(); window.scrollTo(0,0); };
   pag.appendChild(btnPrev);
-
   for (let i = 1; i <= totalPaginas; i++) {
     const btn = document.createElement('button');
     btn.textContent = i;
@@ -419,7 +249,6 @@ function renderPagina() {
     btn.onclick = () => { paginaActual = i; renderPagina(); window.scrollTo(0,0); };
     pag.appendChild(btn);
   }
-
   const btnNext = document.createElement('button');
   btnNext.innerHTML = 'Sig →';
   btnNext.disabled = paginaActual === totalPaginas;
@@ -442,13 +271,11 @@ document.getElementById('buscador').addEventListener('input', function() {
 });
 
 function abrirLightbox(img, nombre, cat, stock) {
-  clearTimeout(cerrarTimeout);
-  clearTimeout(abrirTimeout);
+  clearTimeout(cerrarTimeout); clearTimeout(abrirTimeout);
   abrirTimeout = setTimeout(() => {
     const lb = document.getElementById('lightbox');
     const lbImg = document.getElementById('lb-img');
-    if (img) { lbImg.src = img; lbImg.style.display = 'block'; }
-    else { lbImg.style.display = 'none'; }
+    if (img) { lbImg.src = img; lbImg.style.display = 'block'; } else { lbImg.style.display = 'none'; }
     document.getElementById('lb-nombre').textContent = nombre;
     document.getElementById('lb-cat').textContent = cat;
     document.getElementById('lb-status').innerHTML = stock > 0
@@ -460,13 +287,10 @@ function abrirLightbox(img, nombre, cat, stock) {
 
 function cerrarLightbox() {
   clearTimeout(abrirTimeout);
-  cerrarTimeout = setTimeout(() => {
-    document.getElementById('lightbox').style.display = 'none';
-  }, 150);
+  cerrarTimeout = setTimeout(() => { document.getElementById('lightbox').style.display = 'none'; }, 150);
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarLightbox(); });
-
 renderPagina();
 </script>
 
