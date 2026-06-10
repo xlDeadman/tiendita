@@ -588,8 +588,6 @@
       <div class="carrusel-track" id="carrusel-track">
         {% for p in tendencias %}
         <div class="tend-card"
-             onmouseenter="abrirLightbox('{{ p.imagen_url }}', '{{ p.nombre }}', '{{ p.categoria.nombre|default:'' }}', {{ p.stock_actual }})"
-             onmouseleave="cerrarLightbox()">
 
           {% if p.imagen_url %}
           <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}" draggable="false"
