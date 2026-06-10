@@ -63,20 +63,6 @@
         border-radius: 0 0 12px 12px;
         overflow: hidden;
     }
-
-    .btn-tendencia {
-        background: none;
-        border: 1px solid #e8e8e4;
-        border-radius: 7px;
-        padding: 4px 8px;
-        font-size: 13px;
-        cursor: pointer;
-        transition: all .15s;
-        line-height: 1;
-    }
-
-    .btn-tendencia:hover { border-color: #f97316; }
-    .btn-tendencia.activo { background: #fff7ed; border-color: #f97316; }
 </style>
 
 <!-- Filtros -->
@@ -120,7 +106,6 @@
                     <th class="text-center">Stock actual</th>
                     <th class="text-end">Precio</th>
                     <th class="text-center">Estado</th>
-                    <th class="text-center">Tendencia</th>
                     <th class="text-center">Acciones</th>
                 </tr>
             </thead>
@@ -170,17 +155,15 @@
                     </td>
 
                     <td class="text-center">
-                        <form method="post" action="{% url 'producto_tendencia' p.pk %}" style="margin:0;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn-tendencia {% if p.tendencia %}activo{% endif %}"
-                                    title="{% if p.tendencia %}Quitar de tendencias{% else %}Poner en tendencias{% endif %}">
-                                🔥
-                            </button>
-                        </form>
-                    </td>
-
-                    <td class="text-center">
                         <div style="display:flex; gap:6px; justify-content:center;">
+                            <form method="post" action="{% url 'producto_tendencia' p.pk %}" style="margin:0;">
+                                {% csrf_token %}
+                                <button type="submit"
+                                    class="btn btn-sm {% if p.tendencia %}btn-primary{% else %}btn-outline-secondary{% endif %}"
+                                    title="{% if p.tendencia %}Quitar de tendencias{% else %}Poner en tendencias{% endif %}">
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                </button>
+                            </form>
                             <a href="{% url 'producto_ajuste_stock' p.pk %}" class="btn btn-sm btn-outline-secondary" title="Ajustar stock">
                                 <i class="bi bi-arrow-up-down"></i>
                             </a>
@@ -195,7 +178,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="8" class="text-center py-5" style="color:#a1a1aa; font-size:13.5px;">
+                    <td colspan="7" class="text-center py-5" style="color:#a1a1aa; font-size:13.5px;">
                         <i class="bi bi-inbox" style="font-size:1.8rem; display:block; margin-bottom:8px; opacity:.4;"></i>
                         No se encontraron productos.
                         <a href="{% url 'producto_create' %}" style="color:#e31837;">Agrega el primero</a>
