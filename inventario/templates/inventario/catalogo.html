@@ -704,43 +704,51 @@
 </div>
 
 <script>
-let carruselPos = 0;
 let carruselAuto = null;
-const CARD_W = 183;
+let carruselVelocidad = 0.5;
+let carruselPausado = false;
 
-function moverCarrusel(dir) {
+function prepararCarruselInfinito() {
   const track = document.getElementById('carrusel-track');
   if (!track) return;
 
-  const outer = track.parentElement;
-  const cards = track.children.length;
-  const visible = Math.floor(outer.offsetWidth / CARD_W);
-  const maxPos = Math.max(0, cards - visible);
+  // Evita duplicar si ya se preparó
+  if (track.dataset.infinito === 'true') return;
 
-  if (maxPos <= 0) return;
+  const cards = Array.from(track.children);
 
-  carruselPos = carruselPos + dir;
+  // Duplicamos las tarjetas para crear efecto infinito
+  cards.forEach(card => {
+    const clone = card.cloneNode(true);
+    track.appendChild(clone);
+  });
 
-  if (carruselPos > maxPos) {
-    carruselPos = 0;
-  }
-
-  if (carruselPos < 0) {
-    carruselPos = maxPos;
-  }
-
-  track.style.transform = `translateX(-${carruselPos * CARD_W}px)`;
+  track.dataset.infinito = 'true';
+  track.style.transition = 'none';
 }
 
 function iniciarCarruselAuto() {
   const track = document.getElementById('carrusel-track');
   if (!track) return;
 
+  prepararCarruselInfinito();
   detenerCarruselAuto();
 
+  let posicion = 0;
+
   carruselAuto = setInterval(() => {
-    moverCarrusel(1);
-  }, 3000);
+    if (carruselPausado) return;
+
+    posicion += carruselVelocidad;
+
+    const anchoMitad = track.scrollWidth / 2;
+
+    if (posicion >= anchoMitad) {
+      posicion = 0;
+    }
+
+    track.style.transform = `translateX(-${posicion}px)`;
+  }, 16);
 }
 
 function detenerCarruselAuto() {
@@ -750,9 +758,29 @@ function detenerCarruselAuto() {
   }
 }
 
-window.addEventListener('resize', function() {
-  carruselPos = 0;
+function moverCarrusel(dir) {
+  const track = document.getElementById('carrusel-track');
+  if (!track) return;
 
+  const actual = track.style.transform.match(/-?\d+(\.\d+)?/);
+  let posicionActual = actual ? Math.abs(parseFloat(actual[0])) : 0;
+
+  posicionActual += dir * 183;
+
+  const anchoMitad = track.scrollWidth / 2;
+
+  if (posicionActual >= anchoMitad) {
+    posicionActual = 0;
+  }
+
+  if (posicionActual < 0) {
+    posicionActual = Math.max(0, anchoMitad - 183);
+  }
+
+  track.style.transform = `translateX(-${posicionActual}px)`;
+}
+
+window.addEventListener('resize', function() {
   const track = document.getElementById('carrusel-track');
   if (track) {
     track.style.transform = 'translateX(0)';
@@ -882,12 +910,17 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') cerrarLightbox();
 });
 
-/* PAUSAR CARRUSEL AL PASAR EL MOUSE */
+/* PAUSAR AL PASAR EL MOUSE */
 const carruselWrap = document.querySelector('.carrusel-wrap');
 
 if (carruselWrap) {
-  carruselWrap.addEventListener('mouseenter', detenerCarruselAuto);
-  carruselWrap.addEventListener('mouseleave', iniciarCarruselAuto);
+  carruselWrap.addEventListener('mouseenter', () => {
+    carruselPausado = true;
+  });
+
+  carruselWrap.addEventListener('mouseleave', () => {
+    carruselPausado = false;
+  });
 }
 
 /* INICIAR TODO */
