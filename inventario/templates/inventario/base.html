@@ -103,6 +103,21 @@
     .nav-link-side i { font-size: 15px; width: 18px; text-align: center; opacity: 0.75; }
     .nav-link-side.active i { opacity: 1; }
 
+    .nav-badge {
+      margin-left: auto;
+      background: #e31837;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 5px;
+    }
+
     .sidebar-footer {
       padding: 12px 14px;
       border-top: 1px solid var(--sidebar-border);
@@ -158,7 +173,6 @@
 
     .page-body { padding: 24px; }
 
-    /* ── TOAST ── */
     #toast-container {
       position: fixed;
       bottom: 24px; right: 24px;
@@ -190,104 +204,28 @@
       to   { opacity: 1; transform: translateX(0); }
     }
 
-    /* ── CARDS ── */
-    .card {
-      border: 1px solid var(--border) !important;
-      border-radius: 12px !important;
-      background: var(--card-bg) !important;
-      box-shadow: none !important;
-    }
-
-    .card-header {
-      border-radius: 12px 12px 0 0 !important;
-      font-size: 13px; font-weight: 600; padding: 12px 16px;
-      border-bottom: 1px solid var(--border) !important;
-      color: var(--text-primary) !important;
-      background: var(--card-bg) !important;
-    }
-
+    .card { border: 1px solid var(--border) !important; border-radius: 12px !important; background: var(--card-bg) !important; box-shadow: none !important; }
+    .card-header { border-radius: 12px 12px 0 0 !important; font-size: 13px; font-weight: 600; padding: 12px 16px; border-bottom: 1px solid var(--border) !important; color: var(--text-primary) !important; background: var(--card-bg) !important; }
     .card-body { color: var(--text-primary); padding: 16px; }
-
-    .stat-card {
-      background: var(--card-bg) !important;
-      border: 1px solid var(--border) !important;
-      border-radius: 12px !important;
-      box-shadow: none !important;
-      transition: border-color 0.15s;
-    }
-
+    .stat-card { background: var(--card-bg) !important; border: 1px solid var(--border) !important; border-radius: 12px !important; box-shadow: none !important; transition: border-color 0.15s; }
     .stat-card:hover { border-color: #d0d0cc !important; }
+    .stat-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
 
-    .stat-icon {
-      width: 38px; height: 38px; border-radius: 9px;
-      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
-    }
-
-    /* ── TABLES ── */
-    .table-card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      overflow: hidden;
-    }
-
+    .table-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
     .table { color: var(--text-primary) !important; margin: 0; }
-
-    .table thead th {
-      background: var(--body-bg) !important;
-      color: var(--text-muted) !important;
-      font-size: 11px; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.07em;
-      border-bottom: 1px solid var(--border) !important;
-      padding: 10px 16px;
-    }
-
-    .table tbody td {
-      padding: 11px 16px; font-size: 13.5px;
-      border-bottom: 1px solid #f0f0ec !important;
-      color: var(--text-primary); vertical-align: middle;
-    }
-
+    .table thead th { background: var(--body-bg) !important; color: var(--text-muted) !important; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1px solid var(--border) !important; padding: 10px 16px; }
+    .table tbody td { padding: 11px 16px; font-size: 13.5px; border-bottom: 1px solid #f0f0ec !important; color: var(--text-primary); vertical-align: middle; }
     .table tbody tr:last-child td { border-bottom: none !important; }
     .table tbody tr:hover td { background: var(--body-bg) !important; }
     .table > :not(caption) > * > * { background: transparent !important; color: inherit !important; box-shadow: none !important; }
 
-    /* ── FORMS ── */
-    .form-control, .form-select {
-      background: #fff !important;
-      border: 1px solid var(--border) !important;
-      border-radius: 8px !important;
-      font-size: 13.5px; padding: 8px 12px;
-      color: var(--text-primary) !important;
-      font-family: 'DM Sans', system-ui, sans-serif;
-      transition: border-color 0.12s, box-shadow 0.12s;
-    }
-
+    .form-control, .form-select { background: #fff !important; border: 1px solid var(--border) !important; border-radius: 8px !important; font-size: 13.5px; padding: 8px 12px; color: var(--text-primary) !important; font-family: 'DM Sans', system-ui, sans-serif; transition: border-color 0.12s, box-shadow 0.12s; }
     .form-control::placeholder { color: var(--text-muted) !important; }
-
-    .form-control:focus, .form-select:focus {
-      border-color: var(--accent) !important;
-      box-shadow: 0 0 0 3px rgba(227,24,55,0.08) !important;
-      outline: none;
-    }
-
+    .form-control:focus, .form-select:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(227,24,55,0.08) !important; outline: none; }
     .form-label { color: var(--text-secondary) !important; font-size: 12.5px; font-weight: 500; margin-bottom: 5px; }
+    .input-group-text { background: var(--body-bg) !important; border: 1px solid var(--border) !important; color: var(--text-secondary) !important; font-size: 13px; }
 
-    .input-group-text {
-      background: var(--body-bg) !important;
-      border: 1px solid var(--border) !important;
-      color: var(--text-secondary) !important;
-      font-size: 13px;
-    }
-
-    /* ── BUTTONS ── */
-    .btn {
-      border-radius: 8px; font-size: 13px; font-weight: 500;
-      padding: 7px 14px;
-      font-family: 'DM Sans', system-ui, sans-serif;
-      transition: all 0.12s;
-    }
-
+    .btn { border-radius: 8px; font-size: 13px; font-weight: 500; padding: 7px 14px; font-family: 'DM Sans', system-ui, sans-serif; transition: all 0.12s; }
     .btn-primary { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; }
     .btn-primary:hover { background: var(--accent-hover) !important; border-color: var(--accent-hover) !important; }
     .btn-success { background: #16a34a !important; border-color: #16a34a !important; color: #fff !important; }
@@ -307,7 +245,6 @@
     .btn-outline-secondary { border-color: var(--border) !important; color: var(--text-muted) !important; background: #fff !important; }
     .btn-outline-secondary:hover { background: var(--body-bg) !important; color: var(--text-secondary) !important; }
 
-    /* ── BADGES ── */
     .badge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
     .bg-success   { background: #f0fdf4 !important; color: #16a34a !important; }
     .bg-danger    { background: #fef2f2 !important; color: var(--accent) !important; }
@@ -315,19 +252,13 @@
     .bg-secondary { background: var(--body-bg) !important; color: var(--text-muted) !important; }
     .bg-primary   { background: var(--accent-light) !important; color: var(--accent) !important; }
 
-    /* ── UTILITY ── */
     .text-dark    { color: var(--text-primary) !important; }
     .text-muted   { color: var(--text-muted) !important; }
     .text-success { color: #16a34a !important; }
     .text-danger  { color: var(--accent) !important; }
     .text-warning { color: #d97706 !important; }
 
-    .list-group-item {
-      background: transparent !important;
-      border-color: #f0f0ec !important;
-      color: var(--text-primary) !important;
-      font-size: 13.5px;
-    }
+    .list-group-item { background: transparent !important; border-color: #f0f0ec !important; color: var(--text-primary) !important; font-size: 13.5px; }
     .list-group-item:hover { background: var(--body-bg) !important; }
 
     @media (max-width: 768px) {
@@ -365,11 +296,19 @@
       <i class="bi bi-people"></i> Crédito
     </a>
     <a href="{% url 'venta_create' %}" class="nav-link-side {% if request.resolver_match.url_name == 'venta_create' %}active{% endif %}">
-  <i class="bi bi-cash"></i> Efectivo
-</a>
-<a href="{% url 'venta_list' %}" class="nav-link-side {% if request.resolver_match.url_name == 'venta_list' %}active{% endif %}">
-  <i class="bi bi-clock-history"></i> Historial ventas
-</a>
+      <i class="bi bi-cash"></i> Efectivo
+    </a>
+    <a href="{% url 'venta_list' %}" class="nav-link-side {% if request.resolver_match.url_name == 'venta_list' %}active{% endif %}">
+      <i class="bi bi-clock-history"></i> Historial ventas
+    </a>
+    <a href="{% url 'pedido_list' %}" class="nav-link-side {% if 'pedido' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-basket"></i> Pedidos
+      {% load pedido_tags %}
+      {% pedidos_nuevos as total_nuevos %}
+      {% if total_nuevos > 0 %}
+      <span class="nav-badge">{{ total_nuevos }}</span>
+      {% endif %}
+    </a>
 
     <div class="sidebar-label">Catálogo</div>
     <a href="{% url 'producto_list' %}" class="nav-link-side {% if 'producto' in request.resolver_match.url_name %}active{% endif %}">
