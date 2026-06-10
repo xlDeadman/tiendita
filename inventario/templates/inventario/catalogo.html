@@ -643,10 +643,8 @@
          data-categoria="{{ p.categoria.nombre|default:'' }}"
          data-nombre="{{ p.nombre }}">
 
-      <div class="producto-card"
-           onmouseenter="abrirLightbox('{{ p.imagen_url }}', '{{ p.nombre }}', '{{ p.categoria.nombre|default:'' }}', {{ p.stock_actual }})"
-           onmouseleave="cerrarLightbox()">
-
+      <div class="producto-card">
+        
         {% if p.imagen_url %}
         <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}" class="producto-img" draggable="false"
              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
