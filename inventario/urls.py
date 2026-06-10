@@ -10,6 +10,7 @@ urlpatterns = [
     path('productos/<int:pk>/editar/', views.producto_edit, name='producto_edit'),
     path('productos/<int:pk>/eliminar/', views.producto_delete, name='producto_delete'),
     path('productos/<int:pk>/stock/', views.producto_ajuste_stock, name='producto_ajuste_stock'),
+    path('productos/<int:pk>/tendencia/', views.producto_tendencia, name='producto_tendencia'),  # ← AGREGA
 
     path('categorias/', views.categoria_list, name='categoria_list'),
     path('categorias/nueva/', views.categoria_create, name='categoria_create'),
