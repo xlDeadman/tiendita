@@ -206,3 +206,33 @@ class DetalleVenta(models.Model):
     @property
     def subtotal(self):
         return self.cantidad * self.precio_unitario
+
+    # ─────────────────────────── Pedidos ───────────────────────────
+
+class Pedido(models.Model):
+    ESTADO_CHOICES = [
+        ('nuevo', 'Nuevo'),
+        ('atendido', 'Atendido'),
+        ('cancelado', 'Cancelado'),
+    ]
+    nombre_cliente = models.CharField(max_length=200, verbose_name="Cliente")
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='nuevo')
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-creado_en']
+
+    def __str__(self):
+        return f"Pedido #{self.pk} - {self.nombre_cliente}"
+
+
+class DetallePedido(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='detalles')
+    producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
+    cantidad = models.PositiveIntegerField()
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+
+    @property
+    def subtotal(self):
+        return self.cantidad * self.precio_unitario
