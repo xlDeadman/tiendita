@@ -67,6 +67,7 @@ class Producto(models.Model):
     precio = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio de venta ($)")
     imagen_url = models.URLField(max_length=500, blank=True, verbose_name="URL de imagen")
     activo = models.BooleanField(default=True, verbose_name="Activo")
+    tendencia = models.BooleanField(default=False, verbose_name="En tendencia")  # ← AGREGA ESTA
     creado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
 
