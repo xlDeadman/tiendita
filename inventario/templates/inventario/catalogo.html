@@ -141,16 +141,16 @@
     }
 
     .carrusel-track-outer {
-  overflow: hidden;
-  width: 100%;
-}
+      overflow: hidden;
+      width: 100%;
+    }
 
-.carrusel-track {
-  display: flex;
-  gap: 18px;
-  transition: none;
-  will-change: transform;
-}
+    .carrusel-track {
+      display: flex;
+      gap: 18px;
+      transition: none;
+      will-change: transform;
+    }
 
     .tend-card {
       background: #fff;
@@ -303,7 +303,7 @@
       border-radius: 12px;
       overflow: hidden;
       height: 100%;
-      transition: border-color .15s, transform .15s, box-shadow .15s;
+      transition: border-color .15s, transform .15s, box-shadow .15s, opacity .15s, filter .15s;
       cursor: pointer;
     }
 
@@ -313,39 +313,66 @@
       box-shadow: 0 8px 22px rgba(0,0,0,.04);
     }
 
+    /* PRODUCTO SIN STOCK */
+    .producto-card.agotado-card {
+      background: #eeeeee;
+      opacity: 0.65;
+      filter: grayscale(100%);
+      cursor: not-allowed;
+    }
+
+    .producto-card.agotado-card:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: #e8e8e4;
+    }
+
+    .producto-card.agotado-card .producto-img {
+      background: #eeeeee;
+    }
+
+    .producto-card.agotado-card .producto-img-placeholder {
+      background: #eeeeee;
+    }
+
+    .producto-card.agotado-card .producto-nombre {
+      color: #71717a;
+    }
+
     .producto-img {
-  width: 100%;
-  height: 65px;
-  object-fit: contain;
-  background: #fafaf9;
-  mix-blend-mode: multiply;
-  pointer-events: none;
-  user-select: none;
-}
+      width: 100%;
+      height: 65px;
+      object-fit: contain;
+      background: #fafaf9;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+      user-select: none;
+    }
 
-.producto-img-placeholder {
-  width: 100%;
-  height: 65px;
-  background: #fafaf9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #d4d4d8;
-  font-size: 1.5rem;
-}
+    .producto-img-placeholder {
+      width: 100%;
+      height: 65px;
+      background: #fafaf9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #d4d4d8;
+      font-size: 1.5rem;
+    }
 
-.producto-body {
-  padding: 8px 10px;
-}
+    .producto-body {
+      padding: 8px 10px;
+    }
 
-.producto-nombre {
-  font-size: 11.5px;
-  font-weight: 700;
-  color: #18181b;
-  margin-bottom: 4px;
-  line-height: 1.25;
-  text-transform: uppercase;
-}
+    .producto-nombre {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #18181b;
+      margin-bottom: 4px;
+      line-height: 1.25;
+      text-transform: uppercase;
+    }
+
     .producto-footer {
       display: flex;
       align-items: center;
@@ -373,8 +400,8 @@
     }
 
     .stock-badge-no {
-      background: #fef2f2;
-      color: #e31837;
+      background: #e4e4e7;
+      color: #71717a;
       font-size: 10px;
       font-weight: 700;
       padding: 2px 7px;
@@ -419,53 +446,6 @@
     .paginacion button:disabled {
       opacity: .4;
       cursor: default;
-    }
-
-    /* LIGHTBOX */
-    #lightbox {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,.75);
-      z-index: 99999;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      pointer-events: none;
-    }
-
-    .lb-box {
-      background: #fff;
-      border-radius: 16px;
-      padding: 24px;
-      text-align: center;
-      max-width: 320px;
-      width: 90%;
-    }
-
-    #lb-img {
-      width: 160px;
-      height: 160px;
-      object-fit: contain;
-      mix-blend-mode: multiply;
-      margin: 0 auto 12px;
-      display: block;
-    }
-
-    .lb-nombre {
-      font-size: 15px;
-      font-weight: 800;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-
-    .lb-cat {
-      font-size: 11px;
-      color: #a1a1aa;
-      margin-bottom: 10px;
     }
 
     .live-dot {
@@ -588,7 +568,6 @@
       <div class="carrusel-track" id="carrusel-track">
         {% for p in tendencias %}
         <div class="tend-card">
-             
 
           {% if p.imagen_url %}
           <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}" draggable="false"
@@ -624,7 +603,6 @@
 
 <!-- Filtros -->
 <div class="filtros-bar">
-
   {% for cat in categorias %}
   <button class="filtro-btn" onclick="filtrar('{{ cat.nombre }}', this)">
     {{ cat.nombre }}
@@ -640,7 +618,7 @@
          data-categoria="{{ p.categoria.nombre|default:'' }}"
          data-nombre="{{ p.nombre }}">
 
-      <div class="producto-card">
+      <div class="producto-card {% if p.stock_actual <= 0 %}agotado-card{% endif %}">
 
         {% if p.imagen_url %}
         <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}" class="producto-img" draggable="false"
@@ -667,7 +645,7 @@
             {% if p.stock_actual > 0 %}
             <span class="stock-badge-ok">{{ p.stock_actual }} pzs</span>
             {% else %}
-            <span class="stock-badge-no">Agotado</span>
+            <span class="stock-badge-no">Sin stock</span>
             {% endif %}
           </div>
         </div>
@@ -689,16 +667,6 @@
   </div>
 </div>
 
-<!-- Lightbox -->
-<div id="lightbox">
-  <div class="lb-box">
-    <img id="lb-img" src="" alt="" style="display:none;">
-    <div class="lb-nombre" id="lb-nombre"></div>
-    <div class="lb-cat" id="lb-cat"></div>
-    <div id="lb-status"></div>
-  </div>
-</div>
-
 <script>
 let carruselAuto = null;
 let carruselVelocidad = 0.5;
@@ -708,12 +676,10 @@ function prepararCarruselInfinito() {
   const track = document.getElementById('carrusel-track');
   if (!track) return;
 
-  // Evita duplicar si ya se preparó
   if (track.dataset.infinito === 'true') return;
 
   const cards = Array.from(track.children);
 
-  // Duplicamos las tarjetas para crear efecto infinito
   cards.forEach(card => {
     const clone = card.cloneNode(true);
     track.appendChild(clone);
@@ -778,6 +744,7 @@ function moverCarrusel(dir) {
 
 window.addEventListener('resize', function() {
   const track = document.getElementById('carrusel-track');
+
   if (track) {
     track.style.transform = 'translateX(0)';
   }
@@ -789,7 +756,6 @@ const POR_PAGINA = 24;
 let paginaActual = 1;
 let categoriaActual = 'todos';
 let busquedaActual = '';
-let abrirTimeout, cerrarTimeout;
 
 function getItemsVisibles() {
   return Array.from(document.querySelectorAll('.producto-item')).filter(item => {
@@ -868,45 +834,7 @@ document.getElementById('buscador').addEventListener('input', function() {
   renderPagina();
 });
 
-function abrirLightbox(img, nombre, cat, stock) {
-  clearTimeout(cerrarTimeout);
-  clearTimeout(abrirTimeout);
-
-  abrirTimeout = setTimeout(() => {
-    const lb = document.getElementById('lightbox');
-    const lbImg = document.getElementById('lb-img');
-
-    if (img) {
-      lbImg.src = img;
-      lbImg.style.display = 'block';
-    } else {
-      lbImg.style.display = 'none';
-    }
-
-    document.getElementById('lb-nombre').textContent = nombre;
-    document.getElementById('lb-cat').textContent = cat;
-
-    document.getElementById('lb-status').innerHTML = stock > 0
-      ? '<span style="background:#f0fdf4;color:#16a34a;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;">Disponible — ' + stock + ' pzs</span>'
-      : '<span style="background:#fef2f2;color:#e31837;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;">Agotado</span>';
-
-    lb.style.display = 'flex';
-  }, 400);
-}
-
-function cerrarLightbox() {
-  clearTimeout(abrirTimeout);
-
-  cerrarTimeout = setTimeout(() => {
-    document.getElementById('lightbox').style.display = 'none';
-  }, 150);
-}
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') cerrarLightbox();
-});
-
-/* PAUSAR AL PASAR EL MOUSE */
+/* PAUSAR CARRUSEL AL PASAR EL MOUSE */
 const carruselWrap = document.querySelector('.carrusel-wrap');
 
 if (carruselWrap) {
