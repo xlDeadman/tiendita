@@ -966,3 +966,72 @@ def producto_tendencia(request, pk):
         producto.tendencia = not producto.tendencia
         producto.save()
     return redirect('producto_list')
+
+
+# ─────────────────────────── Pedidos ───────────────────────────
+
+from .models import Pedido, DetallePedido
+import json
+
+@login_required
+def pedido_list(request):
+    pedidos = Pedido.objects.prefetch_related('detalles__producto').all()
+    nuevos = pedidos.filter(estado='nuevo').count()
+    return render(request, 'inventario/pedido_list.html', {
+        'pedidos': pedidos,
+        'nuevos': nuevos,
+    })
+
+@login_required
+def pedido_atender(request, pk):
+    pedido = get_object_or_404(Pedido, pk=pk)
+    if request.method == 'POST':
+        pedido.estado = 'atendido'
+        pedido.save()
+        messages.success(request, f'✅ Pedido #{pedido.pk} marcado como atendido.')
+    return redirect('pedido_list')
+
+@login_required
+def pedido_cancelar(request, pk):
+    pedido = get_object_or_404(Pedido, pk=pk)
+    if request.method == 'POST':
+        pedido.estado = 'cancelado'
+        pedido.save()
+        messages.warning(request, f'❌ Pedido #{pedido.pk} cancelado.')
+    return redirect('pedido_list')
+
+def pedido_crear(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            nombre = data.get('nombre', '').strip()
+            items = data.get('items', [])
+
+            if not nombre or not items:
+                return JsonResponse({'error': 'Faltan datos'}, status=400)
+
+            pedido = Pedido.objects.create(nombre_cliente=nombre, total=0)
+            total = Decimal('0')
+
+            for item in items:
+                try:
+                    producto = Producto.objects.get(nombre=item['nombre'])
+                    cantidad = int(item['cantidad'])
+                    precio = producto.precio
+                    DetallePedido.objects.create(
+                        pedido=pedido,
+                        producto=producto,
+                        cantidad=cantidad,
+                        precio_unitario=precio,
+                    )
+                    total += precio * cantidad
+                except Producto.DoesNotExist:
+                    pass
+
+            pedido.total = total
+            pedido.save()
+            return JsonResponse({'ok': True, 'pedido_id': pedido.pk})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
