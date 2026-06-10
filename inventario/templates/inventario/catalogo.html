@@ -625,7 +625,6 @@
 
 <!-- Filtros -->
 <div class="filtros-bar">
-  <button class="filtro-btn active" onclick="filtrar('todos', this)">Todos</button>
 
   {% for cat in categorias %}
   <button class="filtro-btn" onclick="filtrar('{{ cat.nombre }}', this)">
