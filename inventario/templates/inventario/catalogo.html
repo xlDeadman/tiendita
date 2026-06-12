@@ -103,7 +103,6 @@
     /* ── GRID ── */
     .catalogo-body { padding: 14px 10px 130px; }
 
-    /* 2 columnas en móvil, 3 en tablet, 4 en desktop, 6 en xl */
     .producto-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -118,10 +117,9 @@
       background: #fff; border: 1px solid #e8e8e4; border-radius: 12px;
       overflow: hidden; display: flex; flex-direction: column;
       transition: border-color .15s, transform .15s, box-shadow .15s;
-      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      -webkit-tap-highlight-color: transparent;
     }
-    .producto-card:active { transform: scale(0.98); }
-    .producto-card.agotado-card { background: #eee; opacity: 0.6; filter: grayscale(100%); cursor: not-allowed; }
+    .producto-card.agotado-card { background: #eee; opacity: 0.6; filter: grayscale(100%); }
     .producto-card.agotado-card:active { transform: none; }
 
     .producto-img-wrap {
@@ -146,15 +144,45 @@
     .stock-badge-ok  { background: #f0fdf4; color: #16a34a; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 20px; }
     .stock-badge-no  { background: #e4e4e7; color: #71717a; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 20px; }
 
+    /* ── BOTÓN AGREGAR + CONTROL CANTIDAD (estilo Amazon) ── */
     .btn-agregar {
       width: 100%; margin-top: auto;
-      background: #f5f5f3; border: 1px solid #e8e8e4; border-radius: 7px;
-      padding: 6px 8px; font-size: 11px; font-weight: 600; color: #52525b;
-      cursor: pointer; font-family: inherit; transition: all .12s;
+      background: #e31837; border: none; border-radius: 7px;
+      padding: 7px 8px; font-size: 12px; font-weight: 700; color: #fff;
+      cursor: pointer; font-family: inherit; transition: background .12s;
       -webkit-tap-highlight-color: transparent;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
     }
-    .btn-agregar:active { border-color: #e31837; color: #e31837; }
-    .btn-agregar.en-carrito { background: #e31837; border-color: #e31837; color: #fff; }
+    .btn-agregar:active { background: #c01530; }
+
+    /* Control − qty + que reemplaza al botón */
+    .qty-card-ctrl {
+      width: 100%; margin-top: auto;
+      display: none;                        /* oculto hasta agregar */
+      align-items: center; justify-content: space-between;
+      border: 2px solid #e31837; border-radius: 7px;
+      overflow: hidden; height: 32px;
+    }
+    .qty-card-ctrl.visible { display: flex; }
+
+    .qty-card-btn {
+      background: #fff; border: none; cursor: pointer;
+      font-size: 18px; font-weight: 700; color: #18181b;
+      width: 36px; height: 100%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .1s;
+      -webkit-tap-highlight-color: transparent;
+      padding: 0;
+    }
+    .qty-card-btn:active { background: #fef2f2; color: #e31837; }
+
+    .qty-card-num {
+      flex: 1; text-align: center;
+      font-size: 13px; font-weight: 800; color: #18181b;
+      border-left: 1px solid #fecaca; border-right: 1px solid #fecaca;
+      height: 100%; display: flex; align-items: center; justify-content: center;
+      background: #fff5f5;
+    }
 
     /* ── CARRITO FLOTANTE ── */
     #carrito-bar {
@@ -162,7 +190,6 @@
       background: #fff; border-top: 1px solid #e8e8e4;
       padding: 12px 16px; z-index: 200;
       display: none; box-shadow: 0 -4px 20px rgba(0,0,0,.10);
-      /* safe area para iPhone */
       padding-bottom: max(12px, env(safe-area-inset-bottom));
     }
     #carrito-bar.visible { display: block; }
@@ -280,7 +307,7 @@
 </div>
 {% endif %}
 
-<!-- Filtros (scroll horizontal en móvil) -->
+<!-- Filtros -->
 <div class="filtros-bar">
   {% for cat in categorias %}
   <button class="filtro-btn" onclick="filtrar('{{ cat.nombre }}', this)">{{ cat.nombre }}</button>
@@ -313,10 +340,21 @@
             {% if p.stock_actual > 0 %}<span class="stock-badge-ok">{{ p.stock_actual }} pzs</span>
             {% else %}<span class="stock-badge-no">Sin stock</span>{% endif %}
           </div>
+
           {% if p.stock_actual > 0 %}
-          <button class="btn-agregar" onclick="agregarAlCarrito('{{ p.nombre }}', {{ p.precio }}, this)">
-            + Agregar
+          {# Botón inicial agregar #}
+          <button class="btn-agregar"
+                  onclick="agregarAlCarrito('{{ p.nombre }}', {{ p.precio }}, this)">
+            <i class="bi bi-plus-lg"></i> Agregar
           </button>
+          {# Control − qty + (oculto hasta que se agrega) #}
+          <div class="qty-card-ctrl" id="ctrl-{{ forloop.counter }}">
+            <button class="qty-card-btn"
+                    onclick="cambiarCantidadCard('{{ p.nombre }}', -1, '{{ forloop.counter }}')">−</button>
+            <div class="qty-card-num" id="qty-num-{{ forloop.counter }}">1</div>
+            <button class="qty-card-btn"
+                    onclick="cambiarCantidadCard('{{ p.nombre }}', 1, '{{ forloop.counter }}')">+</button>
+          </div>
           {% endif %}
         </div>
       </div>
@@ -470,20 +508,82 @@ document.getElementById('buscador').addEventListener('input', function () {
 const carrito = {};
 let carritoAbierto = false;
 
-function agregarAlCarrito(nombre, precio, btn) {
-  carrito[nombre] = carrito[nombre]
-    ? { precio: parseFloat(precio), qty: carrito[nombre].qty + 1 }
-    : { precio: parseFloat(precio), qty: 1 };
-  btn.classList.add('en-carrito');
-  btn.textContent = '✓ Agregado';
-  setTimeout(() => { btn.classList.remove('en-carrito'); btn.textContent = '+ Agregar'; }, 1000);
+/**
+ * Se llama al presionar "+ Agregar" por primera vez.
+ * Oculta el botón y muestra el control − qty +
+ */
+function agregarAlCarrito(nombre, precio, btnAgregar) {
+  // Inicializar en carrito
+  carrito[nombre] = { precio: parseFloat(precio), qty: 1 };
+
+  // Encontrar el control en el mismo producto-body
+  const body = btnAgregar.closest('.producto-body');
+  const ctrl = body.querySelector('.qty-card-ctrl');
+  const numEl = body.querySelector('.qty-card-num');
+
+  // Ocultar botón, mostrar control
+  btnAgregar.style.display = 'none';
+  if (ctrl) { ctrl.classList.add('visible'); }
+  if (numEl) { numEl.textContent = 1; }
+
   actualizarCarrito();
 }
 
-function cambiarCantidad(nombre, delta) {
+/**
+ * Llamado por los botones − / + dentro de la tarjeta.
+ * idx es el forloop.counter del Django template.
+ */
+function cambiarCantidadCard(nombre, delta, idx) {
   if (!carrito[nombre]) return;
   carrito[nombre].qty += delta;
-  if (carrito[nombre].qty <= 0) delete carrito[nombre];
+
+  const ctrl  = document.getElementById('ctrl-' + idx);
+  const numEl = document.getElementById('qty-num-' + idx);
+
+  if (carrito[nombre].qty <= 0) {
+    // Quitar del carrito y restaurar botón
+    delete carrito[nombre];
+    if (ctrl) ctrl.classList.remove('visible');
+    // Restaurar el botón agregar
+    if (ctrl) {
+      const body = ctrl.closest('.producto-body');
+      const btn  = body.querySelector('.btn-agregar');
+      if (btn) btn.style.display = '';
+    }
+  } else {
+    if (numEl) numEl.textContent = carrito[nombre].qty;
+  }
+
+  actualizarCarrito();
+}
+
+/* También sincronizar desde el panel del carrito flotante */
+function cambiarCantidad(nombre, delta) {
+  if (!carrito[nombre]) return;
+  const prev = carrito[nombre].qty;
+  carrito[nombre].qty += delta;
+
+  if (carrito[nombre].qty <= 0) {
+    delete carrito[nombre];
+    // Buscar tarjeta por nombre y restaurar botón
+    document.querySelectorAll('.producto-item').forEach(item => {
+      if (item.dataset.nombre === nombre) {
+        const ctrl = item.querySelector('.qty-card-ctrl');
+        const btn  = item.querySelector('.btn-agregar');
+        if (ctrl) ctrl.classList.remove('visible');
+        if (btn)  btn.style.display = '';
+      }
+    });
+  } else {
+    // Actualizar número en tarjeta
+    document.querySelectorAll('.producto-item').forEach(item => {
+      if (item.dataset.nombre === nombre) {
+        const numEl = item.querySelector('.qty-card-num');
+        if (numEl) numEl.textContent = carrito[nombre].qty;
+      }
+    });
+  }
+
   actualizarCarrito();
 }
 
@@ -545,8 +645,13 @@ function enviarPedido() {
   .then(r => r.json())
   .then(data => {
     if (data.ok) {
-      document.getElementById('carrito-bar').classList.remove('visible');
+      // Limpiar carrito y restaurar todas las tarjetas
       Object.keys(carrito).forEach(k => delete carrito[k]);
+      document.querySelectorAll('.qty-card-ctrl.visible').forEach(ctrl => {
+        ctrl.classList.remove('visible');
+        const btn = ctrl.closest('.producto-body').querySelector('.btn-agregar');
+        if (btn) btn.style.display = '';
+      });
       actualizarCarrito();
       mostrarExito();
     } else {
