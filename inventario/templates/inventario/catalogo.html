@@ -13,17 +13,10 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: #f5f5f3; font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif; color: #18181b; }
 
-    /* ── HEADER ── */
     .header {
-      background: #18181b;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      gap: 10px;
+      background: #18181b; padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100; gap: 10px;
     }
     .header-brand { display: flex; align-items: center; gap: 9px; min-width: 0; }
     .header-logo {
@@ -31,42 +24,30 @@
       background: #e31837; border-radius: 8px;
       display: flex; align-items: center; justify-content: center; overflow: hidden;
     }
-    .header-logo img { width: 22px; height: 22px; object-fit: contain; filter: brightness(0) invert(1); }
     .header-name { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; }
     .header-sub  { font-size: 10px; color: #71717a; }
     .header-search { position: relative; flex: 1; max-width: 260px; }
     .header-search i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #71717a; font-size: 13px; }
     .header-search input {
-      width: 100%;
-      background: #27272a; border: 1px solid #3f3f46; border-radius: 8px;
+      width: 100%; background: #27272a; border: 1px solid #3f3f46; border-radius: 8px;
       padding: 8px 12px 8px 32px; font-size: 13px; color: #fff;
       font-family: inherit; outline: none; transition: border-color .15s;
     }
     .header-search input::placeholder { color: #71717a; }
     .header-search input:focus { border-color: #e31837; }
 
-    /* ── CARRUSEL ── */
+    /* CARRUSEL */
     .tendencias-section { background: #f5f5f3; border-bottom: 1px solid #e8e8e4; padding: 16px 12px 14px; }
-    .tendencias-titulo {
-      font-size: 14px; font-weight: 800; color: #18181b;
-      display: flex; align-items: center; gap: 7px; margin-bottom: 12px;
-    }
-    .tendencias-titulo span {
-      background: #e31837; color: #fff;
-      font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 20px;
-    }
-    .carrusel-wrap {
-      position: relative; display: flex; align-items: center; gap: 4px;
-    }
+    .tendencias-titulo { font-size: 14px; font-weight: 800; color: #18181b; display: flex; align-items: center; gap: 7px; margin-bottom: 12px; }
+    .tendencias-titulo span { background: #e31837; color: #fff; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 20px; }
+    .carrusel-wrap { position: relative; display: flex; align-items: center; gap: 4px; }
     .carrusel-track-outer { overflow: hidden; flex: 1; }
     .carrusel-track { display: flex; gap: 10px; will-change: transform; }
     .tend-card {
-      background: #fff; border: 1px solid #e8e8e4; border-radius: 12px;
-      padding: 12px 10px;
+      background: #fff; border: 1px solid #e8e8e4; border-radius: 12px; padding: 12px 10px;
       min-width: 130px; max-width: 130px; height: 200px;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      text-align: center; flex-shrink: 0; cursor: pointer;
-      transition: transform .15s, border-color .15s, box-shadow .15s;
+      text-align: center; flex-shrink: 0; cursor: pointer; transition: transform .15s;
     }
     .tend-card:active { transform: scale(0.97); }
     .tend-card img { width: 75px; height: 75px; object-fit: contain; mix-blend-mode: multiply; margin-bottom: 8px; }
@@ -79,30 +60,24 @@
       width: 30px; height: 30px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; font-size: 12px; color: #52525b;
-      box-shadow: 0 2px 8px rgba(0,0,0,.10); transition: all .12s;
+      box-shadow: 0 2px 8px rgba(0,0,0,.10);
     }
-    .carrusel-btn:active { border-color: #e31837; color: #e31837; }
 
-    /* ── FILTROS ── */
+    /* FILTROS */
     .filtros-bar {
-      background: #fff; border-bottom: 1px solid #e8e8e4;
-      padding: 10px 12px;
-      display: flex; gap: 6px; overflow-x: auto;
-      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      background: #fff; border-bottom: 1px solid #e8e8e4; padding: 10px 12px;
+      display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
     }
     .filtros-bar::-webkit-scrollbar { display: none; }
     .filtro-btn {
       background: #f5f5f3; border: 1px solid #e8e8e4; border-radius: 20px;
       padding: 5px 13px; font-size: 12px; font-weight: 600; color: #52525b;
-      cursor: pointer; font-family: inherit; white-space: nowrap;
-      transition: all .12s; flex-shrink: 0;
+      cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0;
     }
-    .filtro-btn:active { border-color: #e31837; color: #e31837; }
     .filtro-btn.active { background: #e31837; border-color: #e31837; color: #fff; font-weight: 800; }
 
-    /* ── GRID ── */
-    .catalogo-body { padding: 14px 10px 130px; }
-
+    /* GRID */
+    .catalogo-body { padding: 14px 10px 140px; }
     .producto-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -113,49 +88,44 @@
     @media (min-width: 1024px) { .producto-grid { grid-template-columns: repeat(5, 1fr); } }
     @media (min-width: 1280px) { .producto-grid { grid-template-columns: repeat(6, 1fr); } }
 
+    /* TARJETA */
     .producto-card {
       background: #fff; border: 1px solid #e8e8e4; border-radius: 12px;
       overflow: hidden; display: flex; flex-direction: column;
-      transition: border-color .15s, transform .15s, box-shadow .15s;
+      transition: border-color .15s;
       -webkit-tap-highlight-color: transparent;
+      position: relative;
     }
-    .producto-card.agotado-card { background: #eee; opacity: 0.6; filter: grayscale(100%); }
-    .producto-card.agotado-card:active { transform: none; }
+    .producto-card.agotado-card { opacity: 0.55; filter: grayscale(80%); }
 
     .producto-img-wrap {
       width: 100%; aspect-ratio: 1; background: #fafaf9;
-      display: flex; align-items: center; justify-content: center; overflow: hidden;
-    }
-    .producto-img {
-      width: 80%; height: 80%; object-fit: contain;
-      mix-blend-mode: multiply; pointer-events: none;
-    }
-    .producto-img-placeholder {
-      width: 100%; height: 100%;
       display: flex; align-items: center; justify-content: center;
-      color: #d4d4d8; font-size: 1.8rem;
+      overflow: hidden; position: relative;
     }
+    .producto-img { width: 80%; height: 80%; object-fit: contain; mix-blend-mode: multiply; pointer-events: none; }
+    .producto-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #d4d4d8; font-size: 1.8rem; }
 
     .producto-body { padding: 8px 8px 10px; display: flex; flex-direction: column; flex: 1; }
     .producto-nombre { font-size: 11px; font-weight: 700; color: #18181b; margin-bottom: 3px; line-height: 1.25; text-transform: uppercase; }
     .producto-precio { font-size: 14px; font-weight: 800; color: #e31837; margin-bottom: 5px; }
-    .producto-footer { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 6px; flex-wrap: wrap; }
-    .cat-badge       { background: #fef2f2; color: #e31837; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 20px; }
-    .stock-badge-ok  { background: #f0fdf4; color: #16a34a; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 20px; }
-    .stock-badge-no  { background: #e4e4e7; color: #71717a; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 20px; }
+    .producto-footer { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+    .cat-badge      { background: #fef2f2; color: #e31837; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 20px; }
+    .stock-badge-ok { background: #f0fdf4; color: #16a34a; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 20px; }
+    .stock-badge-no { background: #e4e4e7; color: #71717a; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 20px; }
 
-    /* ── BOTÓN AGREGAR + CONTROL CANTIDAD (estilo Amazon) ── */
+    /* BOTÓN AGREGAR */
     .btn-agregar {
       width: 100%; margin-top: auto;
       background: #e31837; border: none; border-radius: 7px;
       padding: 7px 8px; font-size: 12px; font-weight: 700; color: #fff;
-      cursor: pointer; font-family: inherit; transition: background .12s;
-      -webkit-tap-highlight-color: transparent;
+      cursor: pointer; font-family: inherit;
       display: flex; align-items: center; justify-content: center; gap: 5px;
+      -webkit-tap-highlight-color: transparent;
     }
     .btn-agregar:active { background: #c01530; }
 
-    /* Control bote|qty|+ en tarjeta — igual Amazon */
+    /* CONTROL CANTIDAD EN TARJETA — estilo Amazon */
     .qty-card-ctrl {
       width: 100%; margin-top: auto;
       display: none;
@@ -169,10 +139,8 @@
       background: transparent; border: none; cursor: pointer;
       color: #18181b; width: 38px; height: 100%; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      font-size: 15px; font-weight: 700;
-      transition: background .1s;
-      -webkit-tap-highlight-color: transparent;
-      padding: 0;
+      font-size: 15px; font-weight: 700; padding: 0;
+      -webkit-tap-highlight-color: transparent; transition: background .1s;
     }
     .qty-card-btn:active { background: #fef9ec; }
 
@@ -184,7 +152,7 @@
       background: #fffdf5;
     }
 
-    /* ── CARRITO FLOTANTE ── */
+    /* CARRITO FLOTANTE */
     #carrito-bar {
       position: fixed; bottom: 0; left: 0; right: 0;
       background: #fff; border-top: 1px solid #e8e8e4;
@@ -209,8 +177,7 @@
       flex-shrink: 0; margin: 0 8px;
     }
     .qty-btn {
-      background: transparent; border: none;
-      cursor: pointer; color: #18181b;
+      background: transparent; border: none; cursor: pointer; color: #18181b;
       width: 34px; height: 100%;
       display: flex; align-items: center; justify-content: center;
       font-size: 15px; font-weight: 600; padding: 0;
@@ -232,21 +199,19 @@
     .nombre-input {
       width: 100%; margin-top: 10px; padding: 10px 12px;
       border: 1px solid #e8e8e4; border-radius: 8px; font-size: 14px;
-      font-family: inherit; outline: none; transition: border-color .12s;
-      -webkit-appearance: none;
+      font-family: inherit; outline: none; -webkit-appearance: none;
     }
-    .nombre-input:focus { border-color: #e31837; }
+    .nombre-input:focus { border-color: #e31837; outline: none; }
 
     #btn-enviar-pedido {
       width: 100%; margin-top: 8px; background: #e31837; border: none;
       border-radius: 10px; padding: 12px; font-size: 15px; font-weight: 700;
       color: #fff; cursor: pointer; font-family: inherit;
       display: flex; align-items: center; justify-content: center; gap: 8px;
-      -webkit-tap-highlight-color: transparent;
     }
     #btn-enviar-pedido:disabled { background: #a1a1aa; cursor: not-allowed; }
 
-    /* ── PAGINACIÓN ── */
+    /* PAGINACIÓN */
     .paginacion { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin-top: 20px; padding-bottom: 16px; }
     .paginacion button {
       background: #fff; border: 1px solid #e8e8e4; border-radius: 8px;
@@ -265,7 +230,6 @@
 <body>
 {% load static %}
 
-<!-- Header -->
 <div class="header">
   <div class="header-brand">
     <div class="header-logo">
@@ -288,7 +252,6 @@
   </div>
 </div>
 
-<!-- Carrusel Tendencias -->
 {% if tendencias %}
 <div class="tendencias-section">
   <div class="tendencias-titulo">🔥 En tendencia <span>HOT</span></div>
@@ -321,14 +284,12 @@
 </div>
 {% endif %}
 
-<!-- Filtros -->
 <div class="filtros-bar">
   {% for cat in categorias %}
   <button class="filtro-btn" onclick="filtrar('{{ cat.nombre }}', this)">{{ cat.nombre }}</button>
   {% endfor %}
 </div>
 
-<!-- Grid de productos -->
 <div class="catalogo-body">
   <div class="producto-grid" id="productos-grid">
     {% for p in productos %}
@@ -338,6 +299,7 @@
          data-precio="{{ p.precio }}"
          data-stock="{{ p.stock_actual }}">
       <div class="producto-card {% if p.stock_actual <= 0 %}agotado-card{% endif %}">
+
         <div class="producto-img-wrap">
           {% if p.imagen_url %}
           <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}" class="producto-img" draggable="false"
@@ -346,6 +308,7 @@
           <div class="producto-img-placeholder"><i class="bi bi-bag"></i></div>
           {% endif %}
         </div>
+
         <div class="producto-body">
           <div class="producto-nombre">{{ p.nombre }}</div>
           <div class="producto-precio">${{ p.precio }}</div>
@@ -356,23 +319,22 @@
           </div>
 
           {% if p.stock_actual > 0 %}
-          {# Botón inicial agregar #}
-          <button class="btn-agregar"
-                  onclick="agregarAlCarrito('{{ p.nombre }}', {{ p.precio }}, this)">
+          <button class="btn-agregar" id="btn-{{ forloop.counter }}"
+                  onclick="agregarAlCarrito('{{ p.nombre }}', {{ p.precio }}, {{ forloop.counter }})">
             <i class="bi bi-plus-lg"></i> Agregar
           </button>
-          {# Control − qty + (oculto hasta que se agrega) #}
           <div class="qty-card-ctrl" id="ctrl-{{ forloop.counter }}">
             <button class="qty-card-btn" id="left-{{ forloop.counter }}"
-                    onclick="cambiarCantidadCard('{{ p.nombre }}', -1, '{{ forloop.counter }}')">
+                    onclick="cambiarCantidadCard('{{ p.nombre }}', -1, {{ forloop.counter }})">
               <i class="bi bi-trash3" style="font-size:13px;"></i>
             </button>
             <div class="qty-card-num" id="qty-num-{{ forloop.counter }}">1</div>
             <button class="qty-card-btn"
-                    onclick="cambiarCantidadCard('{{ p.nombre }}', 1, '{{ forloop.counter }}')">+</button>
+                    onclick="cambiarCantidadCard('{{ p.nombre }}', 1, {{ forloop.counter }})">+</button>
           </div>
           {% endif %}
         </div>
+
       </div>
     </div>
     {% empty %}
@@ -416,7 +378,7 @@
 </div>
 
 <script>
-/* ── CARRUSEL ── */
+/* CARRUSEL */
 let carruselAuto = null, carruselPausado = false;
 
 function prepararCarruselInfinito() {
@@ -425,7 +387,6 @@ function prepararCarruselInfinito() {
   Array.from(track.children).forEach(c => track.appendChild(c.cloneNode(true)));
   track.dataset.infinito = 'true';
 }
-
 function iniciarCarruselAuto() {
   const track = document.getElementById('carrusel-track');
   if (!track) return;
@@ -440,7 +401,6 @@ function iniciarCarruselAuto() {
     track.style.transform = `translateX(-${pos}px)`;
   }, 16);
 }
-
 function moverCarrusel(dir) {
   const track = document.getElementById('carrusel-track');
   if (!track) return;
@@ -452,16 +412,15 @@ function moverCarrusel(dir) {
   if (pos < 0) pos = Math.max(0, mitad - 150);
   track.style.transform = `translateX(-${pos}px)`;
 }
-
 const cw = document.querySelector('.carrusel-track-outer');
 if (cw) {
   cw.addEventListener('touchstart', () => carruselPausado = true, { passive: true });
-  cw.addEventListener('touchend',   () => setTimeout(() => carruselPausado = false, 1000), { passive: true });
+  cw.addEventListener('touchend', () => setTimeout(() => carruselPausado = false, 1000), { passive: true });
   cw.addEventListener('mouseenter', () => carruselPausado = true);
   cw.addEventListener('mouseleave', () => carruselPausado = false);
 }
 
-/* ── PAGINACIÓN ── */
+/* PAGINACIÓN */
 const POR_PAGINA = 24;
 let paginaActual = 1, categoriaActual = 'todos', busquedaActual = '';
 
@@ -472,7 +431,6 @@ function getItemsVisibles() {
     return matchCat && matchBusq;
   });
 }
-
 function renderPagina() {
   const items = getItemsVisibles();
   const totalPaginas = Math.ceil(items.length / POR_PAGINA) || 1;
@@ -480,32 +438,25 @@ function renderPagina() {
   const inicio = (paginaActual - 1) * POR_PAGINA;
   document.querySelectorAll('.producto-item').forEach(i => i.style.display = 'none');
   items.slice(inicio, inicio + POR_PAGINA).forEach(i => i.style.display = '');
-
   const pag = document.getElementById('paginacion');
   pag.innerHTML = '';
   if (totalPaginas <= 1) return;
-
   const btnPrev = document.createElement('button');
-  btnPrev.innerHTML = '←';
-  btnPrev.disabled = paginaActual === 1;
-  btnPrev.onclick = () => { paginaActual--; renderPagina(); window.scrollTo(0, 0); };
+  btnPrev.innerHTML = '←'; btnPrev.disabled = paginaActual === 1;
+  btnPrev.onclick = () => { paginaActual--; renderPagina(); window.scrollTo(0,0); };
   pag.appendChild(btnPrev);
-
   for (let i = 1; i <= totalPaginas; i++) {
     const btn = document.createElement('button');
     btn.textContent = i;
     if (i === paginaActual) btn.classList.add('active');
-    btn.onclick = () => { paginaActual = i; renderPagina(); window.scrollTo(0, 0); };
+    btn.onclick = () => { paginaActual = i; renderPagina(); window.scrollTo(0,0); };
     pag.appendChild(btn);
   }
-
   const btnNext = document.createElement('button');
-  btnNext.innerHTML = '→';
-  btnNext.disabled = paginaActual === totalPaginas;
-  btnNext.onclick = () => { paginaActual++; renderPagina(); window.scrollTo(0, 0); };
+  btnNext.innerHTML = '→'; btnNext.disabled = paginaActual === totalPaginas;
+  btnNext.onclick = () => { paginaActual++; renderPagina(); window.scrollTo(0,0); };
   pag.appendChild(btnNext);
 }
-
 function filtrar(categoria, btn) {
   document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -513,90 +464,66 @@ function filtrar(categoria, btn) {
   paginaActual = 1;
   renderPagina();
 }
-
 document.getElementById('buscador').addEventListener('input', function () {
   busquedaActual = this.value.toLowerCase();
   paginaActual = 1;
   renderPagina();
 });
 
-/* ── CARRITO ── */
+/* CARRITO */
 const carrito = {};
 let carritoAbierto = false;
 
-/**
- * Se llama al presionar "+ Agregar" por primera vez.
- * Oculta el botón y muestra el control − qty +
- */
-function agregarAlCarrito(nombre, precio, btnAgregar) {
-  // Inicializar en carrito
+function agregarAlCarrito(nombre, precio, idx) {
   carrito[nombre] = { precio: parseFloat(precio), qty: 1 };
-
-  // Encontrar el control en el mismo producto-body
-  const body = btnAgregar.closest('.producto-body');
-  const ctrl = body.querySelector('.qty-card-ctrl');
-  const numEl = body.querySelector('.qty-card-num');
-
-  // Ocultar botón, mostrar control
-  btnAgregar.style.display = 'none';
-  if (ctrl) { ctrl.classList.add('visible'); }
-  if (numEl) { numEl.textContent = 1; }
-
+  const btnEl = document.getElementById('btn-' + idx);
+  const ctrl  = document.getElementById('ctrl-' + idx);
+  const numEl = document.getElementById('qty-num-' + idx);
+  if (btnEl) btnEl.style.display = 'none';
+  if (ctrl)  ctrl.classList.add('visible');
+  if (numEl) numEl.textContent = 1;
+  // El botón izq ya tiene el bote de inicio
   actualizarCarrito();
 }
 
-/**
- * Llamado por los botones − / + dentro de la tarjeta.
- * idx es el forloop.counter del Django template.
- */
 function cambiarCantidadCard(nombre, delta, idx) {
   if (!carrito[nombre]) return;
   carrito[nombre].qty += delta;
-
-  const ctrl   = document.getElementById('ctrl-' + idx);
-  const numEl  = document.getElementById('qty-num-' + idx);
+  const ctrl    = document.getElementById('ctrl-' + idx);
+  const numEl   = document.getElementById('qty-num-' + idx);
   const leftBtn = document.getElementById('left-' + idx);
+  const btnEl   = document.getElementById('btn-' + idx);
 
   if (carrito[nombre].qty <= 0) {
     delete carrito[nombre];
-    if (ctrl) ctrl.classList.remove('visible');
-    if (ctrl) {
-      const body = ctrl.closest('.producto-body');
-      const btn  = body.querySelector('.btn-agregar');
-      if (btn) btn.style.display = '';
-    }
+    if (ctrl)  ctrl.classList.remove('visible');
+    if (btnEl) btnEl.style.display = '';
   } else {
     if (numEl) numEl.textContent = carrito[nombre].qty;
-    // Cambiar ícono: bote si qty=1, menos si qty>1
     if (leftBtn) {
       leftBtn.innerHTML = carrito[nombre].qty <= 1
         ? '<i class="bi bi-trash3" style="font-size:13px;"></i>'
         : '<span style="font-size:18px;font-weight:700;line-height:1;">−</span>';
     }
   }
-
   actualizarCarrito();
 }
 
-/* También sincronizar desde el panel del carrito flotante */
 function cambiarCantidad(nombre, delta) {
   if (!carrito[nombre]) return;
-  const prev = carrito[nombre].qty;
   carrito[nombre].qty += delta;
 
   if (carrito[nombre].qty <= 0) {
     delete carrito[nombre];
-    // Buscar tarjeta por nombre y restaurar botón
     document.querySelectorAll('.producto-item').forEach(item => {
       if (item.dataset.nombre === nombre) {
-        const ctrl = item.querySelector('.qty-card-ctrl');
-        const btn  = item.querySelector('.btn-agregar');
+        const ctrl  = item.querySelector('.qty-card-ctrl');
+        const btn   = item.querySelector('.btn-agregar');
         if (ctrl) ctrl.classList.remove('visible');
         if (btn)  btn.style.display = '';
       }
     });
   } else {
-    // Actualizar número e ícono en tarjeta
     document.querySelectorAll('.producto-item').forEach(item => {
       if (item.dataset.nombre === nombre) {
         const numEl   = item.querySelector('.qty-card-num');
@@ -610,7 +537,6 @@ function cambiarCantidad(nombre, delta) {
       }
     });
   }
-
   actualizarCarrito();
 }
 
@@ -623,16 +549,17 @@ function actualizarCarrito() {
 
   document.getElementById('carrito-filas').innerHTML = keys.map(nombre => {
     const item = carrito[nombre];
-    const sub = (item.precio * item.qty).toFixed(2);
+    const sub  = (item.precio * item.qty).toFixed(2);
+    const safe = nombre.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     const iconLeft = item.qty <= 1
       ? `<i class="bi bi-trash3" style="font-size:13px;"></i>`
       : `<span style="font-size:17px;line-height:1;">−</span>`;
     return `<div class="carrito-row">
       <span style="flex:1;font-size:12px;color:#18181b;line-height:1.3;">${nombre}</span>
       <div class="qty-ctrl">
-        <button class="qty-btn" onclick="cambiarCantidad('${nombre.replace(/'/g,"\\'")}', -1)">${iconLeft}</button>
+        <button class="qty-btn" onclick="cambiarCantidad('${safe}',-1)">${iconLeft}</button>
         <div class="qty-num">${item.qty}</div>
-        <button class="qty-btn" onclick="cambiarCantidad('${nombre.replace(/'/g,"\\'")}', 1)">+</button>
+        <button class="qty-btn" onclick="cambiarCantidad('${safe}',1)">+</button>
       </div>
       <span style="font-size:12px;color:#52525b;min-width:50px;text-align:right;">$${sub}</span>
     </div>`;
@@ -660,13 +587,9 @@ function enviarPedido() {
   const keys = Object.keys(carrito);
   if (!nombre) { alert('Por favor escribe tu nombre.'); return; }
   if (keys.length === 0) return;
-
   const btn = document.getElementById('btn-enviar-pedido');
-  btn.disabled = true;
-  btn.textContent = 'Enviando...';
-
+  btn.disabled = true; btn.textContent = 'Enviando...';
   const items = keys.map(n => ({ nombre: n, cantidad: carrito[n].qty }));
-
   fetch('/api/pedido/crear/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
@@ -675,12 +598,11 @@ function enviarPedido() {
   .then(r => r.json())
   .then(data => {
     if (data.ok) {
-      // Limpiar carrito y restaurar todas las tarjetas
       Object.keys(carrito).forEach(k => delete carrito[k]);
       document.querySelectorAll('.qty-card-ctrl.visible').forEach(ctrl => {
         ctrl.classList.remove('visible');
-        const btn = ctrl.closest('.producto-body').querySelector('.btn-agregar');
-        if (btn) btn.style.display = '';
+        const b = ctrl.closest('.producto-body').querySelector('.btn-agregar');
+        if (b) b.style.display = '';
       });
       actualizarCarrito();
       mostrarExito();
