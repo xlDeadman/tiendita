@@ -11,7 +11,25 @@
   .estado-cancelado { background: #f5f5f3; color: #a1a1aa; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 6px; }
   .detalle-lista { font-size: 12px; color: #52525b; margin: 0; padding: 0; list-style: none; }
   .detalle-lista li { padding: 1px 0; }
+
+  /* Animación fila nueva */
+  @keyframes resaltar {
+    0%   { background: #fef2f2; }
+    100% { background: transparent; }
+  }
+  .fila-nueva { animation: resaltar 2s ease-out; }
+
+  /* Punto parpadeante en vivo */
+  .live-badge { display:inline-flex; align-items:center; gap:6px; font-size:11px; color:#a1a1aa; }
+  .live-badge span { width:7px; height:7px; background:#16a34a; border-radius:50%; animation: pulso 1.5s infinite; }
+  @keyframes pulso { 0%,100%{opacity:1} 50%{opacity:.3} }
 </style>
+
+<!-- Alerta de pedidos nuevos -->
+<div id="alerta-nuevos" style="display:none; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:12px 16px; margin-bottom:16px; align-items:center; gap:10px;">
+  <i class="bi bi-bell-fill" style="color:#e31837; font-size:16px;"></i>
+  <span style="font-size:13px; font-weight:500; color:#e31837;">Tienes <strong id="num-nuevos">0</strong> pedido nuevo sin atender.</span>
+</div>
 
 {% if nuevos > 0 %}
 <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:12px 16px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">
@@ -19,6 +37,11 @@
   <span style="font-size:13px; font-weight:500; color:#e31837;">Tienes <strong>{{ nuevos }}</strong> pedido{% if nuevos > 1 %}s{% endif %} nuevo{% if nuevos > 1 %}s{% endif %} sin atender.</span>
 </div>
 {% endif %}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+  <span class="live-badge"><span></span> Actualizando cada 10 seg</span>
+  <span id="ultimo-update" style="font-size:11px; color:#a1a1aa;"></span>
+</div>
 
 <div class="table-wrap">
   <div class="table-responsive">
@@ -34,9 +57,9 @@
           <th class="text-center">Acciones</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="tabla-pedidos">
         {% for pedido in pedidos %}
-        <tr>
+        <tr data-id="{{ pedido.pk }}">
           <td style="color:#a1a1aa; font-size:13px;">#{{ pedido.pk }}</td>
           <td style="font-weight:500;">{{ pedido.nombre_cliente }}</td>
           <td>
@@ -77,7 +100,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr>
+        <tr id="fila-vacia">
           <td colspan="7" class="text-center py-5" style="color:#a1a1aa; font-size:13.5px;">
             <i class="bi bi-inbox" style="font-size:1.8rem; display:block; margin-bottom:8px; opacity:.4;"></i>
             No hay pedidos todavía.
@@ -88,4 +111,127 @@
     </table>
   </div>
 </div>
+
+<script>
+// IDs de pedidos que ya están en la tabla
+const idsConocidos = new Set([
+  {% for pedido in pedidos %}{{ pedido.pk }},{% endfor %}
+]);
+
+// Sonido de notificación (beep simple con Web Audio API)
+function sonarNotificacion() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.setValueAtTime(660, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+// Notificación del navegador
+function pedirPermiso() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+function mostrarNotificacion(nombre, productos) {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('🔔 Nuevo pedido — ' + nombre, {
+      body: productos,
+      icon: '/static/inventario/img/logo23.png'
+    });
+  }
+}
+
+function getCookie(name) {
+  let v = null;
+  document.cookie.split(';').forEach(c => {
+    c = c.trim();
+    if (c.startsWith(name + '=')) v = decodeURIComponent(c.slice(name.length + 1));
+  });
+  return v;
+}
+
+function actualizarTabla() {
+  fetch('/api/pedidos/json/', {
+    headers: { 'X-CSRFToken': getCookie('csrftoken') }
+  })
+  .then(r => r.json())
+  .then(data => {
+    const tbody = document.getElementById('tabla-pedidos');
+    let nuevosEncontrados = 0;
+
+    data.pedidos.forEach(p => {
+      if (!idsConocidos.has(p.id)) {
+        // Es un pedido nuevo — agregar fila al inicio
+        idsConocidos.add(p.id);
+        nuevosEncontrados++;
+
+        const filaVacia = document.getElementById('fila-vacia');
+        if (filaVacia) filaVacia.remove();
+
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-id', p.id);
+        tr.classList.add('fila-nueva');
+        tr.innerHTML = `
+          <td style="color:#a1a1aa; font-size:13px;">#${p.id}</td>
+          <td style="font-weight:500;">${p.nombre_cliente}</td>
+          <td><ul class="detalle-lista">${p.detalles.map(d => `<li>${d.cantidad}x ${d.producto}</li>`).join('')}</ul></td>
+          <td class="text-end" style="font-weight:600;">$${p.total}</td>
+          <td class="text-center"><span class="estado-nuevo">🔔 Nuevo</span></td>
+          <td style="font-size:12px; color:#a1a1aa;">${p.creado_en}</td>
+          <td class="text-center">
+            <div style="display:flex; gap:6px; justify-content:center;">
+              <form method="post" action="/pedidos/${p.id}/atender/" style="margin:0;">
+                <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+                <button type="submit" class="btn btn-sm btn-success" title="Marcar atendido"><i class="bi bi-check2"></i></button>
+              </form>
+              <form method="post" action="/pedidos/${p.id}/cancelar/" style="margin:0;">
+                <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+                <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancelar"><i class="bi bi-x"></i></button>
+              </form>
+            </div>
+          </td>`;
+        tbody.insertBefore(tr, tbody.firstChild);
+
+        mostrarNotificacion(p.nombre_cliente, p.detalles.map(d => `${d.cantidad}x ${d.producto}`).join(', '));
+      }
+    });
+
+    if (nuevosEncontrados > 0) {
+      sonarNotificacion();
+    }
+
+    // Actualizar contador
+    const numNuevos = data.pedidos.filter(p => p.estado === 'nuevo').length;
+    const alerta = document.getElementById('alerta-nuevos');
+    if (numNuevos > 0) {
+      document.getElementById('num-nuevos').textContent = numNuevos;
+      alerta.style.display = 'flex';
+    } else {
+      alerta.style.display = 'none';
+    }
+
+    // Hora de última actualización
+    const ahora = new Date();
+    document.getElementById('ultimo-update').textContent =
+      'Última actualización: ' + ahora.toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  })
+  .catch(() => {});
+}
+
+// Pedir permiso de notificaciones al cargar
+pedirPermiso();
+
+// Actualizar cada 10 segundos
+setInterval(actualizarTabla, 10000);
+</script>
 {% endblock %}

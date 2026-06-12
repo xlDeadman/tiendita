@@ -49,4 +49,5 @@ urlpatterns = [
     path('pedidos/<int:pk>/atender/', views.pedido_atender, name='pedido_atender'),
     path('pedidos/<int:pk>/cancelar/', views.pedido_cancelar, name='pedido_cancelar'),
     path('api/pedido/crear/', views.pedido_crear, name='pedido_crear'),
+    path('api/pedidos/json/', views.pedidos_json, name='pedidos_json'),
 ]

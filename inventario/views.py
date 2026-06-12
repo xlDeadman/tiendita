@@ -1038,3 +1038,21 @@ def pedido_crear(request):
             return JsonResponse({'error': str(e)}, status=400)
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@login_required
+def pedidos_json(request):
+    pedidos = Pedido.objects.prefetch_related('detalles__producto').order_by('-creado_en')[:50]
+    data = []
+    for p in pedidos:
+        data.append({
+            'id': p.pk,
+            'nombre_cliente': p.nombre_cliente,
+            'total': str(p.total),
+            'estado': p.estado,
+            'creado_en': p.creado_en.strftime('%d/%m/%Y %H:%M'),
+            'detalles': [
+                {'cantidad': d.cantidad, 'producto': d.producto.nombre}
+                for d in p.detalles.all()
+            ]
+        })
+    return JsonResponse({'pedidos': data})
