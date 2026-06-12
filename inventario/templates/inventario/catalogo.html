@@ -155,33 +155,33 @@
     }
     .btn-agregar:active { background: #c01530; }
 
-    /* Control − qty + que reemplaza al botón */
+    /* Control bote|qty|+ en tarjeta — igual Amazon */
     .qty-card-ctrl {
       width: 100%; margin-top: auto;
-      display: none;                        /* oculto hasta agregar */
+      display: none;
       align-items: center; justify-content: space-between;
-      border: 2px solid #e31837; border-radius: 7px;
-      overflow: hidden; height: 32px;
+      border: 2px solid #e8b84b; border-radius: 20px;
+      overflow: hidden; height: 34px; background: #fff;
     }
     .qty-card-ctrl.visible { display: flex; }
 
     .qty-card-btn {
-      background: #fff; border: none; cursor: pointer;
-      font-size: 18px; font-weight: 700; color: #18181b;
-      width: 36px; height: 100%; flex-shrink: 0;
+      background: transparent; border: none; cursor: pointer;
+      color: #18181b; width: 38px; height: 100%; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 700;
       transition: background .1s;
       -webkit-tap-highlight-color: transparent;
       padding: 0;
     }
-    .qty-card-btn:active { background: #fef2f2; color: #e31837; }
+    .qty-card-btn:active { background: #fef9ec; }
 
     .qty-card-num {
       flex: 1; text-align: center;
       font-size: 13px; font-weight: 800; color: #18181b;
-      border-left: 1px solid #fecaca; border-right: 1px solid #fecaca;
+      border-left: 1px solid #e8e8e4; border-right: 1px solid #e8e8e4;
       height: 100%; display: flex; align-items: center; justify-content: center;
-      background: #fff5f5;
+      background: #fffdf5;
     }
 
     /* ── CARRITO FLOTANTE ── */
@@ -363,8 +363,10 @@
           </button>
           {# Control − qty + (oculto hasta que se agrega) #}
           <div class="qty-card-ctrl" id="ctrl-{{ forloop.counter }}">
-            <button class="qty-card-btn"
-                    onclick="cambiarCantidadCard('{{ p.nombre }}', -1, '{{ forloop.counter }}')">−</button>
+            <button class="qty-card-btn" id="left-{{ forloop.counter }}"
+                    onclick="cambiarCantidadCard('{{ p.nombre }}', -1, '{{ forloop.counter }}')">
+              <i class="bi bi-trash3" style="font-size:13px;"></i>
+            </button>
             <div class="qty-card-num" id="qty-num-{{ forloop.counter }}">1</div>
             <button class="qty-card-btn"
                     onclick="cambiarCantidadCard('{{ p.nombre }}', 1, '{{ forloop.counter }}')">+</button>
@@ -551,14 +553,13 @@ function cambiarCantidadCard(nombre, delta, idx) {
   if (!carrito[nombre]) return;
   carrito[nombre].qty += delta;
 
-  const ctrl  = document.getElementById('ctrl-' + idx);
-  const numEl = document.getElementById('qty-num-' + idx);
+  const ctrl   = document.getElementById('ctrl-' + idx);
+  const numEl  = document.getElementById('qty-num-' + idx);
+  const leftBtn = document.getElementById('left-' + idx);
 
   if (carrito[nombre].qty <= 0) {
-    // Quitar del carrito y restaurar botón
     delete carrito[nombre];
     if (ctrl) ctrl.classList.remove('visible');
-    // Restaurar el botón agregar
     if (ctrl) {
       const body = ctrl.closest('.producto-body');
       const btn  = body.querySelector('.btn-agregar');
@@ -566,6 +567,12 @@ function cambiarCantidadCard(nombre, delta, idx) {
     }
   } else {
     if (numEl) numEl.textContent = carrito[nombre].qty;
+    // Cambiar ícono: bote si qty=1, menos si qty>1
+    if (leftBtn) {
+      leftBtn.innerHTML = carrito[nombre].qty <= 1
+        ? '<i class="bi bi-trash3" style="font-size:13px;"></i>'
+        : '<span style="font-size:18px;font-weight:700;line-height:1;">−</span>';
+    }
   }
 
   actualizarCarrito();
@@ -589,11 +596,17 @@ function cambiarCantidad(nombre, delta) {
       }
     });
   } else {
-    // Actualizar número en tarjeta
+    // Actualizar número e ícono en tarjeta
     document.querySelectorAll('.producto-item').forEach(item => {
       if (item.dataset.nombre === nombre) {
-        const numEl = item.querySelector('.qty-card-num');
+        const numEl   = item.querySelector('.qty-card-num');
+        const leftBtn = item.querySelector('.qty-card-btn');
         if (numEl) numEl.textContent = carrito[nombre].qty;
+        if (leftBtn) {
+          leftBtn.innerHTML = carrito[nombre].qty <= 1
+            ? '<i class="bi bi-trash3" style="font-size:13px;"></i>'
+            : '<span style="font-size:18px;font-weight:700;line-height:1;">−</span>';
+        }
       }
     });
   }
