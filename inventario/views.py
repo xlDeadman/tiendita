@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db.models import Q, Sum, Count
 from django.utils import timezone
 from django.http import JsonResponse
+from django.views.decorators.csrf import ensure_csrf_cookie
 from datetime import date, timedelta
 from decimal import Decimal
 import json
@@ -930,7 +931,7 @@ def egreso_edit(request, pk):
 
 
 # ─────────────────────────── Catálogo público ───────────────────────────
-
+@ensure_csrf_cookie
 def catalogo(request):
     productos = Producto.objects.filter(activo=True).select_related('categoria').order_by('nombre')
     categorias = Categoria.objects.all()
