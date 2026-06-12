@@ -6,10 +6,12 @@ from django.utils import timezone
 from django.http import JsonResponse
 from datetime import date, timedelta
 from decimal import Decimal
+import json
 
 from .models import (
     Producto, Categoria, Venta, DetalleVenta,
-    Cliente, Egreso, SaldoCaja
+    Cliente, Egreso, SaldoCaja,
+    Pedido, DetallePedido
 )
 
 from .forms import (
@@ -351,7 +353,6 @@ def venta_create(request):
             venta.total = total
             venta.save()
 
-            # ✅ Sumar la venta de efectivo al saldo disponible
             saldo = SaldoCaja.get()
             saldo.efectivo += total
             saldo.save()
@@ -389,7 +390,6 @@ def venta_delete(request, pk):
             detalle.producto.stock_actual += detalle.cantidad
             detalle.producto.save()
 
-        # ✅ Restar del efectivo disponible la venta eliminada
         saldo = SaldoCaja.get()
         saldo.efectivo -= venta.total
 
@@ -941,12 +941,13 @@ def catalogo(request):
         'categorias': categorias,
         'tendencias': tendencias,
     })
+
+
 # ─────────────────────────── API crear categoría ───────────────────────────
 
 @login_required
 def api_categoria_crear(request):
     if request.method == 'POST':
-        import json
         data = json.loads(request.body)
         nombre = data.get('nombre', '').strip().upper()
         if nombre:
@@ -957,7 +958,8 @@ def api_categoria_crear(request):
         return JsonResponse({'error': 'Nombre vacío'}, status=400)
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
-    # ─────────────────────────── Tendencia ───────────────────────────
+
+# ─────────────────────────── Tendencia ───────────────────────────
 
 @login_required
 def producto_tendencia(request, pk):
@@ -970,9 +972,6 @@ def producto_tendencia(request, pk):
 
 # ─────────────────────────── Pedidos ───────────────────────────
 
-from .models import Pedido, DetallePedido
-import json
-
 @login_required
 def pedido_list(request):
     pedidos = Pedido.objects.prefetch_related('detalles__producto').all()
@@ -981,6 +980,7 @@ def pedido_list(request):
         'pedidos': pedidos,
         'nuevos': nuevos,
     })
+
 
 @login_required
 def pedido_atender(request, pk):
@@ -991,6 +991,7 @@ def pedido_atender(request, pk):
         messages.success(request, f'✅ Pedido #{pedido.pk} marcado como atendido.')
     return redirect('pedido_list')
 
+
 @login_required
 def pedido_cancelar(request, pk):
     pedido = get_object_or_404(Pedido, pk=pk)
@@ -999,6 +1000,7 @@ def pedido_cancelar(request, pk):
         pedido.save()
         messages.warning(request, f'❌ Pedido #{pedido.pk} cancelado.')
     return redirect('pedido_list')
+
 
 def pedido_crear(request):
     if request.method == 'POST':
