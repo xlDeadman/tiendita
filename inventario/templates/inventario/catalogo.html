@@ -109,7 +109,7 @@
     }
     #carrito-bar.visible { display: flex; }
 
-    .carrito-inner { height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+    .carrito-inner { height: 100%; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
 
     /* Cabecera del carrito */
     .carrito-head {
@@ -120,21 +120,24 @@
     .carrito-subtotal-monto { font-size: 18px; font-weight: 900; color: #18181b; display: block; margin: 1px 0 6px; }
     .carrito-envio { font-size: 10px; color: #16a34a; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
     .btn-ir-carrito {
-      width: 100%; background: #fff; border: 1px solid #a0a0a0;
-      border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 700;
-      color: #18181b; cursor: pointer; font-family: inherit;
+      width: 100%; background: #e31837; border: none;
+      border-radius: 8px; padding: 9px 10px; font-size: 12px; font-weight: 800;
+      color: #fff; cursor: pointer; font-family: inherit;
       display: flex; align-items: center; justify-content: center; gap: 5px;
-      margin-bottom: 6px;
+      margin-bottom: 0;
     }
-    .btn-ir-carrito:hover { background: #f5f5f3; }
+    .btn-ir-carrito:hover { background: #c01530; }
     .nombre-input-desktop {
-      width: 100%; padding: 6px 8px; border: 1px solid #e8e8e4; border-radius: 7px;
-      font-size: 11px; font-family: inherit; outline: none;
+      width: 100%; padding: 7px 10px; border: 1px solid #e8e8e4; border-radius: 8px;
+      font-size: 12px; font-family: inherit; outline: none; color: #18181b;
+      background: #fff; margin-bottom: 6px;
     }
-    .nombre-input-desktop:focus { border-color: #e31837; }
+    .nombre-input-desktop:focus { border-color: #e31837; outline: none; }
+    .nombre-input-desktop::placeholder { color: #a1a1aa; }
 
     /* Lista de ítems */
-    #carrito-filas { overflow-y: auto; flex: 1; }
+    #carrito-items-list { overflow-y: auto; flex: 1; min-height: 0; }
+    #carrito-filas { display: flex; flex-direction: column; }
 
     /* Cada ítem — igual Amazon: imagen arriba, precio, control */
     .carrito-row {
