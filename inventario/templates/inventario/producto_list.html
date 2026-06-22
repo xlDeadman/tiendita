@@ -11,60 +11,6 @@
 
 {% block content %}
 
-<style>
-    .filtros-bar {
-        background: #fff;
-        border: 1px solid #e8e8e4;
-        border-radius: 12px 12px 0 0;
-        padding: 12px 16px;
-        border-bottom: none;
-    }
-
-    .filtros-bar .form-control,
-    .filtros-bar .form-select {
-        height: 34px;
-        font-size: 13px;
-    }
-
-    .badge-cat {
-        background: #fef2f2;
-        color: #e31837;
-        border: 1px solid #fecaca;
-        font-size: 11px;
-        font-weight: 600;
-        padding: 3px 8px;
-        border-radius: 6px;
-    }
-
-    .stock-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 12px;
-        font-weight: 600;
-        padding: 3px 9px;
-        border-radius: 6px;
-    }
-
-    .stock-rojo   { background: #fef2f2; color: #e31837; }
-    .stock-naranja{ background: #fffbeb; color: #d97706; }
-    .stock-verde  { background: #f0fdf4; color: #16a34a; }
-
-    .product-name {
-        font-size: 13.5px;
-        font-weight: 500;
-        color: #18181b;
-    }
-
-    .inactivo-row { opacity: 0.5; }
-
-    .table-wrap {
-        border: 1px solid #e8e8e4;
-        border-radius: 0 0 12px 12px;
-        overflow: hidden;
-    }
-</style>
-
 <!-- Filtros -->
 <div class="filtros-bar">
     <form method="get" class="row g-2 align-items-center">
@@ -96,9 +42,9 @@
 
 <!-- Tabla -->
 <div class="table-wrap">
-    <div class="table-responsive" style="max-height:600px; overflow-y:auto;">
+    <div class="table-responsive table-scroll">
         <table class="table table-hover align-middle mb-0">
-            <thead style="position:sticky; top:0; z-index:10;">
+            <thead class="thead-sticky">
                 <tr>
                     <th>Producto</th>
                     <th>Categoría</th>
@@ -117,7 +63,7 @@
                         <div class="product-name">
                             {{ p.nombre }}
                             {% if not p.activo %}
-                            <span class="badge ms-1" style="background:#f5f5f3; color:#a1a1aa; font-size:10px;">Inactivo</span>
+                            <span class="badge ms-1 badge-inactivo">Inactivo</span>
                             {% endif %}
                         </div>
                     </td>
@@ -126,22 +72,24 @@
                         {% if p.categoria %}
                             <span class="badge-cat">{{ p.categoria.nombre }}</span>
                         {% else %}
-                            <span style="color:#a1a1aa; font-size:12.5px;">—</span>
+                            <span class="text-empty">—</span>
                         {% endif %}
                     </td>
 
-                    <td class="text-center" style="color:#a1a1aa; font-size:13px;">
+                    <td class="text-center text-empty">
                         {{ p.stock_inicial }}
                     </td>
 
                     <td class="text-center">
-                        <span style="font-size:14px; font-weight:600;
-                            color:{% if p.stock_actual <= 0 %}#e31837{% elif p.stock_actual <= 2 %}#d97706{% else %}#16a34a{% endif %};">
+                        <span class="stock-num
+                            {% if p.semaforo == 'rojo' %}stock-num-rojo
+                            {% elif p.semaforo == 'naranja' %}stock-num-naranja
+                            {% else %}stock-num-verde{% endif %}">
                             {{ p.stock_actual }}
                         </span>
                     </td>
 
-                    <td class="text-end" style="font-weight:600; color:#18181b;">
+                    <td class="text-end text-price">
                         ${{ p.precio|floatformat:2 }}
                     </td>
 
@@ -155,8 +103,8 @@
                     </td>
 
                     <td class="text-center">
-                        <div style="display:flex; gap:6px; justify-content:center;">
-                            <form method="post" action="{% url 'producto_tendencia' p.pk %}" style="margin:0;">
+                        <div class="actions-row">
+                            <form method="post" action="{% url 'producto_tendencia' p.pk %}" class="form-inline">
                                 {% csrf_token %}
                                 <button type="submit"
                                     class="btn btn-sm {% if p.tendencia %}btn-primary{% else %}btn-outline-secondary{% endif %}"
@@ -175,10 +123,10 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="7" class="text-center py-5" style="color:#a1a1aa; font-size:13.5px;">
-                        <i class="bi bi-inbox" style="font-size:1.8rem; display:block; margin-bottom:8px; opacity:.4;"></i>
+                    <td colspan="7" class="text-center py-5 empty-state">
+                        <i class="bi bi-inbox empty-state-icon"></i>
                         No se encontraron productos.
-                        <a href="{% url 'producto_create' %}" style="color:#e31837;">Agrega el primero</a>
+                        <a href="{% url 'producto_create' %}" class="link-brand">Agrega el primero</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -191,10 +139,16 @@
 
 {% block extra_js %}
 <script>
+(function () {
+  'use strict';
+
+  document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('select[name="semaforo"], select[name="categoria"]').forEach(el => {
-        el.addEventListener('change', function() {
-            this.closest('form').submit();
-        });
+      el.addEventListener('change', function () {
+        this.closest('form').submit();
+      });
     });
+  });
+})();
 </script>
 {% endblock %}

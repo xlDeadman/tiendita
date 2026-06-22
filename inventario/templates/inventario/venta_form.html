@@ -2,14 +2,6 @@
 {% block title %}{{ titulo }}{% endblock %}
 {% block page_title %}<i class="bi bi-cart-plus me-2"></i>{{ titulo }}{% endblock %}
 
-{% block extra_head %}
-<style>
-  .formset-row { background: #fff; border-radius: 10px; padding: 1rem; margin-bottom: .75rem; border: 1px solid #f0f0f0; }
-  .formset-row.marked-delete { opacity: .4; }
-  .total-line { font-size: 1.1rem; }
-</style>
-{% endblock %}
-
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-12 col-lg-8">
@@ -41,9 +33,9 @@
       <div class="card stat-card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h6 class="fw-semibold mb-0"><i class="bi bi-box-seam me-1"></i> Productos vendidos</h6>
-          <button type="button" class="btn btn-sm" id="addRow" style="background:#f5a623; color:#fff; border:none; font-weight:600;">
-  <i class="bi bi-plus"></i> Agregar producto
-</button>
+          <button type="button" class="btn btn-sm btn-add-product" id="addRow">
+            <i class="bi bi-plus"></i> Agregar producto
+          </button>
         </div>
         <div class="card-body" id="formset-container">
           {% for f in formset %}
@@ -67,7 +59,12 @@
                 </div>
                 <div class="col-3 col-md-1 text-end">
                   <div class="subtotal-label small text-muted mb-1">Subtotal</div>
-                  <div class="subtotal-val fw-semibold small" style="color:#10b981;">$0.00</div>
+                  <div class="subtotal-val fw-semibold small text-money">$0.00</div>
+                </div>
+                <div class="col-auto mt-3">
+                  <button type="button" class="btn btn-sm btn-outline-danger remove-row">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
                 </div>
               </div>
             </div>
@@ -77,9 +74,9 @@
 
       <!-- Total y enviar -->
       <div class="card stat-card mb-3">
-  <div class="card-body py-2 d-flex justify-content-between align-items-center">
+        <div class="card-body py-2 d-flex justify-content-between align-items-center">
           <div class="total-line fw-bold text-dark">
-            Total: <span style="color:#10b981;" id="totalGeneral">$0.00</span>
+            Total: <span class="text-money" id="totalGeneral">$0.00</span>
           </div>
           <div class="d-flex gap-2">
             <a href="{% url 'venta_list' %}" class="btn btn-outline-secondary">Cancelar</a>
@@ -96,6 +93,7 @@
 
 <template id="empty-form-template">
   <div class="formset-row" id="row-__prefix__">
+    {{ formset.empty_form.id }}
     <div class="row g-2 align-items-end">
       <div class="col-12 col-md-5">
         <label class="form-label small fw-medium mb-1">Producto</label>
@@ -114,7 +112,7 @@
       </div>
       <div class="col-3 col-md-1 text-end">
         <div class="subtotal-label small text-muted mb-1">Subtotal</div>
-        <div class="subtotal-val fw-semibold small" style="color:#10b981;">$0.00</div>
+        <div class="subtotal-val fw-semibold small text-money">$0.00</div>
       </div>
       <div class="col-auto mt-3">
         <button type="button" class="btn btn-sm btn-outline-danger remove-row">
@@ -129,80 +127,103 @@
 
 {% block extra_js %}
 <script>
-let formIdx = {{ formset.total_form_count }};
+(function () {
+  'use strict';
 
-function updateSubtotal(row) {
-  const qty = parseFloat(row.querySelector('[name$="-cantidad"]')?.value) || 0;
-  const price = parseFloat(row.querySelector('[name$="-precio_unitario"]')?.value) || 0;
-  row.querySelector('.subtotal-val').textContent = '$' + (qty * price).toFixed(2);
-  updateTotal();
-}
+  // Toma el campo TOTAL_FORMS real a partir del management_form del formset,
+  // sin asumir un prefix fijo (antes estaba hardcodeado a "detalles" y fallaba
+  // si el formset tenía otro nombre).
+  const totalFormsInput = document.querySelector('#ventaForm input[name$="-TOTAL_FORMS"]');
+  let formIdx = totalFormsInput ? parseInt(totalFormsInput.value, 10) : 0;
 
-function updateTotal() {
-  let total = 0;
-  document.querySelectorAll('.formset-row:not(.marked-delete)').forEach(row => {
+  function updateSubtotal(row) {
     const qty = parseFloat(row.querySelector('[name$="-cantidad"]')?.value) || 0;
     const price = parseFloat(row.querySelector('[name$="-precio_unitario"]')?.value) || 0;
-    total += qty * price;
-  });
-  document.getElementById('totalGeneral').textContent = '$' + total.toFixed(2);
-}
-
-function attachRowEvents(row) {
-  const sel = row.querySelector('select');
-  if (sel) {
-    sel.addEventListener('change', async function() {
-      const pid = this.value;
-      if (!pid) return;
-      try {
-        const res = await fetch('/api/producto/' + pid + '/precio/');
-        const data = await res.json();
-        const priceInput = row.querySelector('[name$="-precio_unitario"]');
-        if (priceInput) {
-          priceInput.value = data.precio;
-        }
-        updateSubtotal(row);
-      } catch(e) {}
-    });
+    const subtotalEl = row.querySelector('.subtotal-val');
+    if (subtotalEl) subtotalEl.textContent = '$' + (qty * price).toFixed(2);
+    updateTotal();
   }
 
-  row.querySelectorAll('[name$="-cantidad"], [name$="-precio_unitario"]').forEach(el => {
-    el.addEventListener('input', () => updateSubtotal(row));
-  });
+  function updateTotal() {
+    let total = 0;
+    document.querySelectorAll('.formset-row:not(.marked-delete)').forEach(row => {
+      const qty = parseFloat(row.querySelector('[name$="-cantidad"]')?.value) || 0;
+      const price = parseFloat(row.querySelector('[name$="-precio_unitario"]')?.value) || 0;
+      total += qty * price;
+    });
+    const totalEl = document.getElementById('totalGeneral');
+    if (totalEl) totalEl.textContent = '$' + total.toFixed(2);
+  }
 
-  row.querySelector('.remove-row')?.addEventListener('click', function() {
+  function eliminarFila(row) {
     const deleteChk = row.querySelector('[name$="-DELETE"]');
     if (deleteChk) {
+      // Fila existente: se marca para borrar en el servidor, no se quita del DOM.
       deleteChk.checked = true;
       row.classList.add('marked-delete');
     } else {
+      // Fila nueva sin contraparte en BD: se elimina directo del DOM.
       row.remove();
     }
     updateTotal();
-  });
-}
-
-document.querySelectorAll('.formset-row').forEach(attachRowEvents);
-
-document.getElementById('addRow').addEventListener('click', function() {
-  const tmpl = document.getElementById('empty-form-template');
-  const totalForms = document.getElementById('id_detalles-TOTAL_FORMS');
-  const clone = tmpl.content.cloneNode(true);
-  const newRow = clone.querySelector('.formset-row');
-  newRow.id = 'row-' + formIdx;
-  newRow.innerHTML = newRow.innerHTML.replaceAll('__prefix__', formIdx);
-  document.getElementById('formset-container').appendChild(newRow);
-  totalForms.value = ++formIdx;
-  attachRowEvents(newRow);
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-  const fechaInput = document.querySelector('input[name="fecha"]');
-  if (fechaInput && !fechaInput.value) {
-    fechaInput.value = new Date().toISOString().split('T')[0];
   }
-});
 
-updateTotal();
+  function attachRowEvents(row) {
+    const selectProducto = row.querySelector('select');
+    if (selectProducto) {
+      selectProducto.addEventListener('change', async function () {
+        const productoId = this.value;
+        if (!productoId) return;
+        try {
+          const res = await fetch('/api/producto/' + productoId + '/precio/');
+          const data = await res.json();
+          const priceInput = row.querySelector('[name$="-precio_unitario"]');
+          if (priceInput) priceInput.value = data.precio;
+          updateSubtotal(row);
+        } catch (error) {
+          console.error('No se pudo obtener el precio del producto:', error);
+        }
+      });
+    }
+
+    row.querySelectorAll('[name$="-cantidad"], [name$="-precio_unitario"]').forEach(el => {
+      el.addEventListener('input', () => updateSubtotal(row));
+    });
+
+    const removeBtn = row.querySelector('.remove-row');
+    if (removeBtn) {
+      removeBtn.addEventListener('click', () => eliminarFila(row));
+    }
+  }
+
+  function agregarFila() {
+    const tmpl = document.getElementById('empty-form-template');
+    const clone = tmpl.content.cloneNode(true);
+    const newRow = clone.querySelector('.formset-row');
+
+    newRow.id = 'row-' + formIdx;
+    newRow.innerHTML = newRow.innerHTML.replaceAll('__prefix__', formIdx);
+
+    document.getElementById('formset-container').appendChild(newRow);
+    if (totalFormsInput) totalFormsInput.value = ++formIdx;
+    else formIdx++;
+
+    attachRowEvents(newRow);
+  }
+
+  function fijarFechaPorDefecto() {
+    const fechaInput = document.querySelector('input[name="fecha"]');
+    if (fechaInput && !fechaInput.value) {
+      fechaInput.value = new Date().toISOString().split('T')[0];
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.formset-row').forEach(attachRowEvents);
+    document.getElementById('addRow')?.addEventListener('click', agregarFila);
+    fijarFechaPorDefecto();
+    updateTotal();
+  });
+})();
 </script>
 {% endblock %}

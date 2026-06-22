@@ -4,43 +4,20 @@
 {% block page_title %}Bandeja de Pedidos{% endblock %}
 
 {% block content %}
-<style>
-  .table-wrap { border: 1px solid #e8e8e4; border-radius: 12px; overflow: hidden; }
-  .estado-nuevo     { background: #fef2f2; color: #e31837; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 6px; }
-  .estado-atendido  { background: #f0fdf4; color: #16a34a; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 6px; }
-  .estado-cancelado { background: #f5f5f3; color: #a1a1aa; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 6px; }
-  .detalle-lista { font-size: 12px; color: #52525b; margin: 0; padding: 0; list-style: none; }
-  .detalle-lista li { padding: 1px 0; }
 
-  /* Animación fila nueva */
-  @keyframes resaltar {
-    0%   { background: #fef2f2; }
-    100% { background: transparent; }
-  }
-  .fila-nueva { animation: resaltar 2s ease-out; }
-
-  /* Punto parpadeante en vivo */
-  .live-badge { display:inline-flex; align-items:center; gap:6px; font-size:11px; color:#a1a1aa; }
-  .live-badge span { width:7px; height:7px; background:#16a34a; border-radius:50%; animation: pulso 1.5s infinite; }
-  @keyframes pulso { 0%,100%{opacity:1} 50%{opacity:.3} }
-</style>
-
-<!-- Alerta de pedidos nuevos -->
-<div id="alerta-nuevos" style="display:none; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:12px 16px; margin-bottom:16px; align-items:center; gap:10px;">
-  <i class="bi bi-bell-fill" style="color:#e31837; font-size:16px;"></i>
-  <span style="font-size:13px; font-weight:500; color:#e31837;">Tienes <strong id="num-nuevos">0</strong> pedido nuevo sin atender.</span>
+<!-- Alerta de pedidos nuevos (la rellena Django al cargar, y JS la actualiza después) -->
+<div id="alerta-nuevos" class="alerta-pedidos-nuevos {% if nuevos == 0 %}campo-oculto{% endif %}">
+  <i class="bi bi-bell-fill icon-alert"></i>
+  <span class="text-alert">
+    Tienes <strong id="num-nuevos">{{ nuevos }}</strong>
+    <span id="texto-nuevos">pedido{% if nuevos > 1 %}s{% endif %} nuevo{% if nuevos > 1 %}s{% endif %}</span>
+    sin atender.
+  </span>
 </div>
 
-{% if nuevos > 0 %}
-<div style="background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:12px 16px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">
-  <i class="bi bi-bell-fill" style="color:#e31837; font-size:16px;"></i>
-  <span style="font-size:13px; font-weight:500; color:#e31837;">Tienes <strong>{{ nuevos }}</strong> pedido{% if nuevos > 1 %}s{% endif %} nuevo{% if nuevos > 1 %}s{% endif %} sin atender.</span>
-</div>
-{% endif %}
-
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+<div class="pedidos-header">
   <span class="live-badge"><span></span> Actualizando cada 10 seg</span>
-  <span id="ultimo-update" style="font-size:11px; color:#a1a1aa;"></span>
+  <span id="ultimo-update" class="text-muted-sm"></span>
 </div>
 
 <div class="table-wrap">
@@ -60,8 +37,8 @@
       <tbody id="tabla-pedidos">
         {% for pedido in pedidos %}
         <tr data-id="{{ pedido.pk }}">
-          <td style="color:#a1a1aa; font-size:13px;">#{{ pedido.pk }}</td>
-          <td style="font-weight:500;">{{ pedido.nombre_cliente }}</td>
+          <td class="text-empty">#{{ pedido.pk }}</td>
+          <td class="text-medium">{{ pedido.nombre_cliente }}</td>
           <td>
             <ul class="detalle-lista">
               {% for d in pedido.detalles.all %}
@@ -69,7 +46,7 @@
               {% endfor %}
             </ul>
           </td>
-          <td class="text-end" style="font-weight:600;">${{ pedido.total }}</td>
+          <td class="text-end text-price">${{ pedido.total }}</td>
           <td class="text-center">
             <span class="estado-{{ pedido.estado }}">
               {% if pedido.estado == 'nuevo' %}🔔 Nuevo
@@ -77,17 +54,17 @@
               {% else %}❌ Cancelado{% endif %}
             </span>
           </td>
-          <td style="font-size:12px; color:#a1a1aa;">{{ pedido.creado_en|date:"d/m/Y H:i" }}</td>
+          <td class="text-muted-sm">{{ pedido.creado_en|date:"d/m/Y H:i" }}</td>
           <td class="text-center">
             {% if pedido.estado == 'nuevo' %}
-            <div style="display:flex; gap:6px; justify-content:center;">
-              <form method="post" action="{% url 'pedido_atender' pedido.pk %}" style="margin:0;">
+            <div class="actions-row">
+              <form method="post" action="{% url 'pedido_atender' pedido.pk %}" class="form-inline">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-sm btn-success" title="Marcar atendido">
                   <i class="bi bi-check2"></i>
                 </button>
               </form>
-              <form method="post" action="{% url 'pedido_cancelar' pedido.pk %}" style="margin:0;">
+              <form method="post" action="{% url 'pedido_cancelar' pedido.pk %}" class="form-inline">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancelar">
                   <i class="bi bi-x"></i>
@@ -95,14 +72,14 @@
               </form>
             </div>
             {% else %}
-            <span style="font-size:12px; color:#a1a1aa;">—</span>
+            <span class="text-empty">—</span>
             {% endif %}
           </td>
         </tr>
         {% empty %}
         <tr id="fila-vacia">
-          <td colspan="7" class="text-center py-5" style="color:#a1a1aa; font-size:13.5px;">
-            <i class="bi bi-inbox" style="font-size:1.8rem; display:block; margin-bottom:8px; opacity:.4;"></i>
+          <td colspan="7" class="text-center py-5 empty-state">
+            <i class="bi bi-inbox empty-state-icon"></i>
             No hay pedidos todavía.
           </td>
         </tr>
@@ -112,126 +89,208 @@
   </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
 <script>
-// IDs de pedidos que ya están en la tabla
-const idsConocidos = new Set([
-  {% for pedido in pedidos %}{{ pedido.pk }},{% endfor %}
-]);
+(function () {
+  'use strict';
 
-// Sonido de notificación (beep simple con Web Audio API)
-function sonarNotificacion() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    osc.frequency.setValueAtTime(660, ctx.currentTime + 0.15);
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.4);
-  } catch(e) {}
-}
+  // IDs de pedidos que ya están en la tabla al cargar la página
+  const idsConocidos = new Set([
+    {% for pedido in pedidos %}{{ pedido.pk }},{% endfor %}
+  ]);
 
-// Notificación del navegador
-function pedirPermiso() {
-  if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission();
-  }
-}
-
-function mostrarNotificacion(nombre, productos) {
-  if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification('🔔 Nuevo pedido — ' + nombre, {
-      body: productos,
-      icon: '/static/inventario/img/logo23.png'
-    });
-  }
-}
-
-function getCookie(name) {
-  let v = null;
-  document.cookie.split(';').forEach(c => {
-    c = c.trim();
-    if (c.startsWith(name + '=')) v = decodeURIComponent(c.slice(name.length + 1));
-  });
-  return v;
-}
-
-function actualizarTabla() {
-  fetch('/api/pedidos/json/', {
-    headers: { 'X-CSRFToken': getCookie('csrftoken') }
-  })
-  .then(r => r.json())
-  .then(data => {
-    const tbody = document.getElementById('tabla-pedidos');
-    let nuevosEncontrados = 0;
-
-    data.pedidos.forEach(p => {
-      if (!idsConocidos.has(p.id)) {
-        // Es un pedido nuevo — agregar fila al inicio
-        idsConocidos.add(p.id);
-        nuevosEncontrados++;
-
-        const filaVacia = document.getElementById('fila-vacia');
-        if (filaVacia) filaVacia.remove();
-
-        const tr = document.createElement('tr');
-        tr.setAttribute('data-id', p.id);
-        tr.classList.add('fila-nueva');
-        tr.innerHTML = `
-          <td style="color:#a1a1aa; font-size:13px;">#${p.id}</td>
-          <td style="font-weight:500;">${p.nombre_cliente}</td>
-          <td><ul class="detalle-lista">${p.detalles.map(d => `<li>${d.cantidad}x ${d.producto}</li>`).join('')}</ul></td>
-          <td class="text-end" style="font-weight:600;">$${p.total}</td>
-          <td class="text-center"><span class="estado-nuevo">🔔 Nuevo</span></td>
-          <td style="font-size:12px; color:#a1a1aa;">${p.creado_en}</td>
-          <td class="text-center">
-            <div style="display:flex; gap:6px; justify-content:center;">
-              <form method="post" action="/pedidos/${p.id}/atender/" style="margin:0;">
-                <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
-                <button type="submit" class="btn btn-sm btn-success" title="Marcar atendido"><i class="bi bi-check2"></i></button>
-              </form>
-              <form method="post" action="/pedidos/${p.id}/cancelar/" style="margin:0;">
-                <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
-                <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancelar"><i class="bi bi-x"></i></button>
-              </form>
-            </div>
-          </td>`;
-        tbody.insertBefore(tr, tbody.firstChild);
-
-        mostrarNotificacion(p.nombre_cliente, p.detalles.map(d => `${d.cantidad}x ${d.producto}`).join(', '));
-      }
-    });
-
-    if (nuevosEncontrados > 0) {
-      sonarNotificacion();
+  // Un solo AudioContext reutilizado, en vez de crear uno nuevo cada vez
+  // (antes se acumulaban contextos de audio sin liberar con el tiempo).
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
+    return audioCtx;
+  }
 
-    // Actualizar contador
-    const numNuevos = data.pedidos.filter(p => p.estado === 'nuevo').length;
+  function sonarNotificacion() {
+    try {
+      const ctx = getAudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.setValueAtTime(660, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.4);
+    } catch (e) {
+      console.error('No se pudo reproducir la notificación de sonido:', e);
+    }
+  }
+
+  function pedirPermiso() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }
+
+  function mostrarNotificacion(nombre, productos) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('🔔 Nuevo pedido — ' + nombre, {
+        body: productos,
+        icon: '/static/inventario/img/logo23.png',
+      });
+    }
+  }
+
+  function getCookie(name) {
+    const match = document.cookie
+      .split(';')
+      .map(c => c.trim())
+      .find(c => c.startsWith(name + '='));
+    return match ? decodeURIComponent(match.slice(name.length + 1)) : null;
+  }
+
+  // Crea la fila de la tabla usando el DOM en vez de innerHTML con datos del
+  // servidor interpolados directo — antes esto era vulnerable a XSS si un
+  // nombre de cliente o producto llegaba con HTML/JS embebido.
+  function construirFilaPedido(p) {
+    const tr = document.createElement('tr');
+    tr.dataset.id = p.id;
+    tr.classList.add('fila-nueva');
+
+    const tdId = document.createElement('td');
+    tdId.className = 'text-empty';
+    tdId.textContent = '#' + p.id;
+
+    const tdCliente = document.createElement('td');
+    tdCliente.className = 'text-medium';
+    tdCliente.textContent = p.nombre_cliente;
+
+    const tdProductos = document.createElement('td');
+    const ul = document.createElement('ul');
+    ul.className = 'detalle-lista';
+    p.detalles.forEach(d => {
+      const li = document.createElement('li');
+      li.textContent = d.cantidad + 'x ' + d.producto;
+      ul.appendChild(li);
+    });
+    tdProductos.appendChild(ul);
+
+    const tdTotal = document.createElement('td');
+    tdTotal.className = 'text-end text-price';
+    tdTotal.textContent = '$' + p.total;
+
+    const tdEstado = document.createElement('td');
+    tdEstado.className = 'text-center';
+    const spanEstado = document.createElement('span');
+    spanEstado.className = 'estado-nuevo';
+    spanEstado.textContent = '🔔 Nuevo';
+    tdEstado.appendChild(spanEstado);
+
+    const tdFecha = document.createElement('td');
+    tdFecha.className = 'text-muted-sm';
+    tdFecha.textContent = p.creado_en;
+
+    const tdAcciones = document.createElement('td');
+    tdAcciones.className = 'text-center';
+    tdAcciones.appendChild(construirAccionesPedido(p.id));
+
+    tr.append(tdId, tdCliente, tdProductos, tdTotal, tdEstado, tdFecha, tdAcciones);
+    return tr;
+  }
+
+  function construirFormularioAccion(url, claseBoton, icono, titulo) {
+    const form = document.createElement('form');
+    form.method = 'post';
+    form.action = url;
+    form.className = 'form-inline';
+
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = getCookie('csrftoken');
+    form.appendChild(csrfInput);
+
+    const btn = document.createElement('button');
+    btn.type = 'submit';
+    btn.className = 'btn btn-sm ' + claseBoton;
+    btn.title = titulo;
+    btn.innerHTML = `<i class="bi ${icono}"></i>`;
+    form.appendChild(btn);
+
+    return form;
+  }
+
+  function construirAccionesPedido(pedidoId) {
+    const div = document.createElement('div');
+    div.className = 'actions-row';
+    div.appendChild(construirFormularioAccion(
+      '/pedidos/' + pedidoId + '/atender/', 'btn-success', 'bi-check2', 'Marcar atendido'
+    ));
+    div.appendChild(construirFormularioAccion(
+      '/pedidos/' + pedidoId + '/cancelar/', 'btn-outline-danger', 'bi-x', 'Cancelar'
+    ));
+    return div;
+  }
+
+  function actualizarAlertaNuevos(numNuevos) {
     const alerta = document.getElementById('alerta-nuevos');
-    if (numNuevos > 0) {
-      document.getElementById('num-nuevos').textContent = numNuevos;
-      alerta.style.display = 'flex';
-    } else {
-      alerta.style.display = 'none';
-    }
+    const numEl = document.getElementById('num-nuevos');
+    const textoEl = document.getElementById('texto-nuevos');
+    if (!alerta || !numEl || !textoEl) return;
 
-    // Hora de última actualización
-    const ahora = new Date();
-    document.getElementById('ultimo-update').textContent =
-      'Última actualización: ' + ahora.toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-  })
-  .catch(() => {});
-}
+    numEl.textContent = numNuevos;
+    textoEl.textContent = 'pedido' + (numNuevos > 1 ? 's' : '') + ' nuevo' + (numNuevos > 1 ? 's' : '');
+    alerta.classList.toggle('campo-oculto', numNuevos === 0);
+  }
 
-// Pedir permiso de notificaciones al cargar
-pedirPermiso();
+  function actualizarTabla() {
+    fetch('/api/pedidos/json/', {
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+    })
+      .then(r => r.json())
+      .then(data => {
+        const tbody = document.getElementById('tabla-pedidos');
+        let nuevosEncontrados = 0;
 
-// Actualizar cada 10 segundos
-setInterval(actualizarTabla, 10000);
+        data.pedidos.forEach(p => {
+          if (!idsConocidos.has(p.id)) {
+            idsConocidos.add(p.id);
+            nuevosEncontrados++;
+
+            const filaVacia = document.getElementById('fila-vacia');
+            if (filaVacia) filaVacia.remove();
+
+            tbody.insertBefore(construirFilaPedido(p), tbody.firstChild);
+
+            mostrarNotificacion(
+              p.nombre_cliente,
+              p.detalles.map(d => `${d.cantidad}x ${d.producto}`).join(', ')
+            );
+          }
+        });
+
+        if (nuevosEncontrados > 0) sonarNotificacion();
+
+        const numNuevos = data.pedidos.filter(p => p.estado === 'nuevo').length;
+        actualizarAlertaNuevos(numNuevos);
+
+        const ahora = new Date();
+        const updateEl = document.getElementById('ultimo-update');
+        if (updateEl) {
+          updateEl.textContent = 'Última actualización: ' +
+            ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+      })
+      .catch(() => {});
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    pedirPermiso();
+    setInterval(actualizarTabla, 10000);
+  });
+})();
 </script>
 {% endblock %}

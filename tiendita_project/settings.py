@@ -60,7 +60,7 @@ DATABASES = {
         'USER':     os.getenv('DB_USER_PG'),
         'PASSWORD': os.getenv('DB_PASSWORD_PG'),
         'HOST':     os.getenv('DB_HOST_PG'),
-        'PORT':     os.getenv('DB_PORT_PORT', '5432'),
+        'PORT':     os.getenv('DB_PORT_PG', '5432'),
     }
 }
 

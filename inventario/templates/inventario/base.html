@@ -1,4 +1,5 @@
 {% load static %}
+{% load pedido_tags %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,259 +10,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --sidebar-width: 250px;
-      --accent: #e31837;
-      --accent-hover: #c01530;
-      --accent-light: #fef2f2;
-      --sidebar-bg: #18181b;
-      --sidebar-border: #27272a;
-      --sidebar-hover: #27272a;
-      --sidebar-text: #a1a1aa;
-      --sidebar-text-active: #ffffff;
-      --sidebar-muted: #3f3f46;
-      --body-bg: #f5f5f3;
-      --card-bg: #ffffff;
-      --border: #e8e8e4;
-      --text-primary: #18181b;
-      --text-secondary: #52525b;
-      --text-muted: #a1a1aa;
-      --topbar-bg: #ffffff;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      background: var(--body-bg);
-      font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
-      color: var(--text-primary);
-    }
-
-    #sidebar {
-      width: var(--sidebar-width);
-      min-height: 100vh;
-      background: var(--sidebar-bg);
-      position: fixed;
-      top: 0; left: 0;
-      display: flex;
-      flex-direction: column;
-      z-index: 100;
-    }
-
-    .sidebar-brand {
-      padding: 18px 16px 16px;
-      border-bottom: 1px solid var(--sidebar-border);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .sidebar-brand-logo {
-      width: 36px; height: 36px;
-      background: var(--accent);
-      border-radius: 9px;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; overflow: hidden;
-    }
-
-
-    .sidebar-brand-name { font-size: 13.5px; font-weight: 600; color: #ffffff; line-height: 1.2; }
-    .sidebar-brand-sub  { font-size: 11px; color: var(--sidebar-muted); margin-top: 1px; }
-
-    .sidebar-nav { padding: 8px 0; flex: 1; overflow-y: auto; }
-    .sidebar-nav::-webkit-scrollbar { width: 4px; }
-    .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
-    .sidebar-nav::-webkit-scrollbar-thumb { background: var(--sidebar-border); border-radius: 4px; }
-
-    .sidebar-label {
-      color: var(--sidebar-muted);
-      font-size: 10px; font-weight: 600;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      padding: 14px 18px 5px;
-    }
-
-    .nav-link-side {
-      display: flex; align-items: center; gap: 9px;
-      color: var(--sidebar-text);
-      padding: 8px 10px;
-      font-size: 13.5px; font-weight: 400;
-      text-decoration: none;
-      transition: background 0.12s, color 0.12s;
-      border-radius: 7px;
-      margin: 1px 8px;
-    }
-
-    .nav-link-side:hover { background: var(--sidebar-hover); color: #e4e4e7; }
-    .nav-link-side.active { background: var(--accent); color: #ffffff; font-weight: 500; }
-    .nav-link-side i { font-size: 15px; width: 18px; text-align: center; opacity: 0.75; }
-    .nav-link-side.active i { opacity: 1; }
-
-    .nav-badge {
-      margin-left: auto;
-      background: #e31837;
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      min-width: 18px;
-      height: 18px;
-      border-radius: 9px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 5px;
-    }
-
-    .sidebar-footer {
-      padding: 12px 14px;
-      border-top: 1px solid var(--sidebar-border);
-      display: flex; align-items: center; gap: 9px;
-    }
-
-    .sidebar-avatar {
-      width: 30px; height: 30px;
-      background: var(--sidebar-hover);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 600;
-      color: var(--sidebar-text);
-      flex-shrink: 0; text-transform: uppercase;
-    }
-
-    .sidebar-user {
-      font-size: 13px; font-weight: 500; color: #d4d4d8;
-      flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-
-    .logout-form { margin: 0; }
-
-    .logout-btn {
-      background: none; border: none;
-      padding: 6px; font-size: 15px;
-      color: var(--sidebar-muted);
-      cursor: pointer; border-radius: 6px; line-height: 1;
-      transition: color 0.12s, background 0.12s;
-    }
-
-    .logout-btn:hover { color: #ffffff; background: var(--sidebar-hover); }
-
-    #main-content { margin-left: var(--sidebar-width); min-height: 100vh; }
-
-    .topbar {
-      background: var(--topbar-bg);
-      border-bottom: 1px solid var(--border);
-      padding: 0 24px; height: 54px;
-      display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 50;
-    }
-
-    .topbar-left { display: flex; align-items: center; gap: 10px; }
-
-    .topbar-badge {
-      background: var(--accent-light); color: var(--accent);
-      font-size: 11px; font-weight: 600;
-      padding: 3px 9px; border-radius: 6px; letter-spacing: 0.02em;
-    }
-
-    .topbar-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin: 0; }
-
-    .page-body { padding: 24px; }
-
-    #toast-container {
-      position: fixed;
-      bottom: 24px; right: 24px;
-      z-index: 99999;
-      display: flex; flex-direction: column; gap: 8px;
-    }
-
-    .toast-msg {
-      background: #18181b; color: #fff;
-      padding: 12px 16px; border-radius: 10px;
-      font-size: 13px; font-weight: 500;
-      display: flex; align-items: center; gap: 10px;
-      min-width: 260px; max-width: 360px;
-      box-shadow: 0 4px 16px rgba(0,0,0,.3);
-      animation: toastIn .25s ease;
-    }
-
-    .toast-msg .toast-close {
-      background: none; border: none;
-      color: #a1a1aa; cursor: pointer;
-      font-size: 14px; padding: 0; line-height: 1;
-      margin-left: auto; flex-shrink: 0;
-    }
-
-    .toast-msg .toast-close:hover { color: #fff; }
-
-    @keyframes toastIn {
-      from { opacity: 0; transform: translateX(16px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-
-    .card { border: 1px solid var(--border) !important; border-radius: 12px !important; background: var(--card-bg) !important; box-shadow: none !important; }
-    .card-header { border-radius: 12px 12px 0 0 !important; font-size: 13px; font-weight: 600; padding: 12px 16px; border-bottom: 1px solid var(--border) !important; color: var(--text-primary) !important; background: var(--card-bg) !important; }
-    .card-body { color: var(--text-primary); padding: 16px; }
-    .stat-card { background: var(--card-bg) !important; border: 1px solid var(--border) !important; border-radius: 12px !important; box-shadow: none !important; transition: border-color 0.15s; }
-    .stat-card:hover { border-color: #d0d0cc !important; }
-    .stat-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
-
-    .table-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
-    .table { color: var(--text-primary) !important; margin: 0; }
-    .table thead th { background: var(--body-bg) !important; color: var(--text-muted) !important; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1px solid var(--border) !important; padding: 10px 16px; }
-    .table tbody td { padding: 11px 16px; font-size: 13.5px; border-bottom: 1px solid #f0f0ec !important; color: var(--text-primary); vertical-align: middle; }
-    .table tbody tr:last-child td { border-bottom: none !important; }
-    .table tbody tr:hover td { background: var(--body-bg) !important; }
-    .table > :not(caption) > * > * { background: transparent !important; color: inherit !important; box-shadow: none !important; }
-
-    .form-control, .form-select { background: #fff !important; border: 1px solid var(--border) !important; border-radius: 8px !important; font-size: 13.5px; padding: 8px 12px; color: var(--text-primary) !important; font-family: 'DM Sans', system-ui, sans-serif; transition: border-color 0.12s, box-shadow 0.12s; }
-    .form-control::placeholder { color: var(--text-muted) !important; }
-    .form-control:focus, .form-select:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(227,24,55,0.08) !important; outline: none; }
-    .form-label { color: var(--text-secondary) !important; font-size: 12.5px; font-weight: 500; margin-bottom: 5px; }
-    .input-group-text { background: var(--body-bg) !important; border: 1px solid var(--border) !important; color: var(--text-secondary) !important; font-size: 13px; }
-
-    .btn { border-radius: 8px; font-size: 13px; font-weight: 500; padding: 7px 14px; font-family: 'DM Sans', system-ui, sans-serif; transition: all 0.12s; }
-    .btn-primary { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; }
-    .btn-primary:hover { background: var(--accent-hover) !important; border-color: var(--accent-hover) !important; }
-    .btn-success { background: #16a34a !important; border-color: #16a34a !important; color: #fff !important; }
-    .btn-success:hover { background: #15803d !important; border-color: #15803d !important; }
-    .btn-danger { background: #dc2626 !important; border-color: #dc2626 !important; color: #fff !important; }
-    .btn-danger:hover { background: #b91c1c !important; border-color: #b91c1c !important; }
-    .btn-secondary { background: var(--body-bg) !important; border-color: var(--border) !important; color: var(--text-secondary) !important; }
-    .btn-secondary:hover { background: #ebebeb !important; color: var(--text-primary) !important; }
-    .btn-outline-primary { border-color: var(--border) !important; color: var(--text-secondary) !important; background: #fff !important; }
-    .btn-outline-primary:hover { border-color: var(--accent) !important; color: var(--accent) !important; background: var(--accent-light) !important; }
-    .btn-outline-danger { border-color: #fecaca !important; color: #dc2626 !important; background: #fff !important; }
-    .btn-outline-danger:hover { background: #fef2f2 !important; border-color: #dc2626 !important; }
-    .btn-outline-success { border-color: #bbf7d0 !important; color: #16a34a !important; background: #fff !important; }
-    .btn-outline-success:hover { background: #f0fdf4 !important; border-color: #16a34a !important; }
-    .btn-outline-warning { border-color: #fde68a !important; color: #d97706 !important; background: #fff !important; }
-    .btn-outline-warning:hover { background: #fffbeb !important; border-color: #d97706 !important; }
-    .btn-outline-secondary { border-color: var(--border) !important; color: var(--text-muted) !important; background: #fff !important; }
-    .btn-outline-secondary:hover { background: var(--body-bg) !important; color: var(--text-secondary) !important; }
-
-    .badge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
-    .bg-success   { background: #f0fdf4 !important; color: #16a34a !important; }
-    .bg-danger    { background: #fef2f2 !important; color: var(--accent) !important; }
-    .bg-warning   { background: #fffbeb !important; color: #d97706 !important; }
-    .bg-secondary { background: var(--body-bg) !important; color: var(--text-muted) !important; }
-    .bg-primary   { background: var(--accent-light) !important; color: var(--accent) !important; }
-
-    .text-dark    { color: var(--text-primary) !important; }
-    .text-muted   { color: var(--text-muted) !important; }
-    .text-success { color: #16a34a !important; }
-    .text-danger  { color: var(--accent) !important; }
-    .text-warning { color: #d97706 !important; }
-
-    .list-group-item { background: transparent !important; border-color: #f0f0ec !important; color: var(--text-primary) !important; font-size: 13.5px; }
-    .list-group-item:hover { background: var(--body-bg) !important; }
-
-    @media (max-width: 768px) {
-      #sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
-      #sidebar.open { transform: translateX(0); }
-      #main-content { margin-left: 0; }
-    }
-  </style>
+  <link href="{% static 'style.css' %}" rel="stylesheet">
 
   {% block extra_head %}{% endblock %}
 </head>
@@ -272,14 +21,14 @@
 <nav id="sidebar">
   <div class="sidebar-brand">
     <div class="sidebar-brand-logo">
-  <svg width="24" height="24" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M13 18 Q13 10 21 10 Q27 10 27 15" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-    <path d="M29 18 Q29 10 21 10 Q15 10 15 15" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-    <rect x="8" y="18" width="26" height="18" rx="4" fill="#fff" opacity="0.95"/>
-    <line x1="13" y1="25" x2="29" y2="25" stroke="#e31837" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="13" y1="30" x2="27" y2="30" stroke="#e31837" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
-  </svg>
-</div>
+      <svg width="24" height="24" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13 18 Q13 10 21 10 Q27 10 27 15" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <path d="M29 18 Q29 10 21 10 Q15 10 15 15" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <rect x="8" y="18" width="26" height="18" rx="4" fill="#fff" opacity="0.95"/>
+        <line x1="13" y1="25" x2="29" y2="25" stroke="#e31837" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="13" y1="30" x2="27" y2="30" stroke="#e31837" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+      </svg>
+    </div>
     <div>
       <div class="sidebar-brand-name">Tienda Dsei</div>
       <div class="sidebar-brand-sub">Panel de control</div>
@@ -304,7 +53,6 @@
     </a>
     <a href="{% url 'pedido_list' %}" class="nav-link-side {% if 'pedido' in request.resolver_match.url_name %}active{% endif %}">
       <i class="bi bi-basket"></i> Pedidos
-      {% load pedido_tags %}
       {% pedidos_nuevos as total_nuevos %}
       {% if total_nuevos > 0 %}
       <span class="nav-badge">{{ total_nuevos }}</span>
@@ -349,32 +97,23 @@
   {% if messages %}
   <div id="toast-container">
     {% for message in messages %}
-    <div class="toast-msg" style="border-left:3px solid {% if message.tags == 'error' or message.tags == 'danger' %}#e31837{% elif message.tags == 'success' %}#16a34a{% elif message.tags == 'warning' %}#d97706{% else %}#818cf8{% endif %};">
+    <div class="toast-msg toast-{% if message.tags == 'error' or message.tags == 'danger' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}">
       {% if message.tags == 'error' or message.tags == 'danger' %}
-        <i class="bi bi-x-circle-fill" style="color:#e31837; font-size:15px; flex-shrink:0;"></i>
+        <i class="bi bi-x-circle-fill toast-icon"></i>
       {% elif message.tags == 'success' %}
-        <i class="bi bi-check-circle-fill" style="color:#16a34a; font-size:15px; flex-shrink:0;"></i>
+        <i class="bi bi-check-circle-fill toast-icon"></i>
       {% elif message.tags == 'warning' %}
-        <i class="bi bi-exclamation-circle-fill" style="color:#d97706; font-size:15px; flex-shrink:0;"></i>
+        <i class="bi bi-exclamation-circle-fill toast-icon"></i>
       {% else %}
-        <i class="bi bi-info-circle-fill" style="color:#818cf8; font-size:15px; flex-shrink:0;"></i>
+        <i class="bi bi-info-circle-fill toast-icon"></i>
       {% endif %}
-      <span style="flex:1;">{{ message }}</span>
-      <button class="toast-close" onclick="this.parentElement.remove()">
+      <span class="toast-text">{{ message }}</span>
+      <button class="toast-close" type="button">
         <i class="bi bi-x"></i>
       </button>
     </div>
     {% endfor %}
   </div>
-  <script>
-    setTimeout(() => {
-      document.querySelectorAll('.toast-msg').forEach(t => {
-        t.style.transition = 'opacity .4s ease';
-        t.style.opacity = '0';
-        setTimeout(() => t.remove(), 400);
-      });
-    }, 3500);
-  </script>
   {% endif %}
 
   <div class="page-body">
@@ -387,6 +126,29 @@
 {% endif %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // Cierre manual del toast con el botón "x"
+    document.querySelectorAll('.toast-close').forEach(btn => {
+      btn.addEventListener('click', function () {
+        this.closest('.toast-msg')?.remove();
+      });
+    });
+
+    // Auto-cierre de los toasts tras unos segundos
+    setTimeout(() => {
+      document.querySelectorAll('.toast-msg').forEach(t => {
+        t.style.transition = 'opacity .4s ease';
+        t.style.opacity = '0';
+        setTimeout(() => t.remove(), 400);
+      });
+    }, 3500);
+  });
+})();
+</script>
 {% block extra_js %}{% endblock %}
 
 </body>

@@ -71,8 +71,8 @@
             {% if form.imagen_url.errors %}
               <div class="text-danger small mt-1">{{ form.imagen_url.errors.0 }}</div>
             {% endif %}
-            <div id="preview-container" class="mt-2" style="display:none;">
-              <img id="preview-img" src="" alt="Preview" style="max-height:120px; border-radius:8px; border:1.5px solid #ddd;">
+            <div id="preview-container" class="mt-2 preview-hidden">
+              <img id="preview-img" src="" alt="Preview" class="preview-img">
             </div>
           </div>
 
@@ -105,23 +105,32 @@
     </div>
   </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-const input = document.getElementById('{{ form.imagen_url.id_for_label }}') || document.querySelector('[name="imagen_url"]');
-if (input) {
-  if (input.value) {
-    document.getElementById('preview-container').style.display = 'block';
-    document.getElementById('preview-img').src = input.value;
-  }
-  input.addEventListener('input', function() {
-    const url = this.value.trim();
-    if (url) {
-      document.getElementById('preview-container').style.display = 'block';
-      document.getElementById('preview-img').src = url;
-    } else {
-      document.getElementById('preview-container').style.display = 'none';
+(function () {
+  'use strict';
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const input = document.querySelector('[name="imagen_url"]');
+    const container = document.getElementById('preview-container');
+    const previewImg = document.getElementById('preview-img');
+    if (!input || !container || !previewImg) return;
+
+    function actualizarPreview() {
+      const url = input.value.trim();
+      if (url) {
+        container.classList.remove('preview-hidden');
+        previewImg.src = url;
+      } else {
+        container.classList.add('preview-hidden');
+      }
     }
+
+    actualizarPreview(); // por si ya viene con valor al editar
+    input.addEventListener('input', actualizarPreview);
   });
-}
+})();
 </script>
 {% endblock %}

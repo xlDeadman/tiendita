@@ -4,306 +4,52 @@
 {% block page_title %}Egresos{% endblock %}
 
 {% block topbar_actions %}
-<button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('modalEgreso').style.display='flex'">
+<button type="button" class="btn btn-primary btn-sm" id="btnNuevoEgreso">
     <i class="bi bi-plus-circle me-1"></i> Nuevo egreso
 </button>
 {% endblock %}
 
 {% block content %}
 
-<style>
-    /* ── RESUMEN CARDS ── */
-    .resumen-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 12px;
-        margin-bottom: 24px;
-    }
-
-    .resumen-card {
-        background: #fff;
-        border: 1px solid #e8e8e4;
-        border-radius: 12px;
-        padding: 16px 18px;
-        cursor: default;
-        transition: border-color 0.15s;
-    }
-
-    .resumen-card:hover { border-color: #d0d0cc; }
-    .resumen-card.clickable { cursor: pointer; }
-
-    .resumen-label {
-        font-size: 11px;
-        font-weight: 600;
-        color: #a1a1aa;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        margin-bottom: 6px;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .resumen-label .edit-ico {
-        font-size: 10px;
-        opacity: 0.6;
-    }
-
-    .resumen-valor {
-        font-size: 22px;
-        font-weight: 600;
-        line-height: 1;
-    }
-
-    .resumen-sub {
-        font-size: 11px;
-        color: #a1a1aa;
-        margin-top: 4px;
-    }
-
-    .accent-left {
-        border-left: 3px solid var(--color);
-        padding-left: 15px;
-    }
-
-    /* ── TABLA ── */
-    .section-title {
-        font-size: 13px;
-        font-weight: 600;
-        color: #18181b;
-        display: flex;
-        align-items: center;
-        gap: 7px;
-    }
-
-    /* ── FORM PAGO OPTIONS ── */
-    .pago-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        margin-top: 6px;
-    }
-
-    .pago-opt {
-        position: relative;
-        cursor: pointer;
-    }
-
-    .pago-opt input[type="radio"] {
-        position: absolute;
-        opacity: 0;
-        width: 0;
-    }
-
-    .pago-opt-label {
-        display: block;
-        text-align: center;
-        border: 1px solid #e8e8e4;
-        border-radius: 8px;
-        padding: 9px 8px;
-        font-size: 12.5px;
-        font-weight: 500;
-        color: #52525b;
-        background: #fff;
-        transition: all 0.12s;
-        user-select: none;
-    }
-
-    .pago-opt input:checked + .pago-opt-label {
-        border-color: #e31837;
-        background: #fef2f2;
-        color: #e31837;
-        font-weight: 600;
-    }
-
-    /* ── MODALES ── */
-    .modal-overlay {
-        display: none;
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,.55);
-        z-index: 99999;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .modal-box {
-        background: #fff;
-        border-radius: 14px;
-        width: 100%;
-        max-width: 480px;
-        margin: 1rem;
-        max-height: 90vh;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .modal-header {
-        padding: 16px 20px;
-        border-bottom: 1px solid #e8e8e4;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-radius: 14px 14px 0 0;
-        flex-shrink: 0;
-    }
-
-    .modal-header h5 {
-        font-size: 14px;
-        font-weight: 600;
-        color: #18181b;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 7px;
-    }
-
-    .modal-header .accent-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        flex-shrink: 0;
-    }
-
-    .modal-close {
-        background: #f5f5f3;
-        border: none;
-        width: 28px;
-        height: 28px;
-        border-radius: 6px;
-        font-size: 14px;
-        color: #52525b;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.12s;
-    }
-
-    .modal-close:hover { background: #e8e8e4; }
-
-    .modal-body {
-        padding: 20px;
-        flex: 1;
-        overflow-y: auto;
-    }
-
-    .modal-footer {
-        padding: 16px 20px;
-        border-top: 1px solid #e8e8e4;
-        display: flex;
-        gap: 8px;
-        flex-shrink: 0;
-    }
-
-    .form-field { margin-bottom: 14px; }
-
-    .form-field label {
-        display: block;
-        font-size: 12px;
-        font-weight: 600;
-        color: #52525b;
-        margin-bottom: 5px;
-    }
-
-    .form-field input,
-    .form-field select,
-    .form-field textarea {
-        width: 100%;
-        border: 1px solid #e8e8e4;
-        border-radius: 8px;
-        padding: 8px 12px;
-        font-size: 13.5px;
-        color: #18181b;
-        background: #fff;
-        font-family: 'DM Sans', system-ui, sans-serif;
-        transition: border-color 0.12s, box-shadow 0.12s;
-        outline: none;
-    }
-
-    .form-field input:focus,
-    .form-field select:focus,
-    .form-field textarea:focus {
-        border-color: #e31837;
-        box-shadow: 0 0 0 3px rgba(227,24,55,.08);
-    }
-
-    .form-field textarea { resize: none; }
-
-    .input-prefix {
-        display: flex;
-    }
-
-    .input-prefix-symbol {
-        background: #f5f5f3;
-        border: 1px solid #e8e8e4;
-        border-right: none;
-        padding: 8px 12px;
-        border-radius: 8px 0 0 8px;
-        font-size: 13px;
-        font-weight: 700;
-        color: #e31837;
-        display: flex;
-        align-items: center;
-    }
-
-    .input-prefix input {
-        border-radius: 0 8px 8px 0 !important;
-    }
-
-    .prestamo-info {
-        background: #fffbeb;
-        border: 1px solid #fde68a;
-        border-radius: 8px;
-        padding: 10px 12px;
-        margin-bottom: 14px;
-        font-size: 12.5px;
-        color: #92400e;
-        font-weight: 500;
-    }
-</style>
-
 <!-- Resumen -->
 <div class="resumen-grid">
 
     <div class="resumen-card">
         <div class="resumen-label">
-            <i class="bi bi-arrow-down-circle" style="color:#e31837;"></i>
+            <i class="bi bi-arrow-down-circle text-rojo"></i>
             Total egresos del mes
         </div>
-        <div class="resumen-valor" style="color:#e31837;">${{ total_mes|floatformat:2 }}</div>
+        <div class="resumen-valor text-rojo">${{ total_mes|floatformat:2 }}</div>
         <div class="resumen-sub">Mes en curso</div>
     </div>
 
-    <div class="resumen-card clickable accent-left" style="--color:#16a34a;" onclick="document.getElementById('modalEfectivo').style.display='flex'">
+    <div class="resumen-card clickable accent-left" style="--color:#16a34a;" id="abrirModalEfectivo">
         <div class="resumen-label">
-            <i class="bi bi-cash" style="color:#16a34a;"></i>
+            <i class="bi bi-cash text-verde"></i>
             Efectivo disponible
-            <i class="bi bi-pencil-fill edit-ico" style="color:#16a34a;"></i>
+            <i class="bi bi-pencil-fill edit-ico text-verde"></i>
         </div>
-        <div class="resumen-valor" style="color:#16a34a;">${{ saldo.efectivo|floatformat:2 }}</div>
+        <div class="resumen-valor text-verde">${{ saldo.efectivo|floatformat:2 }}</div>
         <div class="resumen-sub">Clic para editar</div>
     </div>
 
-    <div class="resumen-card clickable accent-left" style="--color:#818cf8;" onclick="document.getElementById('modalBanco').style.display='flex'">
+    <div class="resumen-card clickable accent-left" style="--color:#818cf8;" id="abrirModalBanco">
         <div class="resumen-label">
-            <i class="bi bi-bank" style="color:#818cf8;"></i>
+            <i class="bi bi-bank text-azul"></i>
             Banco disponible
-            <i class="bi bi-pencil-fill edit-ico" style="color:#818cf8;"></i>
+            <i class="bi bi-pencil-fill edit-ico text-azul"></i>
         </div>
-        <div class="resumen-valor" style="color:#818cf8;">${{ saldo.banco|floatformat:2 }}</div>
+        <div class="resumen-valor text-azul">${{ saldo.banco|floatformat:2 }}</div>
         <div class="resumen-sub">Clic para editar</div>
     </div>
 
-    <div class="resumen-card clickable accent-left" style="--color:#d97706;" onclick="document.getElementById('modalSaldo').style.display='flex'">
+    <div class="resumen-card clickable accent-left" style="--color:#d97706;" id="abrirModalSaldo">
         <div class="resumen-label">
-            <i class="bi bi-handshake" style="color:#d97706;"></i>
+            <i class="bi bi-handshake text-naranja"></i>
             Préstamos
-            <i class="bi bi-pencil-fill edit-ico" style="color:#d97706;"></i>
+            <i class="bi bi-pencil-fill edit-ico text-naranja"></i>
         </div>
-        <div class="resumen-valor" style="color:#d97706;">${{ saldo.prestamo|floatformat:2 }}</div>
+        <div class="resumen-valor text-naranja">${{ saldo.prestamo|floatformat:2 }}</div>
         <div class="resumen-sub">Clic para editar</div>
     </div>
 
@@ -311,9 +57,9 @@
 
 <!-- Tabla historial -->
 <div class="table-card">
-    <div style="padding: 14px 18px; border-bottom: 1px solid #e8e8e4; display:flex; align-items:center; justify-content:space-between;">
+    <div class="table-card-header">
         <span class="section-title">
-            <i class="bi bi-clock-history" style="color:#a1a1aa;"></i>
+            <i class="bi bi-clock-history text-muted-sm"></i>
             Historial de egresos
         </span>
     </div>
@@ -322,65 +68,72 @@
         <table class="table table-hover align-middle mb-0">
             <thead>
                 <tr>
-                    <th style="color:#fff !important; background:#e31837 !important;">Fecha</th>
-                    <th style="color:#fff !important; background:#e31837 !important;">Producto</th>
-                    <th style="color:#fff !important; background:#e31837 !important;">Categoría</th>
-                    <th class="text-center" style="color:#fff !important; background:#e31837 !important;">Piezas</th>
-                    <th class="text-end" style="color:#fff !important; background:#e31837 !important;">Costo</th>
-                    <th class="text-center" style="color:#fff !important; background:#e31837 !important;">Forma de pago</th>
-                    <th class="text-center" style="color:#fff !important; background:#e31837 !important;">Acciones</th>
+                    <th class="thead-marca">Fecha</th>
+                    <th class="thead-marca">Producto</th>
+                    <th class="thead-marca">Categoría</th>
+                    <th class="text-center thead-marca">Piezas</th>
+                    <th class="text-end thead-marca">Costo</th>
+                    <th class="text-center thead-marca">Forma de pago</th>
+                    <th class="text-center thead-marca">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for e in egresos %}
                 <tr>
-                    <td style="color:#a1a1aa; font-size:12.5px; white-space:nowrap;">{{ e.fecha }}</td>
+                    <td class="text-muted-sm" style="white-space:nowrap;">{{ e.fecha }}</td>
 
                     <td>
-                        <div style="font-weight:500; font-size:13.5px; color:#18181b;">{{ e.nombre }}</div>
+                        <div class="text-medium">{{ e.nombre }}</div>
                     </td>
 
                     <td>
-                        <span style="font-size:12.5px; color:#52525b;">{{ e.categoria.nombre|default:"—" }}</span>
+                        <span class="text-muted-sm">{{ e.categoria.nombre|default:"—" }}</span>
                     </td>
 
                     <td class="text-center">
-                        <span style="font-size:13px; font-weight:500;">{{ e.piezas }}</span>
+                        <span class="text-medium">{{ e.piezas }}</span>
                     </td>
 
                     <td class="text-end">
-                        <span style="font-weight:600; color:#18181b;">${{ e.costo|floatformat:2 }}</span>
+                        <span class="text-price">${{ e.costo|floatformat:2 }}</span>
                     </td>
 
                     <td class="text-center">
                         {% if e.forma_pago == 'efectivo' %}
-                            <span class="badge" style="background:#f0fdf4; color:#16a34a;">Efectivo</span>
+                            <span class="badge badge-pago-efectivo">Efectivo</span>
 
                         {% elif e.forma_pago == 'banco' %}
-                            <span class="badge" style="background:#eef2ff; color:#4f46e5;">Banco</span>
+                            <span class="badge badge-pago-banco">Banco</span>
 
                         {% elif e.forma_pago == 'prestamo' %}
-                            <span class="badge" style="background:#fffbeb; color:#d97706;">Préstamo</span>
-                            <div style="font-size:11px; color:#a1a1aa; margin-top:2px;">${{ e.monto_prestamo|floatformat:2 }}</div>
+                            <span class="badge badge-pago-prestamo">Préstamo</span>
+                            <div class="text-muted-xs">${{ e.monto_prestamo|floatformat:2 }}</div>
 
                         {% else %}
-                            <span class="badge" style="background:#f5f5f3; color:#52525b;">Mixto</span>
-                            <div style="font-size:11px; color:#a1a1aa; margin-top:2px;">
+                            <span class="badge badge-pago-mixto">Mixto</span>
+                            <div class="text-muted-xs">
                                 E:${{ e.monto_efectivo|floatformat:2 }} B:${{ e.monto_banco|floatformat:2 }}
                             </div>
                         {% endif %}
                     </td>
 
                     <td class="text-center">
-                        <div style="display:flex; gap:6px; justify-content:center;">
-                            <button type="button" class="btn btn-sm btn-outline-warning"
-                                onclick="abrirEditar({{ e.pk }},'{{ e.nombre|escapejs }}','{{ e.categoria.pk|default:'' }}',{{ e.piezas }},{{ e.costo }},'{{ e.forma_pago }}',{{ e.monto_efectivo }},{{ e.monto_banco }},{{ e.monto_prestamo }})">
+                        <div class="actions-row">
+                            <button type="button" class="btn btn-sm btn-outline-warning btn-editar-egreso"
+                                data-pk="{{ e.pk }}"
+                                data-nombre="{{ e.nombre|escapejs }}"
+                                data-categoria="{{ e.categoria.pk|default:'' }}"
+                                data-piezas="{{ e.piezas|default:0 }}"
+                                data-costo="{{ e.costo|default:0 }}"
+                                data-forma-pago="{{ e.forma_pago }}"
+                                data-monto-efectivo="{{ e.monto_efectivo|default:0 }}"
+                                data-monto-banco="{{ e.monto_banco|default:0 }}"
+                                data-monto-prestamo="{{ e.monto_prestamo|default:0 }}">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <form method="post" action="{% url 'egreso_delete' e.pk %}" style="display:inline;">
+                            <form method="post" action="{% url 'egreso_delete' e.pk %}" class="form-inline">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-outline-danger"
-                                    onclick="return confirm('¿Eliminar este egreso?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger btn-confirmar-eliminar">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </form>
@@ -389,8 +142,8 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="7" class="text-center py-5" style="color:#a1a1aa; font-size:13.5px;">
-                        <i class="bi bi-inbox" style="font-size:1.5rem; display:block; margin-bottom:8px; opacity:.4;"></i>
+                    <td colspan="7" class="text-center py-5 empty-state">
+                        <i class="bi bi-inbox empty-state-icon"></i>
                         Sin egresos registrados
                     </td>
                 </tr>
@@ -411,7 +164,7 @@
                 <span class="accent-dot" style="background:#e31837;"></span>
                 Nuevo egreso
             </h5>
-            <button class="modal-close" onclick="document.getElementById('modalEgreso').style.display='none'">
+            <button class="modal-close" data-cerrar-modal="modalEgreso">
                 <i class="bi bi-x"></i>
             </button>
         </div>
@@ -435,7 +188,7 @@
                     </select>
                 </div>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div class="grid-2col">
                     <div class="form-field">
                         <label>Piezas</label>
                         <input type="number" name="piezas" required min="1" placeholder="0">
@@ -453,44 +206,44 @@
                     <label>Forma de pago</label>
                     <div class="pago-grid">
                         <label class="pago-opt">
-                            <input type="radio" name="forma_pago" value="efectivo" checked onchange="toggleAmbas(this.value)">
+                            <input type="radio" name="forma_pago" value="efectivo" checked data-toggle-ambas>
                             <span class="pago-opt-label">💵 Efectivo</span>
                         </label>
                         <label class="pago-opt">
-                            <input type="radio" name="forma_pago" value="banco" onchange="toggleAmbas(this.value)">
+                            <input type="radio" name="forma_pago" value="banco" data-toggle-ambas>
                             <span class="pago-opt-label">🏦 Banco</span>
                         </label>
                         <label class="pago-opt">
-                            <input type="radio" name="forma_pago" value="ambas" onchange="toggleAmbas(this.value)">
+                            <input type="radio" name="forma_pago" value="ambas" data-toggle-ambas>
                             <span class="pago-opt-label">🔀 Ambas</span>
                         </label>
                         <label class="pago-opt">
-                            <input type="radio" name="forma_pago" value="prestamo" onchange="toggleAmbas(this.value)">
+                            <input type="radio" name="forma_pago" value="prestamo" data-toggle-ambas>
                             <span class="pago-opt-label">🤝 Préstamo</span>
                         </label>
                     </div>
                 </div>
 
-                <div id="camposAmbas" style="display:none;">
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div id="camposAmbas" class="campo-oculto">
+                    <div class="grid-2col">
                         <div class="form-field">
                             <label>Monto efectivo</label>
                             <div class="input-prefix">
-                                <span class="input-prefix-symbol" style="color:#16a34a;">$</span>
+                                <span class="input-prefix-symbol text-verde">$</span>
                                 <input type="number" name="monto_efectivo" min="0" step="0.01" placeholder="0.00">
                             </div>
                         </div>
                         <div class="form-field">
                             <label>Monto banco</label>
                             <div class="input-prefix">
-                                <span class="input-prefix-symbol" style="color:#818cf8;">$</span>
+                                <span class="input-prefix-symbol text-azul">$</span>
                                 <input type="number" name="monto_banco" min="0" step="0.01" placeholder="0.00">
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="campoNotaPrestamo" style="display:none;">
+                <div id="campoNotaPrestamo" class="campo-oculto">
                     <div class="form-field">
                         <label>Nota del préstamo</label>
                         <textarea name="nota_prestamo" rows="3" placeholder="Ej: Compré mercancía con mi dinero"></textarea>
@@ -499,8 +252,7 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary flex-fill"
-                    onclick="document.getElementById('modalEgreso').style.display='none'">Cancelar</button>
+                <button type="button" class="btn btn-secondary flex-fill" data-cerrar-modal="modalEgreso">Cancelar</button>
                 <button type="submit" class="btn btn-primary flex-fill">
                     <i class="bi bi-save me-1"></i> Guardar
                 </button>
@@ -520,7 +272,7 @@
                 <span class="accent-dot" style="background:#d97706;"></span>
                 Editar egreso
             </h5>
-            <button class="modal-close" onclick="document.getElementById('modalEditar').style.display='none'">
+            <button class="modal-close" data-cerrar-modal="modalEditar">
                 <i class="bi bi-x"></i>
             </button>
         </div>
@@ -544,7 +296,7 @@
                     </select>
                 </div>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div class="grid-2col">
                     <div class="form-field">
                         <label>Piezas</label>
                         <input type="number" name="piezas" id="edit_piezas" required min="1">
@@ -562,44 +314,44 @@
                     <label>Forma de pago</label>
                     <div class="pago-grid">
                         <label class="pago-opt">
-                            <input type="radio" name="forma_pago" id="edit_efectivo" value="efectivo" onchange="toggleAmbasEdit(this.value)">
+                            <input type="radio" name="forma_pago" id="edit_efectivo" value="efectivo" data-toggle-ambas-edit>
                             <span class="pago-opt-label">💵 Efectivo</span>
                         </label>
                         <label class="pago-opt">
-                            <input type="radio" name="forma_pago" id="edit_banco" value="banco" onchange="toggleAmbasEdit(this.value)">
+                            <input type="radio" name="forma_pago" id="edit_banco" value="banco" data-toggle-ambas-edit>
                             <span class="pago-opt-label">🏦 Banco</span>
                         </label>
                         <label class="pago-opt">
-                            <input type="radio" name="forma_pago" id="edit_ambas" value="ambas" onchange="toggleAmbasEdit(this.value)">
+                            <input type="radio" name="forma_pago" id="edit_ambas" value="ambas" data-toggle-ambas-edit>
                             <span class="pago-opt-label">🔀 Ambas</span>
                         </label>
                         <label class="pago-opt">
-                            <input type="radio" name="forma_pago" id="edit_prestamo" value="prestamo" onchange="toggleAmbasEdit(this.value)">
+                            <input type="radio" name="forma_pago" id="edit_prestamo" value="prestamo" data-toggle-ambas-edit>
                             <span class="pago-opt-label">🤝 Préstamo</span>
                         </label>
                     </div>
                 </div>
 
-                <div id="camposAmbasEdit" style="display:none;">
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div id="camposAmbasEdit" class="campo-oculto">
+                    <div class="grid-2col">
                         <div class="form-field">
                             <label>Monto efectivo</label>
                             <div class="input-prefix">
-                                <span class="input-prefix-symbol" style="color:#16a34a;">$</span>
+                                <span class="input-prefix-symbol text-verde">$</span>
                                 <input type="number" name="monto_efectivo" id="edit_monto_efectivo" min="0" step="0.01">
                             </div>
                         </div>
                         <div class="form-field">
                             <label>Monto banco</label>
                             <div class="input-prefix">
-                                <span class="input-prefix-symbol" style="color:#818cf8;">$</span>
+                                <span class="input-prefix-symbol text-azul">$</span>
                                 <input type="number" name="monto_banco" id="edit_monto_banco" min="0" step="0.01">
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="campoNotaPrestamoEdit" style="display:none;">
+                <div id="campoNotaPrestamoEdit" class="campo-oculto">
                     <div class="form-field">
                         <label>Nota del préstamo</label>
                         <textarea name="nota_prestamo" rows="3" placeholder="Ajuste de préstamo"></textarea>
@@ -610,9 +362,8 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary flex-fill"
-                    onclick="document.getElementById('modalEditar').style.display='none'">Cancelar</button>
-                <button type="submit" class="btn flex-fill" style="background:#d97706; border-color:#d97706; color:#fff;">
+                <button type="button" class="btn btn-secondary flex-fill" data-cerrar-modal="modalEditar">Cancelar</button>
+                <button type="submit" class="btn btn-naranja flex-fill">
                     <i class="bi bi-save me-1"></i> Guardar cambios
                 </button>
             </div>
@@ -625,13 +376,13 @@
      MODAL: EFECTIVO
 ════════════════════════════════════════════ -->
 <div id="modalEfectivo" class="modal-overlay">
-    <div class="modal-box" style="max-width:400px;">
+    <div class="modal-box modal-box-sm">
         <div class="modal-header">
             <h5>
                 <span class="accent-dot" style="background:#16a34a;"></span>
                 Actualizar efectivo
             </h5>
-            <button class="modal-close" onclick="document.getElementById('modalEfectivo').style.display='none'">
+            <button class="modal-close" data-cerrar-modal="modalEfectivo">
                 <i class="bi bi-x"></i>
             </button>
         </div>
@@ -641,15 +392,14 @@
                 <div class="form-field">
                     <label>Efectivo disponible ($)</label>
                     <div class="input-prefix">
-                        <span class="input-prefix-symbol" style="color:#16a34a;">$</span>
+                        <span class="input-prefix-symbol text-verde">$</span>
                         <input type="number" name="efectivo" step="0.01" min="0" value="{{ saldo.efectivo }}">
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary flex-fill"
-                    onclick="document.getElementById('modalEfectivo').style.display='none'">Cancelar</button>
-                <button type="submit" class="btn flex-fill" style="background:#16a34a; border-color:#16a34a; color:#fff;">
+                <button type="button" class="btn btn-secondary flex-fill" data-cerrar-modal="modalEfectivo">Cancelar</button>
+                <button type="submit" class="btn btn-verde flex-fill">
                     <i class="bi bi-save me-1"></i> Guardar
                 </button>
             </div>
@@ -662,13 +412,13 @@
      MODAL: BANCO
 ════════════════════════════════════════════ -->
 <div id="modalBanco" class="modal-overlay">
-    <div class="modal-box" style="max-width:400px;">
+    <div class="modal-box modal-box-sm">
         <div class="modal-header">
             <h5>
                 <span class="accent-dot" style="background:#818cf8;"></span>
                 Actualizar banco
             </h5>
-            <button class="modal-close" onclick="document.getElementById('modalBanco').style.display='none'">
+            <button class="modal-close" data-cerrar-modal="modalBanco">
                 <i class="bi bi-x"></i>
             </button>
         </div>
@@ -678,15 +428,14 @@
                 <div class="form-field">
                     <label>Banco disponible ($)</label>
                     <div class="input-prefix">
-                        <span class="input-prefix-symbol" style="color:#818cf8;">$</span>
+                        <span class="input-prefix-symbol text-azul">$</span>
                         <input type="number" name="banco" step="0.01" min="0" value="{{ saldo.banco }}">
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary flex-fill"
-                    onclick="document.getElementById('modalBanco').style.display='none'">Cancelar</button>
-                <button type="submit" class="btn flex-fill" style="background:#16a34a; border-color:#16a34a; color:#fff;">
+                <button type="button" class="btn btn-secondary flex-fill" data-cerrar-modal="modalBanco">Cancelar</button>
+                <button type="submit" class="btn btn-verde flex-fill">
                     <i class="bi bi-save me-1"></i> Guardar
                 </button>
             </div>
@@ -705,7 +454,7 @@
                 <span class="accent-dot" style="background:#d97706;"></span>
                 Actualizar préstamo
             </h5>
-            <button class="modal-close" onclick="document.getElementById('modalSaldo').style.display='none'">
+            <button class="modal-close" data-cerrar-modal="modalSaldo">
                 <i class="bi bi-x"></i>
             </button>
         </div>
@@ -716,7 +465,7 @@
                 <div class="form-field">
                     <label>Préstamos que me debe la tienda ($)</label>
                     <div class="input-prefix">
-                        <span class="input-prefix-symbol" style="color:#d97706;">$</span>
+                        <span class="input-prefix-symbol text-naranja">$</span>
                         <input type="number" name="prestamo" step="0.01" min="0" value="{{ saldo.prestamo }}">
                     </div>
                 </div>
@@ -725,18 +474,18 @@
                     <strong>Pagar préstamo con:</strong>
                 </div>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div class="grid-2col">
                     <div class="form-field">
                         <label>Efectivo ($)</label>
                         <div class="input-prefix">
-                            <span class="input-prefix-symbol" style="color:#16a34a;">$</span>
+                            <span class="input-prefix-symbol text-verde">$</span>
                             <input type="number" name="pagar_prestamo_efectivo" step="0.01" min="0" placeholder="0.00">
                         </div>
                     </div>
                     <div class="form-field">
                         <label>Banco ($)</label>
                         <div class="input-prefix">
-                            <span class="input-prefix-symbol" style="color:#818cf8;">$</span>
+                            <span class="input-prefix-symbol text-azul">$</span>
                             <input type="number" name="pagar_prestamo_banco" step="0.01" min="0" placeholder="0.00">
                         </div>
                     </div>
@@ -749,9 +498,8 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary flex-fill"
-                    onclick="document.getElementById('modalSaldo').style.display='none'">Cancelar</button>
-                <button type="submit" class="btn flex-fill" style="background:#16a34a; border-color:#16a34a; color:#fff;">
+                <button type="button" class="btn btn-secondary flex-fill" data-cerrar-modal="modalSaldo">Cancelar</button>
+                <button type="submit" class="btn btn-verde flex-fill">
                     <i class="bi bi-save me-1"></i> Guardar
                 </button>
             </div>
@@ -759,40 +507,107 @@
     </div>
 </div>
 
+{% endblock %}
 
+{% block extra_js %}
 <script>
-function toggleAmbas(val) {
-    document.getElementById('camposAmbas').style.display = val === 'ambas' ? 'block' : 'none';
-    document.getElementById('campoNotaPrestamo').style.display = val === 'prestamo' ? 'block' : 'none';
-}
+(function () {
+  'use strict';
 
-function toggleAmbasEdit(val) {
-    document.getElementById('camposAmbasEdit').style.display = val === 'ambas' ? 'block' : 'none';
-    document.getElementById('campoNotaPrestamoEdit').style.display = val === 'prestamo' ? 'block' : 'none';
-}
+  function abrirModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.style.display = 'flex';
+  }
 
-function abrirEditar(pk, nombre, categoria, piezas, costo, forma_pago, monto_efectivo, monto_banco, monto_prestamo) {
-    document.getElementById('formEditar').action = '/egresos/' + pk + '/editar/';
-    document.getElementById('edit_nombre').value = nombre;
-    document.getElementById('edit_categoria').value = categoria;
-    document.getElementById('edit_piezas').value = piezas;
-    document.getElementById('edit_costo').value = costo;
-    document.getElementById('edit_monto_efectivo').value = monto_efectivo;
-    document.getElementById('edit_monto_banco').value = monto_banco;
-    document.getElementById('edit_monto_prestamo').value = monto_prestamo;
+  function cerrarModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.style.display = 'none';
+  }
+
+  function toggleAmbas(val) {
+    document.getElementById('camposAmbas').classList.toggle('campo-oculto', val !== 'ambas');
+    document.getElementById('campoNotaPrestamo').classList.toggle('campo-oculto', val !== 'prestamo');
+  }
+
+  function toggleAmbasEdit(val) {
+    document.getElementById('camposAmbasEdit').classList.toggle('campo-oculto', val !== 'ambas');
+    document.getElementById('campoNotaPrestamoEdit').classList.toggle('campo-oculto', val !== 'prestamo');
+  }
+
+  function abrirEditar(datos) {
+    document.getElementById('formEditar').action = '/egresos/' + datos.pk + '/editar/';
+    document.getElementById('edit_nombre').value = datos.nombre;
+    document.getElementById('edit_categoria').value = datos.categoria;
+    document.getElementById('edit_piezas').value = datos.piezas;
+    document.getElementById('edit_costo').value = datos.costo;
+    document.getElementById('edit_monto_efectivo').value = datos.montoEfectivo;
+    document.getElementById('edit_monto_banco').value = datos.montoBanco;
+    document.getElementById('edit_monto_prestamo').value = datos.montoPrestamo;
 
     const mapa = { efectivo: 'edit_efectivo', banco: 'edit_banco', prestamo: 'edit_prestamo', ambas: 'edit_ambas' };
-    if (mapa[forma_pago]) document.getElementById(mapa[forma_pago]).checked = true;
+    if (mapa[datos.formaPago]) document.getElementById(mapa[datos.formaPago]).checked = true;
 
-    toggleAmbasEdit(forma_pago);
-    document.getElementById('modalEditar').style.display = 'flex';
-}
+    toggleAmbasEdit(datos.formaPago);
+    abrirModal('modalEditar');
+  }
 
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', function(e) {
-        if (e.target === this) this.style.display = 'none';
+  document.addEventListener('DOMContentLoaded', function () {
+    // Botón de la topbar para abrir el modal de "Nuevo egreso"
+    document.getElementById('btnNuevoEgreso')?.addEventListener('click', () => abrirModal('modalEgreso'));
+
+    // Tarjetas de resumen clicables
+    document.getElementById('abrirModalEfectivo')?.addEventListener('click', () => abrirModal('modalEfectivo'));
+    document.getElementById('abrirModalBanco')?.addEventListener('click', () => abrirModal('modalBanco'));
+    document.getElementById('abrirModalSaldo')?.addEventListener('click', () => abrirModal('modalSaldo'));
+
+    // Botones de cerrar (la "X" y "Cancelar" de cada modal)
+    document.querySelectorAll('[data-cerrar-modal]').forEach(btn => {
+      btn.addEventListener('click', () => cerrarModal(btn.dataset.cerrarModal));
     });
-});
-</script>
 
+    // Cerrar modal al hacer clic fuera de la caja blanca
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', function (e) {
+        if (e.target === this) this.style.display = 'none';
+      });
+    });
+
+    // Radios de forma de pago (modal nuevo egreso)
+    document.querySelectorAll('[data-toggle-ambas]').forEach(radio => {
+      radio.addEventListener('change', function () { toggleAmbas(this.value); });
+    });
+
+    // Radios de forma de pago (modal editar egreso)
+    document.querySelectorAll('[data-toggle-ambas-edit]').forEach(radio => {
+      radio.addEventListener('change', function () { toggleAmbasEdit(this.value); });
+    });
+
+    // Botones de editar en la tabla — leen los datos desde data-* (antes venían
+    // interpolados directo en el onclick, lo que rompía la función si algún
+    // monto era None/null en la base de datos).
+    document.querySelectorAll('.btn-editar-egreso').forEach(btn => {
+      btn.addEventListener('click', function () {
+        abrirEditar({
+          pk: this.dataset.pk,
+          nombre: this.dataset.nombre,
+          categoria: this.dataset.categoria,
+          piezas: this.dataset.piezas,
+          costo: this.dataset.costo,
+          formaPago: this.dataset.formaPago,
+          montoEfectivo: this.dataset.montoEfectivo,
+          montoBanco: this.dataset.montoBanco,
+          montoPrestamo: this.dataset.montoPrestamo,
+        });
+      });
+    });
+
+    // Confirmación antes de eliminar un egreso
+    document.querySelectorAll('.btn-confirmar-eliminar').forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        if (!confirm('¿Eliminar este egreso?')) e.preventDefault();
+      });
+    });
+  });
+})();
+</script>
 {% endblock %}

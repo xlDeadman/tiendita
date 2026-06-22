@@ -9,185 +9,10 @@
 
 {% block content %}
 
-<style>
-    .kpi-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-        margin-bottom: 10px;
-    }
-
-    .kpi-grid-2 {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-bottom: 14px;
-    }
-
-    .kpi-card {
-        background: #fff;
-        border: 1px solid #e8e8e4;
-        border-radius: 10px;
-        padding: 12px 14px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        transition: border-color 0.15s;
-    }
-
-    .kpi-card:hover { border-color: #d0d0cc; }
-
-    .kpi-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 9px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-        flex-shrink: 0;
-    }
-
-    .kpi-valor {
-        font-size: 1.35rem;
-        font-weight: 700;
-        color: #18181b;
-        line-height: 1;
-    }
-
-    .kpi-label {
-        font-size: 11.5px;
-        color: #a1a1aa;
-        margin-top: 3px;
-    }
-
-    .bottom-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 10px;
-    }
-
-    .panel-card {
-        background: #fff;
-        border: 1px solid #e8e8e4;
-        border-radius: 10px;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .panel-card-head {
-        padding: 11px 14px;
-        border-bottom: 1px solid #e8e8e4;
-        font-size: 12.5px;
-        font-weight: 600;
-        color: #18181b;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-shrink: 0;
-    }
-
-    .panel-card-head i { color: #a1a1aa; margin-right: 5px; }
-
-    .panel-card-body {
-        padding: 16px;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .semaforo-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 11px 0;
-        border-bottom: 1px solid #f5f5f3;
-        text-decoration: none;
-    }
-
-    .semaforo-item:last-child { border-bottom: none; }
-
-    .semaforo-left {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .semaforo-dot {
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
-        flex-shrink: 0;
-    }
-
-    .semaforo-nombre {
-        font-size: 13px;
-        font-weight: 500;
-        color: #18181b;
-    }
-
-    .semaforo-sub {
-        font-size: 11px;
-        color: #a1a1aa;
-        margin-top: 1px;
-    }
-
-    .semaforo-right {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .semaforo-num {
-        font-size: 18px;
-        font-weight: 700;
-        line-height: 1;
-        min-width: 28px;
-        text-align: right;
-    }
-
-    .progress-bar-wrap {
-        width: 55px;
-        height: 5px;
-        background: #f0f0ec;
-        border-radius: 99px;
-        overflow: hidden;
-    }
-
-    .progress-bar-fill {
-        height: 100%;
-        border-radius: 99px;
-    }
-
-    .critico-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 8px 12px;
-        border-bottom: 1px solid #f5f5f3;
-    }
-
-    .critico-item:last-child { border-bottom: none; }
-
-    .critico-nombre {
-        font-size: 12.5px;
-        color: #18181b;
-        font-weight: 500;
-    }
-
-    .critico-right {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-</style>
-
 <!-- Fila 1: KPIs principales -->
 <div class="kpi-grid">
     <div class="kpi-card">
-        <div class="kpi-icon" style="background:#f0fdf4; color:#16a34a;">
+        <div class="kpi-icon kpi-icon-verde">
             <i class="bi bi-currency-dollar"></i>
         </div>
         <div>
@@ -197,17 +22,17 @@
     </div>
 
     <div class="kpi-card">
-        <div class="kpi-icon" style="background:#fef2f2; color:#e31837;">
+        <div class="kpi-icon kpi-icon-rojo">
             <i class="bi bi-people"></i>
         </div>
         <div>
-            <div class="kpi-valor" style="color:#e31837;">${{ por_cobrar|floatformat:2 }}</div>
+            <div class="kpi-valor text-rojo">${{ por_cobrar|floatformat:2 }}</div>
             <div class="kpi-label">Por cobrar (crédito)</div>
         </div>
     </div>
 
     <div class="kpi-card">
-        <div class="kpi-icon" style="background:#eef2ff; color:#818cf8;">
+        <div class="kpi-icon kpi-icon-azul">
             <i class="bi bi-calendar-month"></i>
         </div>
         <div>
@@ -219,8 +44,8 @@
 
 <!-- Fila 2: Productos / Agotados centrados -->
 <div class="kpi-grid-2">
-    <div class="kpi-card" style="width:calc(33.33% - 5px);">
-        <div class="kpi-icon" style="background:#fff7ed; color:#f97316;">
+    <div class="kpi-card kpi-card-third">
+        <div class="kpi-icon kpi-icon-naranja">
             <i class="bi bi-box-seam"></i>
         </div>
         <div>
@@ -229,12 +54,12 @@
         </div>
     </div>
 
-    <div class="kpi-card" style="width:calc(33.33% - 5px);">
-        <div class="kpi-icon" style="background:#fef2f2; color:#e31837;">
+    <div class="kpi-card kpi-card-third">
+        <div class="kpi-icon kpi-icon-rojo">
             <i class="bi bi-exclamation-triangle"></i>
         </div>
         <div>
-            <div class="kpi-valor" style="color:#e31837;">{{ agotados }}</div>
+            <div class="kpi-valor text-rojo">{{ agotados }}</div>
             <div class="kpi-label">Agotados</div>
         </div>
     </div>
@@ -248,12 +73,12 @@
         <div class="panel-card-head">
             <span><i class="bi bi-bar-chart-steps"></i> Semáforo de stock</span>
         </div>
-        <div class="panel-card-body" style="padding: 6px 16px;">
+        <div class="panel-card-body panel-card-body-compact">
             {% with total=agotados|add:stock_bajo|add:disponibles %}
 
             <a href="{% url 'producto_list' %}?semaforo=rojo" class="semaforo-item">
                 <div class="semaforo-left">
-                    <div class="semaforo-dot" style="background:#e31837;"></div>
+                    <div class="semaforo-dot bg-rojo"></div>
                     <div>
                         <div class="semaforo-nombre">Agotados</div>
                         <div class="semaforo-sub">Sin stock</div>
@@ -261,15 +86,15 @@
                 </div>
                 <div class="semaforo-right">
                     <div class="progress-bar-wrap">
-                        <div class="progress-bar-fill" style="background:#e31837; width:{% if total > 0 %}{% widthratio agotados total 100 %}%{% else %}0%{% endif %};"></div>
+                        <div class="progress-bar-fill bg-rojo" style="width:{% if total > 0 %}{% widthratio agotados total 100 %}%{% else %}0%{% endif %};"></div>
                     </div>
-                    <div class="semaforo-num" style="color:#e31837;">{{ agotados }}</div>
+                    <div class="semaforo-num text-rojo">{{ agotados }}</div>
                 </div>
             </a>
 
             <a href="{% url 'producto_list' %}?semaforo=naranja" class="semaforo-item">
                 <div class="semaforo-left">
-                    <div class="semaforo-dot" style="background:#d97706;"></div>
+                    <div class="semaforo-dot bg-naranja"></div>
                     <div>
                         <div class="semaforo-nombre">Stock bajo</div>
                         <div class="semaforo-sub">Pocas piezas</div>
@@ -277,15 +102,15 @@
                 </div>
                 <div class="semaforo-right">
                     <div class="progress-bar-wrap">
-                        <div class="progress-bar-fill" style="background:#d97706; width:{% if total > 0 %}{% widthratio stock_bajo total 100 %}%{% else %}0%{% endif %};"></div>
+                        <div class="progress-bar-fill bg-naranja" style="width:{% if total > 0 %}{% widthratio stock_bajo total 100 %}%{% else %}0%{% endif %};"></div>
                     </div>
-                    <div class="semaforo-num" style="color:#d97706;">{{ stock_bajo }}</div>
+                    <div class="semaforo-num text-naranja">{{ stock_bajo }}</div>
                 </div>
             </a>
 
             <a href="{% url 'producto_list' %}?semaforo=verde" class="semaforo-item">
                 <div class="semaforo-left">
-                    <div class="semaforo-dot" style="background:#16a34a;"></div>
+                    <div class="semaforo-dot bg-verde"></div>
                     <div>
                         <div class="semaforo-nombre">Disponibles</div>
                         <div class="semaforo-sub">Buen stock</div>
@@ -293,9 +118,9 @@
                 </div>
                 <div class="semaforo-right">
                     <div class="progress-bar-wrap">
-                        <div class="progress-bar-fill" style="background:#16a34a; width:{% if total > 0 %}{% widthratio disponibles total 100 %}%{% else %}0%{% endif %};"></div>
+                        <div class="progress-bar-fill bg-verde" style="width:{% if total > 0 %}{% widthratio disponibles total 100 %}%{% else %}0%{% endif %};"></div>
                     </div>
-                    <div class="semaforo-num" style="color:#16a34a;">{{ disponibles }}</div>
+                    <div class="semaforo-num text-verde">{{ disponibles }}</div>
                 </div>
             </a>
 
@@ -307,29 +132,26 @@
     <div class="panel-card">
         <div class="panel-card-head">
             <span><i class="bi bi-exclamation-circle"></i> Productos críticos</span>
-            <a href="{% url 'producto_list' %}?semaforo=rojo"
-               style="font-size:11px; color:#e31837; text-decoration:none; font-weight:500;">Ver todos →</a>
+            <a href="{% url 'producto_list' %}?semaforo=rojo" class="link-small-rojo">Ver todos →</a>
         </div>
-        <div style="flex:1; overflow-y:auto; max-height:260px;">
+        <div class="scroll-criticos">
             {% if productos_criticos %}
                 {% for p in productos_criticos %}
                 <div class="critico-item">
                     <span class="critico-nombre">{{ p.nombre }}</span>
                     <div class="critico-right">
-                        <span class="badge" style="background:#fef2f2; color:#e31837; font-size:11px;">
+                        <span class="badge badge-critico">
                             {{ p.stock_actual }} pzs
                         </span>
-                        <a href="{% url 'producto_ajuste_stock' p.pk %}"
-                           class="btn btn-sm btn-outline-secondary"
-                           style="padding:2px 7px; font-size:11px;">
+                        <a href="{% url 'producto_ajuste_stock' p.pk %}" class="btn btn-sm btn-outline-secondary btn-xs">
                             <i class="bi bi-plus"></i>
                         </a>
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
-                <div class="text-center py-4" style="color:#a1a1aa; font-size:13px;">
-                    <i class="bi bi-check-circle" style="font-size:1.6rem; display:block; margin-bottom:6px; color:#16a34a;"></i>
+                <div class="text-center py-4 empty-state">
+                    <i class="bi bi-check-circle empty-state-icon-sm text-verde"></i>
                     ¡Todo el stock está bien!
                 </div>
             {% endif %}
@@ -343,10 +165,10 @@
         </div>
         <div class="panel-card-body">
             {% if top_productos %}
-            <canvas id="chartVendidos" style="max-height:240px;"></canvas>
+            <canvas id="chartVendidos" class="chart-canvas"></canvas>
             {% else %}
-            <div class="text-center" style="color:#a1a1aa; font-size:13px;">
-                <i class="bi bi-graph-up" style="font-size:1.6rem; display:block; margin-bottom:6px; opacity:.4;"></i>
+            <div class="text-center empty-state">
+                <i class="bi bi-graph-up empty-state-icon-sm"></i>
                 Aún no hay ventas registradas
             </div>
             {% endif %}
@@ -360,37 +182,44 @@
 {% block extra_js %}
 {% if top_productos %}
 <script>
-    const labels = [{% for p in top_productos %}"{{ p.producto__nombre }}"{% if not forloop.last %},{% endif %}{% endfor %}];
-    const data   = [{% for p in top_productos %}{{ p.total_vendido }}{% if not forloop.last %},{% endif %}{% endfor %}];
+(function () {
+  'use strict';
 
-    new Chart(document.getElementById('chartVendidos'), {
-        type: 'bar',
-        data: {
-            labels,
-            datasets: [{
-                data,
-                backgroundColor: ['#e31837','#f97316','#16a34a','#818cf8','#d97706'],
-                borderRadius: 6,
-                borderWidth: 0,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                x: {
-                    ticks: { color: '#a1a1aa', font: { size: 10 } },
-                    grid: { display: false },
-                },
-                y: {
-                    ticks: { color: '#a1a1aa', font: { size: 10 } },
-                    grid: { color: 'rgba(0,0,0,.04)' },
-                    beginAtZero: true,
-                }
-            }
+  const labels = [{% for p in top_productos %}"{{ p.producto__nombre|escapejs }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+  const data   = [{% for p in top_productos %}{{ p.total_vendido }}{% if not forloop.last %},{% endif %}{% endfor %}];
+
+  const canvas = document.getElementById('chartVendidos');
+  if (canvas) {
+    new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          data,
+          backgroundColor: ['#e31837', '#f97316', '#16a34a', '#818cf8', '#d97706'],
+          borderRadius: 6,
+          borderWidth: 0,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: {
+            ticks: { color: '#a1a1aa', font: { size: 10 } },
+            grid: { display: false },
+          },
+          y: {
+            ticks: { color: '#a1a1aa', font: { size: 10 } },
+            grid: { color: 'rgba(0,0,0,.04)' },
+            beginAtZero: true,
+          }
         }
+      }
     });
+  }
+})();
 </script>
 {% endif %}
 {% endblock %}

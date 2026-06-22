@@ -12,8 +12,8 @@
     <div class="col-12 col-md-5">
         <div class="card stat-card h-100">
             <div class="card-body text-center py-5">
-                <div style="font-size:3rem;">💵</div>
-                <div style="font-size:2.5rem; font-weight:800; color:#10b981;">${{ saldo.efectivo|floatformat:2 }}</div>
+                <div class="icon-xl">💵</div>
+                <div class="saldo-monto efectivo">${{ saldo.efectivo|floatformat:2 }}</div>
                 <div class="text-muted mt-1">Dinero en Efectivo</div>
             </div>
         </div>
@@ -21,8 +21,8 @@
     <div class="col-12 col-md-5">
         <div class="card stat-card h-100">
             <div class="card-body text-center py-5">
-                <div style="font-size:3rem;">🏦</div>
-                <div style="font-size:2.5rem; font-weight:800; color:#818cf8;">${{ saldo.banco|floatformat:2 }}</div>
+                <div class="icon-xl">🏦</div>
+                <div class="saldo-monto banco">${{ saldo.banco|floatformat:2 }}</div>
                 <div class="text-muted mt-1">Dinero en Banco</div>
             </div>
         </div>
@@ -39,22 +39,22 @@
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
-                    <div style="margin-bottom:1rem;">
+                    <div class="mb-3">
                         <label class="form-label">💵 Efectivo ($)</label>
-                        <div style="display:flex;">
-                            <span style="background:#f8f8f8; border:1.5px solid #ddd; border-right:none; padding:.6rem .85rem; border-radius:8px 0 0 8px; color:#10b981; font-weight:700;">$</span>
+                        <div class="input-money">
+                            <span class="input-money-prefix efectivo">$</span>
                             <input type="number" name="efectivo" step="0.01" min="0"
                                    value="{{ saldo.efectivo }}"
-                                   class="form-control" style="border-left:none; border-radius:0 8px 8px 0;">
+                                   class="form-control input-money-field">
                         </div>
                     </div>
-                    <div style="margin-bottom:1.5rem;">
+                    <div class="mb-4">
                         <label class="form-label">🏦 Banco ($)</label>
-                        <div style="display:flex;">
-                            <span style="background:#f8f8f8; border:1.5px solid #ddd; border-right:none; padding:.6rem .85rem; border-radius:8px 0 0 8px; color:#818cf8; font-weight:700;">$</span>
+                        <div class="input-money">
+                            <span class="input-money-prefix banco">$</span>
                             <input type="number" name="banco" step="0.01" min="0"
                                    value="{{ saldo.banco }}"
-                                   class="form-control" style="border-left:none; border-radius:0 8px 8px 0;">
+                                   class="form-control input-money-field">
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">

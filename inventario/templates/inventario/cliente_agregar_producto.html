@@ -11,7 +11,7 @@
                     <i class="bi bi-cart-plus"></i>
                     Agregar productos a {{ cliente.nombre }}
                 </h5>
-                <button type="button" class="btn btn-sm btn-success" onclick="agregarFila()">
+                <button type="button" class="btn btn-sm btn-success" id="btnAgregarFila">
                     <i class="bi bi-plus-circle"></i> Agregar otro
                 </button>
             </div>
@@ -21,17 +21,17 @@
 
                     <div id="productos-container">
                         <!-- Fila 1 -->
-                        <div class="producto-fila mb-3 p-3 rounded" style="background:#f8f9fa; border:1px solid #dee2e6;" data-index="0">
+                        <div class="producto-fila fila-producto-box mb-3" data-index="0">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <strong style="font-size:.85rem;">Producto #1</strong>
-                                <button type="button" class="btn btn-sm btn-outline-danger btn-quitar" onclick="quitarFila(this)" style="display:none;">
+                                <strong class="label-fila-num">Producto #1</strong>
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-quitar-fila btn-quitar-oculto">
                                     <i class="bi bi-x-lg"></i>
                                 </button>
                             </div>
                             <div class="row g-2">
                                 <div class="col-12 col-md-5">
-                                    <label class="form-label fw-bold" style="font-size:.82rem;">Producto</label>
-                                    <select name="producto_0" class="form-select producto-select" required onchange="cargarPrecio(this, 0)">
+                                    <label class="form-label fw-bold label-fila-form">Producto</label>
+                                    <select name="producto_0" class="form-select producto-select" data-idx="0" required>
                                         <option value="">— Selecciona —</option>
                                         {% for prod in productos %}
                                         <option value="{{ prod.pk }}" data-precio="{{ prod.precio }}">{{ prod.nombre }}</option>
@@ -39,16 +39,16 @@
                                     </select>
                                 </div>
                                 <div class="col-6 col-md-2">
-                                    <label class="form-label fw-bold" style="font-size:.82rem;">Cantidad</label>
-                                    <input type="number" name="cantidad_0" class="form-control cantidad-input" min="1" value="1" required oninput="calcularSubtotal(0)">
+                                    <label class="form-label fw-bold label-fila-form">Cantidad</label>
+                                    <input type="number" name="cantidad_0" class="form-control cantidad-input" data-idx="0" min="1" value="1" required>
                                 </div>
                                 <div class="col-6 col-md-3">
-                                    <label class="form-label fw-bold" style="font-size:.82rem;">Precio unit.</label>
-                                    <input type="number" name="precio_0" class="form-control precio-input" min="0" step="0.50" required oninput="calcularSubtotal(0)">
+                                    <label class="form-label fw-bold label-fila-form">Precio unit.</label>
+                                    <input type="number" name="precio_0" class="form-control precio-input" data-idx="0" min="0" step="0.50" required>
                                 </div>
                                 <div class="col-12 col-md-2">
-                                    <label class="form-label fw-bold" style="font-size:.82rem;">Subtotal</label>
-                                    <div class="subtotal-display" id="subtotal_0" style="color:#10b981; font-weight:700; font-size:1.1rem; padding-top:.4rem;">$0.00</div>
+                                    <label class="form-label fw-bold label-fila-form">Subtotal</label>
+                                    <div class="subtotal-display" id="subtotal_0">$0.00</div>
                                 </div>
                             </div>
                         </div>
@@ -57,10 +57,10 @@
                     <input type="hidden" name="total_filas" id="total_filas" value="1">
 
                     <!-- Total general -->
-                    <div class="p-3 rounded mb-3" style="background:rgba(227,24,55,.08); border:1px solid rgba(227,24,55,.2);">
+                    <div class="total-general-box mb-3">
                         <div class="d-flex justify-content-between align-items-center">
-                            <span style="font-weight:700; font-size:1rem;">Total general</span>
-                            <span id="total-general" style="color:#e31837; font-weight:800; font-size:1.3rem;">$0.00</span>
+                            <span class="total-general-label">Total general</span>
+                            <span id="total-general" class="total-general-monto">$0.00</span>
                         </div>
                     </div>
 
@@ -81,96 +81,127 @@
 
 {% block extra_js %}
 <script>
-let filaCount = 1;
+(function () {
+  'use strict';
 
-const productosData = [
+  let filaCount = 1;
+
+  const productosData = [
     {% for prod in productos %}
-    { id: {{ prod.pk }}, nombre: "{{ prod.nombre }}", precio: {{ prod.precio }} },
+    { id: {{ prod.pk }}, nombre: {{ prod.nombre|escapejs }}, precio: {{ prod.precio }} },
     {% endfor %}
-];
+  ];
 
-function agregarFila() {
-    const idx = filaCount;
-    const container = document.getElementById('productos-container');
-
-    let optionsHtml = '<option value="">— Selecciona —</option>';
+  function construirOpciones() {
+    let html = '<option value="">— Selecciona —</option>';
     productosData.forEach(p => {
-        optionsHtml += `<option value="${p.id}" data-precio="${p.precio}">${p.nombre}</option>`;
+      html += `<option value="${p.id}" data-precio="${p.precio}">${p.nombre}</option>`;
     });
+    return html;
+  }
 
-    const html = `
-    <div class="producto-fila mb-3 p-3 rounded" style="background:#f8f9fa; border:1px solid #dee2e6;" data-index="${idx}">
+  function construirFilaHtml(idx) {
+    return `
+    <div class="producto-fila fila-producto-box mb-3" data-index="${idx}">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <strong style="font-size:.85rem;">Producto #${idx + 1}</strong>
-            <button type="button" class="btn btn-sm btn-outline-danger" onclick="quitarFila(this)">
+            <strong class="label-fila-num">Producto #${idx + 1}</strong>
+            <button type="button" class="btn btn-sm btn-outline-danger btn-quitar-fila">
                 <i class="bi bi-x-lg"></i>
             </button>
         </div>
         <div class="row g-2">
             <div class="col-12 col-md-5">
-                <label class="form-label fw-bold" style="font-size:.82rem;">Producto</label>
-                <select name="producto_${idx}" class="form-select producto-select" required onchange="cargarPrecio(this, ${idx})">
-                    ${optionsHtml}
+                <label class="form-label fw-bold label-fila-form">Producto</label>
+                <select name="producto_${idx}" class="form-select producto-select" data-idx="${idx}" required>
+                    ${construirOpciones()}
                 </select>
             </div>
             <div class="col-6 col-md-2">
-                <label class="form-label fw-bold" style="font-size:.82rem;">Cantidad</label>
-                <input type="number" name="cantidad_${idx}" class="form-control cantidad-input" min="1" value="1" required oninput="calcularSubtotal(${idx})">
+                <label class="form-label fw-bold label-fila-form">Cantidad</label>
+                <input type="number" name="cantidad_${idx}" class="form-control cantidad-input" data-idx="${idx}" min="1" value="1" required>
             </div>
             <div class="col-6 col-md-3">
-                <label class="form-label fw-bold" style="font-size:.82rem;">Precio unit.</label>
-                <input type="number" name="precio_${idx}" class="form-control precio-input" min="0" step="0.50" required oninput="calcularSubtotal(${idx})">
+                <label class="form-label fw-bold label-fila-form">Precio unit.</label>
+                <input type="number" name="precio_${idx}" class="form-control precio-input" data-idx="${idx}" min="0" step="0.50" required>
             </div>
             <div class="col-12 col-md-2">
-                <label class="form-label fw-bold" style="font-size:.82rem;">Subtotal</label>
-                <div class="subtotal-display" id="subtotal_${idx}" style="color:#10b981; font-weight:700; font-size:1.1rem; padding-top:.4rem;">$0.00</div>
+                <label class="form-label fw-bold label-fila-form">Subtotal</label>
+                <div class="subtotal-display" id="subtotal_${idx}">$0.00</div>
             </div>
         </div>
     </div>`;
+  }
 
-    container.insertAdjacentHTML('beforeend', html);
+  function agregarFila() {
+    const idx = filaCount;
+    const container = document.getElementById('productos-container');
+    container.insertAdjacentHTML('beforeend', construirFilaHtml(idx));
+
     filaCount++;
     document.getElementById('total_filas').value = filaCount;
     actualizarBotonesQuitar();
-}
+    attachEventosFila(container.lastElementChild);
+  }
 
-function quitarFila(btn) {
+  function quitarFila(btn) {
     btn.closest('.producto-fila').remove();
     actualizarTotalGeneral();
     actualizarBotonesQuitar();
-}
+  }
 
-function actualizarBotonesQuitar() {
+  function actualizarBotonesQuitar() {
     const filas = document.querySelectorAll('.producto-fila');
     filas.forEach(f => {
-        const btn = f.querySelector('.btn-quitar, .btn-outline-danger');
-        if (btn) btn.style.display = filas.length > 1 ? '' : 'none';
+      const btn = f.querySelector('.btn-quitar-fila');
+      if (btn) btn.classList.toggle('btn-quitar-oculto', filas.length <= 1);
     });
-}
+  }
 
-function cargarPrecio(select, idx) {
+  function cargarPrecio(select) {
+    const idx = select.dataset.idx;
     const option = select.options[select.selectedIndex];
     const precio = option.dataset.precio || '';
     const precioInput = document.querySelector(`input[name="precio_${idx}"]`);
     if (precioInput) precioInput.value = precio;
     calcularSubtotal(idx);
-}
+  }
 
-function calcularSubtotal(idx) {
+  function calcularSubtotal(idx) {
     const cant = parseFloat(document.querySelector(`input[name="cantidad_${idx}"]`)?.value) || 0;
     const precio = parseFloat(document.querySelector(`input[name="precio_${idx}"]`)?.value) || 0;
     const sub = cant * precio;
     const el = document.getElementById(`subtotal_${idx}`);
     if (el) el.textContent = '$' + sub.toFixed(2);
     actualizarTotalGeneral();
-}
+  }
 
-function actualizarTotalGeneral() {
+  function actualizarTotalGeneral() {
     let total = 0;
     document.querySelectorAll('.subtotal-display').forEach(el => {
-        total += parseFloat(el.textContent.replace('$', '')) || 0;
+      total += parseFloat(el.textContent.replace('$', '')) || 0;
     });
     document.getElementById('total-general').textContent = '$' + total.toFixed(2);
-}
+  }
+
+  function attachEventosFila(fila) {
+    fila.querySelector('.producto-select')?.addEventListener('change', function () {
+      cargarPrecio(this);
+    });
+    fila.querySelector('.cantidad-input')?.addEventListener('input', function () {
+      calcularSubtotal(this.dataset.idx);
+    });
+    fila.querySelector('.precio-input')?.addEventListener('input', function () {
+      calcularSubtotal(this.dataset.idx);
+    });
+    fila.querySelector('.btn-quitar-fila')?.addEventListener('click', function () {
+      quitarFila(this);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('btnAgregarFila')?.addEventListener('click', agregarFila);
+    document.querySelectorAll('.producto-fila').forEach(attachEventosFila);
+  });
+})();
 </script>
 {% endblock %}

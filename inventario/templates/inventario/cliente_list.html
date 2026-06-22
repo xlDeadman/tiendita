@@ -11,58 +11,24 @@
 
 {% block content %}
 
-<style>
-    .cliente-nombre { font-size:13.5px; font-weight:500; color:#18181b; }
-    .bloqueado-row { background:#fef2f2 !important; }
-    .deuda-badge { font-size:13px; font-weight:600; color:#e31837; }
-    .sin-deuda { font-size:12px; color:#16a34a; font-weight:500; }
-    th[onclick] { cursor:pointer; user-select:none; }
-
-    .modal-overlay {
-        display:none; position:fixed; top:0; left:0;
-        width:100%; height:100%;
-        background:rgba(0,0,0,.55);
-        z-index:99999; align-items:center; justify-content:center;
-    }
-    .modal-box {
-        background:#fff; border-radius:14px;
-        width:100%; max-width:380px; margin:1rem;
-        overflow:hidden;
-    }
-    .modal-header {
-        padding:16px 20px; border-bottom:1px solid #e8e8e4;
-        display:flex; align-items:center; justify-content:space-between;
-    }
-    .modal-header h5 { font-size:14px; font-weight:600; color:#18181b; margin:0; }
-    .modal-close {
-        background:#f5f5f3; border:none; width:28px; height:28px;
-        border-radius:6px; font-size:14px; color:#52525b;
-        cursor:pointer; display:flex; align-items:center; justify-content:center;
-    }
-    .modal-body { padding:20px; font-size:13.5px; color:#52525b; }
-    .modal-footer { padding:14px 20px; border-top:1px solid #e8e8e4; display:flex; gap:8px; }
-</style>
-
 <div class="table-card">
-    <div style="padding:12px 16px; border-bottom:1px solid #e8e8e4; display:flex; align-items:center; justify-content:space-between;">
-        <span style="font-size:13px; font-weight:600; color:#18181b;">
-            <i class="bi bi-people" style="color:#a1a1aa; margin-right:5px;"></i>
+    <div class="table-card-header">
+        <span class="section-title">
+            <i class="bi bi-people text-muted-sm"></i>
             Lista de clientes
         </span>
-        <input type="text" id="buscador" placeholder="Buscar cliente..."
-            onkeyup="filtrar()"
-            style="border:1px solid #e8e8e4; border-radius:8px; padding:5px 12px; font-size:12.5px; color:#18181b; outline:none; width:200px;">
+        <input type="text" id="buscador" placeholder="Buscar cliente..." class="input-buscador">
     </div>
 
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0" id="tablaClientes">
             <thead>
                 <tr>
-                    <th onclick="ordenar('nombre')">
-                        Cliente <i class="bi bi-arrow-down-up" style="font-size:.65rem; opacity:.5;"></i>
+                    <th data-ordenar="nombre">
+                        Cliente <i class="bi bi-arrow-down-up icon-sort"></i>
                     </th>
-                    <th onclick="ordenar('deuda')">
-                        Deuda total <i class="bi bi-arrow-down-up" style="font-size:.65rem; opacity:.5;"></i>
+                    <th data-ordenar="deuda">
+                        Deuda total <i class="bi bi-arrow-down-up icon-sort"></i>
                     </th>
                     <th>Estado</th>
                     <th class="text-center">Acciones</th>
@@ -76,7 +42,7 @@
 
                     <td>
                         <div class="cliente-nombre">
-                            <i class="bi bi-person-circle" style="color:#e31837; margin-right:5px;"></i>
+                            <i class="bi bi-person-circle text-rojo me-1"></i>
                             {{ cliente.nombre }}
                         </div>
                     </td>
@@ -91,14 +57,14 @@
 
                     <td>
                         {% if cliente.bloqueado %}
-                            <span class="badge" style="background:#fef2f2; color:#e31837; font-size:11px;">Bloqueado</span>
+                            <span class="badge badge-bloqueado">Bloqueado</span>
                         {% else %}
-                            <span class="badge" style="background:#f0fdf4; color:#16a34a; font-size:11px;">Activo</span>
+                            <span class="badge badge-activo-cliente">Activo</span>
                         {% endif %}
                     </td>
 
                     <td class="text-center">
-                        <div style="display:flex; gap:6px; justify-content:center;">
+                        <div class="actions-row">
                             <a href="{% url 'cliente_detail' cliente.pk %}" class="btn btn-sm btn-outline-primary" title="Ver cuenta">
                                 <i class="bi bi-eye"></i>
                             </a>
@@ -111,8 +77,9 @@
                                 </button>
                             </form>
                             {% else %}
-                            <button type="button" class="btn btn-sm btn-outline-secondary"
-                                onclick="abrirModalBloquear('{{ cliente.pk }}', '{{ cliente.nombre|escapejs }}')"
+                            <button type="button" class="btn btn-sm btn-outline-secondary btn-bloquear-cliente"
+                                data-pk="{{ cliente.pk }}"
+                                data-nombre="{{ cliente.nombre|escapejs }}"
                                 title="Bloquear">
                                 <i class="bi bi-lock"></i>
                             </button>
@@ -126,8 +93,8 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="text-center py-5" style="color:#a1a1aa; font-size:13.5px;">
-                        <i class="bi bi-people" style="font-size:1.8rem; display:block; margin-bottom:8px; opacity:.4;"></i>
+                    <td colspan="4" class="text-center py-5 empty-state">
+                        <i class="bi bi-people empty-state-icon"></i>
                         No hay clientes registrados.
                     </td>
                 </tr>
@@ -139,18 +106,18 @@
 
 <!-- Modal Bloquear -->
 <div id="modalBloquear" class="modal-overlay">
-    <div class="modal-box">
+    <div class="modal-box modal-box-xs">
         <div class="modal-header">
-            <h5><i class="bi bi-lock me-2" style="color:#e31837;"></i> Bloquear cliente</h5>
-            <button class="modal-close" onclick="cerrarModal()"><i class="bi bi-x"></i></button>
+            <h5><i class="bi bi-lock me-2 text-rojo"></i> Bloquear cliente</h5>
+            <button class="modal-close" data-cerrar-modal="modalBloquear"><i class="bi bi-x"></i></button>
         </div>
         <div class="modal-body">
             <p>¿Estás seguro que deseas bloquear a <strong id="modalNombreCliente"></strong>?</p>
-            <p style="font-size:12px; color:#a1a1aa; margin-top:6px;">El cliente no podrá realizar compras a crédito.</p>
+            <p class="text-muted-modal">El cliente no podrá realizar compras a crédito.</p>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary flex-fill" onclick="cerrarModal()">Cancelar</button>
-            <form id="formBloquear" method="post" action="" style="flex:1;">
+            <button type="button" class="btn btn-secondary flex-fill" data-cerrar-modal="modalBloquear">Cancelar</button>
+            <form id="formBloquear" method="post" action="" class="flex-fill">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-danger w-100">
                     <i class="bi bi-lock me-1"></i> Bloquear
@@ -160,52 +127,79 @@
     </div>
 </div>
 
-<script>
-let ordenActual = { campo: '', asc: true };
+{% endblock %}
 
-function abrirModalBloquear(pk, nombre) {
+{% block extra_js %}
+<script>
+(function () {
+  'use strict';
+
+  let ordenActual = { campo: '', asc: true };
+
+  function abrirModalBloquear(pk, nombre) {
     document.getElementById('modalNombreCliente').textContent = nombre;
     document.getElementById('formBloquear').action = '/clientes/' + pk + '/bloquear/';
     document.getElementById('modalBloquear').style.display = 'flex';
-}
+  }
 
-function cerrarModal() {
+  function cerrarModal() {
     document.getElementById('modalBloquear').style.display = 'none';
-}
+  }
 
-document.getElementById('modalBloquear').addEventListener('click', function(e) {
-    if (e.target === this) cerrarModal();
-});
-
-function ordenar(campo) {
+  function ordenar(campo) {
     const tbody = document.getElementById('tbodyClientes');
     const filas = Array.from(tbody.querySelectorAll('tr[data-nombre]'));
-    if (ordenActual.campo === campo) {
-        ordenActual.asc = !ordenActual.asc;
-    } else {
-        ordenActual.campo = campo;
-        ordenActual.asc = campo === 'nombre';
-    }
-    filas.sort((a, b) => {
-        if (campo === 'nombre') {
-            const valA = a.dataset.nombre.toLowerCase();
-            const valB = b.dataset.nombre.toLowerCase();
-            return ordenActual.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
-        } else {
-            const valA = parseFloat(a.dataset.deuda) || 0;
-            const valB = parseFloat(b.dataset.deuda) || 0;
-            return ordenActual.asc ? valA - valB : valB - valA;
-        }
-    });
-    filas.forEach(f => tbody.appendChild(f));
-}
 
-function filtrar() {
+    if (ordenActual.campo === campo) {
+      ordenActual.asc = !ordenActual.asc;
+    } else {
+      ordenActual.campo = campo;
+      ordenActual.asc = campo === 'nombre';
+    }
+
+    filas.sort((a, b) => {
+      if (campo === 'nombre') {
+        const valA = a.dataset.nombre.toLowerCase();
+        const valB = b.dataset.nombre.toLowerCase();
+        return ordenActual.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+      } else {
+        const valA = parseFloat(a.dataset.deuda) || 0;
+        const valB = parseFloat(b.dataset.deuda) || 0;
+        return ordenActual.asc ? valA - valB : valB - valA;
+      }
+    });
+
+    filas.forEach(f => tbody.appendChild(f));
+  }
+
+  function filtrar() {
     const q = document.getElementById('buscador').value.toLowerCase();
     document.querySelectorAll('#tbodyClientes tr[data-nombre]').forEach(row => {
-        row.style.display = row.dataset.nombre.toLowerCase().includes(q) ? '' : 'none';
+      row.style.display = row.dataset.nombre.toLowerCase().includes(q) ? '' : 'none';
     });
-}
-</script>
+  }
 
+  document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('buscador')?.addEventListener('keyup', filtrar);
+
+    document.querySelectorAll('th[data-ordenar]').forEach(th => {
+      th.addEventListener('click', () => ordenar(th.dataset.ordenar));
+    });
+
+    document.querySelectorAll('.btn-bloquear-cliente').forEach(btn => {
+      btn.addEventListener('click', function () {
+        abrirModalBloquear(this.dataset.pk, this.dataset.nombre);
+      });
+    });
+
+    document.querySelectorAll('[data-cerrar-modal]').forEach(btn => {
+      btn.addEventListener('click', () => cerrarModal());
+    });
+
+    document.getElementById('modalBloquear')?.addEventListener('click', function (e) {
+      if (e.target === this) cerrarModal();
+    });
+  });
+})();
+</script>
 {% endblock %}

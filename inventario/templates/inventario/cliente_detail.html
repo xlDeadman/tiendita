@@ -12,19 +12,18 @@
 
 <!-- Nombre y acciones -->
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0"><i class="bi bi-person-circle" style="color:#e31837;"></i> {{ cliente.nombre }}</h2>
+    <h2 class="mb-0"><i class="bi bi-person-circle text-rojo"></i> {{ cliente.nombre }}</h2>
     <div class="d-flex gap-2">
         <a href="{% url 'cliente_agregar_producto' cliente.pk %}" class="btn btn-primary">
             <i class="bi bi-cart-plus"></i> Agregar producto
         </a>
         {% if deuda_total > 0 %}
-        <button type="button" class="btn btn-warning fw-bold" onclick="document.getElementById('modalAbono').style.display='flex'">
+        <button type="button" class="btn btn-warning fw-bold" id="btnAbrirAbono">
             <i class="bi bi-cash-coin"></i> Registrar abono
         </button>
         <form method="post" action="{% url 'cliente_pagar' cliente.pk %}">
             {% csrf_token %}
-            <button type="submit" class="btn btn-success"
-                onclick="return confirm('¿Saldar toda la deuda de {{ cliente.nombre }}?')">
+            <button type="submit" class="btn btn-success" id="btnSaldarDeuda">
                 <i class="bi bi-check-circle"></i> Saldar deuda
             </button>
         </form>
@@ -35,19 +34,19 @@
 <!-- Resumen deuda -->
 <div class="row mb-4 g-3">
     <div class="col-auto">
-        <div class="card shadow-sm px-2" style="border-left: 4px solid {% if deuda_total > 0 %}#e31837{% else %}#10b981{% endif %} !important;">
+        <div class="card shadow-sm px-2 card-acento" style="border-left-color:{% if deuda_total > 0 %}#e31837{% else %}#10b981{% endif %};">
             <div class="card-body text-center py-2">
                 <h6 class="card-title mb-1 text-muted">Deuda total</h6>
-                <h4 class="mb-0" style="color:{% if deuda_total > 0 %}#e31837{% else %}#10b981{% endif %}; font-weight:800;">${{ deuda_total }}</h4>
+                <h4 class="mb-0 deuda-monto" style="color:{% if deuda_total > 0 %}#e31837{% else %}#10b981{% endif %};">${{ deuda_total }}</h4>
             </div>
         </div>
     </div>
     {% if cliente.notas %}
     <div class="col-auto">
-        <div class="card shadow-sm px-2" style="border-left: 4px solid #f5a623 !important;">
+        <div class="card shadow-sm px-2 card-acento card-acento-naranja">
             <div class="card-body py-2">
                 <h6 class="card-title mb-1 text-muted">Notas</h6>
-                <p class="mb-0" style="font-size:.9rem;">{{ cliente.notas }}</p>
+                <p class="mb-0 text-small">{{ cliente.notas }}</p>
             </div>
         </div>
     </div>
@@ -63,13 +62,13 @@
         <table class="table table-hover mb-0">
             <thead>
                 <tr>
-                    <th style="color:#fff !important; background:#e31837 !important;">Fecha</th>
-                    <th style="color:#fff !important; background:#e31837 !important;">Producto</th>
-                    <th style="color:#fff !important; background:#e31837 !important;">Cantidad</th>
-                    <th style="color:#fff !important; background:#e31837 !important;">Precio</th>
-                    <th style="color:#fff !important; background:#e31837 !important;">Subtotal</th>
-                    <th style="color:#fff !important; background:#e31837 !important;">Estado</th>
-                    {% if deuda_total > 0 %}<th style="color:#fff !important; background:#e31837 !important;">Acciones</th>{% endif %}
+                    <th class="thead-marca">Fecha</th>
+                    <th class="thead-marca">Producto</th>
+                    <th class="thead-marca">Cantidad</th>
+                    <th class="thead-marca">Precio</th>
+                    <th class="thead-marca">Subtotal</th>
+                    <th class="thead-marca">Estado</th>
+                    {% if deuda_total > 0 %}<th class="thead-marca">Acciones</th>{% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -116,42 +115,72 @@
 
 <!-- Modal Abono -->
 {% if deuda_total > 0 %}
-<div id="modalAbono" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.6); z-index:99999; align-items:center; justify-content:center;">
-    <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:400px; margin:1rem;">
-        <div style="background:#e31837; margin:-2rem -2rem 1.5rem; padding:1rem 1.5rem; border-radius:16px 16px 0 0; display:flex; justify-content:space-between; align-items:center;">
-            <h5 style="color:#fff; margin:0;"><i class="bi bi-cash-coin me-2"></i> Registrar abono</h5>
-            <button onclick="document.getElementById('modalAbono').style.display='none'"
-                    style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">✕</button>
+<div id="modalAbono" class="modal-overlay">
+    <div class="modal-box modal-box-xs">
+        <div class="modal-header modal-header-marca">
+            <h5><i class="bi bi-cash-coin me-2"></i> Registrar abono</h5>
+            <button class="modal-close modal-close-marca" data-cerrar-modal="modalAbono">✕</button>
         </div>
-        <p style="color:#555; font-size:.88rem; margin-bottom:1rem;">
-            Deuda de <strong>{{ cliente.nombre }}</strong>:
-            <span style="color:#e31837; font-weight:700;">${{ deuda_total }}</span>
-        </p>
-        <form method="post" action="{% url 'cliente_abonar' cliente.pk %}">
-            {% csrf_token %}
-            <label style="color:#333; font-weight:600; font-size:.85rem; margin-bottom:.4rem; display:block;">
-                Cantidad a abonar
-            </label>
-            <div style="display:flex; margin-bottom:1rem;">
-                <span style="background:#f8f8f8; border:1.5px solid #ddd; border-right:none; padding:.6rem .85rem; border-radius:8px 0 0 8px; color:#e31837; font-weight:700;">$</span>
-                <input type="number" name="abono" placeholder="0.00" min="0.01" step="0.01"
-                       max="{{ deuda_total }}" required
-                       style="flex:1; border:1.5px solid #ddd; border-left:none; border-radius:0 8px 8px 0; padding:.6rem .85rem; font-size:1rem; outline:none; color:#333; background:#fff;">
-            </div>
-            <div style="display:flex; gap:.75rem;">
-                <button type="button"
-                        onclick="document.getElementById('modalAbono').style.display='none'"
-                        style="flex:1; padding:.65rem; background:#6b7280; color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer;">
-                    Cancelar
-                </button>
-                <button type="submit"
-                        style="flex:1; padding:.65rem; background:#e31837; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
-                    <i class="bi bi-cash"></i> Abonar
-                </button>
-            </div>
-        </form>
+        <div class="modal-body">
+            <p class="text-small mb-3">
+                Deuda de <strong>{{ cliente.nombre }}</strong>:
+                <span class="text-rojo fw-bold">${{ deuda_total }}</span>
+            </p>
+            <form method="post" action="{% url 'cliente_abonar' cliente.pk %}" id="formAbono">
+                {% csrf_token %}
+                <div class="form-field">
+                    <label>Cantidad a abonar</label>
+                    <div class="input-prefix">
+                        <span class="input-prefix-symbol">$</span>
+                        <input type="number" name="abono" placeholder="0.00" min="0.01" step="0.01"
+                               max="{{ deuda_total }}" required>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-secondary flex-fill" data-cerrar-modal="modalAbono">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary flex-fill">
+                        <i class="bi bi-cash"></i> Abonar
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endif %}
 
+{% endblock %}
+
+{% block extra_js %}
+{% if deuda_total > 0 %}
+<script>
+(function () {
+  'use strict';
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('btnAbrirAbono')?.addEventListener('click', function () {
+      document.getElementById('modalAbono').style.display = 'flex';
+    });
+
+    document.querySelectorAll('[data-cerrar-modal]').forEach(btn => {
+      btn.addEventListener('click', function () {
+        document.getElementById(this.dataset.cerrarModal).style.display = 'none';
+      });
+    });
+
+    document.getElementById('modalAbono')?.addEventListener('click', function (e) {
+      if (e.target === this) this.style.display = 'none';
+    });
+
+    document.getElementById('btnSaldarDeuda')?.addEventListener('click', function (e) {
+      const nombreCliente = {{ cliente.nombre|escapejs }};
+      if (!confirm('¿Saldar toda la deuda de ' + nombreCliente + '?')) {
+        e.preventDefault();
+      }
+    });
+  });
+})();
+</script>
+{% endif %}
 {% endblock %}
