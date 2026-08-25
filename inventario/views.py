@@ -132,7 +132,7 @@ def producto_list(request):
 @login_required
 def producto_create(request):
     if request.method == 'POST':
-        form = ProductoForm(request.POST)
+        form = ProductoForm(request.POST, request.FILES)
 
         if form.is_valid():
             producto = form.save()
@@ -153,7 +153,7 @@ def producto_edit(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
 
     if request.method == 'POST':
-        form = ProductoForm(request.POST, instance=producto)
+        form = ProductoForm(request.POST, request.FILES, instance=producto)
 
         if form.is_valid():
             form.save()
@@ -476,6 +476,7 @@ def cliente_agregar_producto(request, pk):
 
         for i in range(total_filas):
             producto_id = request.POST.get(f'producto_{i}')
+            fecha = request.POST.get(f'fecha_{i}') or date.today()
             cantidad = request.POST.get(f'cantidad_{i}')
             precio = request.POST.get(f'precio_{i}')
 
@@ -489,7 +490,7 @@ def cliente_agregar_producto(request, pk):
                         cliente_fk=cliente,
                         pagado=False,
                         total=0,
-                        fecha=date.today()
+                        fecha=fecha,
                     )
 
                     detalle = DetalleVenta.objects.create(
@@ -521,6 +522,7 @@ def cliente_agregar_producto(request, pk):
     return render(request, 'inventario/cliente_agregar_producto.html', {
         'cliente': cliente,
         'productos': productos,
+        'hoy': date.today().strftime('%Y-%m-%d'),
     })
 
 
@@ -692,6 +694,20 @@ def cliente_abonar(request, pk):
         messages.success(request, f'✅ Abono de ${abono:.2f} registrado para {cliente.nombre}.')
 
     return redirect('cliente_detail', pk=pk)
+
+
+@login_required
+def cliente_editar_nombre(request, pk):
+    if request.method == 'POST':
+        cliente = get_object_or_404(Cliente, pk=pk)
+        data = json.loads(request.body)
+        nombre = data.get('nombre', '').strip()
+        if nombre:
+            cliente.nombre = nombre
+            cliente.save()
+            return JsonResponse({'ok': True, 'nombre': cliente.nombre})
+        return JsonResponse({'error': 'Nombre vacío'}, status=400)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 
 # ─────────────────────────── Egresos ───────────────────────────
@@ -931,6 +947,7 @@ def egreso_edit(request, pk):
 
 
 # ─────────────────────────── Catálogo público ───────────────────────────
+
 @ensure_csrf_cookie
 def catalogo(request):
     productos = Producto.objects.filter(activo=True).select_related('categoria').order_by('nombre')
@@ -1020,12 +1037,14 @@ def pedido_crear(request):
                 try:
                     producto = Producto.objects.get(nombre=item['nombre'])
                     cantidad = int(item['cantidad'])
+                    comentario = (item.get('comentario') or '').strip()
                     precio = producto.precio
                     DetallePedido.objects.create(
                         pedido=pedido,
                         producto=producto,
                         cantidad=cantidad,
                         precio_unitario=precio,
+                        comentario=comentario,
                     )
                     total += precio * cantidad
                 except Producto.DoesNotExist:
@@ -1039,6 +1058,7 @@ def pedido_crear(request):
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
+
 @login_required
 def pedidos_json(request):
     pedidos = Pedido.objects.prefetch_related('detalles__producto').order_by('-creado_en')[:50]
@@ -1051,7 +1071,11 @@ def pedidos_json(request):
             'estado': p.estado,
             'creado_en': p.creado_en.strftime('%d/%m/%Y %H:%M'),
             'detalles': [
-                {'cantidad': d.cantidad, 'producto': d.producto.nombre}
+                {
+                    'cantidad': d.cantidad,
+                    'producto': d.producto.nombre,
+                    'comentario': d.comentario,
+                }
                 for d in p.detalles.all()
             ]
         })

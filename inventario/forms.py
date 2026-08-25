@@ -6,7 +6,7 @@ from .models import Producto, Categoria, Venta, DetalleVenta, Cliente
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
-        fields = ['nombre', 'categoria', 'stock_inicial', 'stock_actual', 'precio', 'imagen_url', 'activo']
+        fields = ['nombre', 'categoria', 'stock_inicial', 'stock_actual', 'precio', 'imagen', 'activo']
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -27,9 +27,9 @@ class ProductoForm(forms.ModelForm):
                 'step': '0.50',
                 'placeholder': '0.00',
             }),
-            'imagen_url': forms.URLInput(attrs={
+            'imagen': forms.ClearableFileInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'https://ejemplo.com/imagen.jpg',
+                'accept': 'image/*',
             }),
             'activo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
@@ -39,7 +39,7 @@ class ProductoForm(forms.ModelForm):
             'stock_inicial': 'Stock inicial',
             'stock_actual': 'Stock actual',
             'precio': 'Precio de venta ($)',
-            'imagen_url': 'URL de imagen',
+            'imagen': 'Foto del producto',
             'activo': 'Producto activo',
         }
 

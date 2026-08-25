@@ -65,7 +65,7 @@ class Producto(models.Model):
     stock_inicial = models.PositiveIntegerField(default=0, verbose_name="Stock inicial")
     stock_actual = models.IntegerField(default=0, verbose_name="Stock actual")
     precio = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio de venta ($)")
-    imagen_url = models.URLField(max_length=500, blank=True, verbose_name="URL de imagen")
+    imagen = models.ImageField(upload_to='productos/', blank=True, null=True, verbose_name="Imagen del producto")
     activo = models.BooleanField(default=True, verbose_name="Activo")
     tendencia = models.BooleanField(default=False, verbose_name="En tendencia")  # ← AGREGA ESTA
     creado_en = models.DateTimeField(auto_now_add=True)
@@ -232,6 +232,7 @@ class DetallePedido(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
     cantidad = models.PositiveIntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    comentario = models.CharField(max_length=255, blank=True, verbose_name="Comentario / personalización")  # ← NUEVO
 
     @property
     def subtotal(self):

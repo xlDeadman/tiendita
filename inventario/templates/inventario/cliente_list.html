@@ -41,9 +41,25 @@
                     data-deuda="{{ cliente.deuda|default:0 }}">
 
                     <td>
-                        <div class="cliente-nombre">
+                        <div class="cliente-nombre" style="display:flex; align-items:center; gap:6px;">
                             <i class="bi bi-person-circle text-rojo me-1"></i>
-                            {{ cliente.nombre }}
+                            <span class="nombre-texto">{{ cliente.nombre }}</span>
+                            <input class="nombre-input form-control form-control-sm"
+                                   style="display:none; max-width:180px;"
+                                   value="{{ cliente.nombre }}"
+                                   data-pk="{{ cliente.pk }}">
+                            <button class="btn-editar-nombre btn btn-sm btn-link p-0 text-muted"
+                                    title="Editar nombre">
+                                <i class="bi bi-pencil" style="font-size:11px;"></i>
+                            </button>
+                            <button class="btn-guardar-nombre btn btn-sm btn-link p-0 text-success"
+                                    style="display:none;" title="Guardar (Enter)">
+                                <i class="bi bi-check-lg" style="font-size:13px;"></i>
+                            </button>
+                            <button class="btn-cancelar-nombre btn btn-sm btn-link p-0 text-secondary"
+                                    style="display:none;" title="Cancelar (Esc)">
+                                <i class="bi bi-x-lg" style="font-size:11px;"></i>
+                            </button>
                         </div>
                     </td>
 
@@ -136,6 +152,14 @@
 
   let ordenActual = { campo: '', asc: true };
 
+  function getCookie(name) {
+    const match = document.cookie
+      .split(';')
+      .map(c => c.trim())
+      .find(c => c.startsWith(name + '='));
+    return match ? decodeURIComponent(match.slice(name.length + 1)) : null;
+  }
+
   function abrirModalBloquear(pk, nombre) {
     document.getElementById('modalNombreCliente').textContent = nombre;
     document.getElementById('formBloquear').action = '/clientes/' + pk + '/bloquear/';
@@ -179,6 +203,58 @@
     });
   }
 
+  function activarEdicion(td) {
+    td.querySelector('.nombre-texto').style.display = 'none';
+    td.querySelector('.nombre-input').style.display = '';
+    td.querySelector('.nombre-input').focus();
+    td.querySelector('.nombre-input').select();
+    td.querySelector('.btn-editar-nombre').style.display = 'none';
+    td.querySelector('.btn-guardar-nombre').style.display = '';
+    td.querySelector('.btn-cancelar-nombre').style.display = '';
+  }
+
+  function cancelarEdicion(td) {
+    const span = td.querySelector('.nombre-texto');
+    const input = td.querySelector('.nombre-input');
+    input.value = span.textContent.trim();
+    input.style.display = 'none';
+    span.style.display = '';
+    td.querySelector('.btn-editar-nombre').style.display = '';
+    td.querySelector('.btn-guardar-nombre').style.display = 'none';
+    td.querySelector('.btn-cancelar-nombre').style.display = 'none';
+  }
+
+  function guardarEdicion(td) {
+    const span = td.querySelector('.nombre-texto');
+    const input = td.querySelector('.nombre-input');
+    const pk = input.dataset.pk;
+    const nuevoNombre = input.value.trim();
+
+    if (!nuevoNombre || nuevoNombre === span.textContent.trim()) {
+      cancelarEdicion(td);
+      return;
+    }
+
+    fetch('/clientes/' + pk + '/editar-nombre/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+      body: JSON.stringify({ nombre: nuevoNombre }),
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        span.textContent = data.nombre;
+        input.value = data.nombre;
+        td.closest('tr').dataset.nombre = data.nombre;
+      }
+      cancelarEdicion(td);
+    })
+    .catch(() => cancelarEdicion(td));
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('buscador')?.addEventListener('keyup', filtrar);
 
@@ -198,6 +274,35 @@
 
     document.getElementById('modalBloquear')?.addEventListener('click', function (e) {
       if (e.target === this) cerrarModal();
+    });
+
+    // Lápiz — activar edición
+    document.querySelectorAll('.btn-editar-nombre').forEach(btn => {
+      btn.addEventListener('click', function () {
+        activarEdicion(this.closest('td'));
+      });
+    });
+
+    // Check — guardar
+    document.querySelectorAll('.btn-guardar-nombre').forEach(btn => {
+      btn.addEventListener('click', function () {
+        guardarEdicion(this.closest('td'));
+      });
+    });
+
+    // X — cancelar
+    document.querySelectorAll('.btn-cancelar-nombre').forEach(btn => {
+      btn.addEventListener('click', function () {
+        cancelarEdicion(this.closest('td'));
+      });
+    });
+
+    // Enter guarda, Escape cancela desde el input
+    document.querySelectorAll('.nombre-input').forEach(input => {
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') guardarEdicion(this.closest('td'));
+        if (e.key === 'Escape') cancelarEdicion(this.closest('td'));
+      });
     });
   });
 })();

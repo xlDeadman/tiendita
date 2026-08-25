@@ -29,24 +29,33 @@
                                 </button>
                             </div>
                             <div class="row g-2">
-                                <div class="col-12 col-md-5">
+                                <div class="col-12 col-md-4">
                                     <label class="form-label fw-bold label-fila-form">Producto</label>
                                     <select name="producto_0" class="form-select producto-select" data-idx="0" required>
                                         <option value="">— Selecciona —</option>
                                         {% for prod in productos %}
-                                        <option value="{{ prod.pk }}" data-precio="{{ prod.precio }}">{{ prod.nombre }}</option>
+                                        <option value="{{ prod.pk }}"
+                                                data-precio="{{ prod.precio }}"
+                                                {% if prod.stock_actual <= 0 %}disabled style="color:#aaa;"{% endif %}>
+                                            {{ prod.nombre }}{% if prod.stock_actual <= 0 %} (sin stock){% endif %}
+                                        </option>
                                         {% endfor %}
                                     </select>
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label fw-bold label-fila-form">Fecha</label>
+                                    <input type="date" name="fecha_0" class="form-control fecha-input" data-idx="0"
+                                           value="{{ hoy }}" required>
                                 </div>
                                 <div class="col-6 col-md-2">
                                     <label class="form-label fw-bold label-fila-form">Cantidad</label>
                                     <input type="number" name="cantidad_0" class="form-control cantidad-input" data-idx="0" min="1" value="1" required>
                                 </div>
-                                <div class="col-6 col-md-3">
+                                <div class="col-6 col-md-2">
                                     <label class="form-label fw-bold label-fila-form">Precio unit.</label>
                                     <input type="number" name="precio_0" class="form-control precio-input" data-idx="0" min="0" step="0.50" required>
                                 </div>
-                                <div class="col-12 col-md-2">
+                                <div class="col-6 col-md-2">
                                     <label class="form-label fw-bold label-fila-form">Subtotal</label>
                                     <div class="subtotal-display" id="subtotal_0">$0.00</div>
                                 </div>
@@ -85,17 +94,22 @@
   'use strict';
 
   let filaCount = 1;
+  const hoy = "{{ hoy }}";
 
   const productosData = [
     {% for prod in productos %}
-    { id: {{ prod.pk }}, nombre: {{ prod.nombre|escapejs }}, precio: {{ prod.precio }} },
+    { id: {{ prod.pk }}, nombre: "{{ prod.nombre|escapejs }}", precio: {{ prod.precio }}, stock: {{ prod.stock_actual }} },
     {% endfor %}
   ];
 
   function construirOpciones() {
     let html = '<option value="">— Selecciona —</option>';
     productosData.forEach(p => {
-      html += `<option value="${p.id}" data-precio="${p.precio}">${p.nombre}</option>`;
+      const sinStock = p.stock <= 0;
+      html += `<option value="${p.id}" data-precio="${p.precio}"
+        ${sinStock ? 'disabled style="color:#aaa;"' : ''}>
+        ${p.nombre}${sinStock ? ' (sin stock)' : ''}
+      </option>`;
     });
     return html;
   }
@@ -110,21 +124,26 @@
             </button>
         </div>
         <div class="row g-2">
-            <div class="col-12 col-md-5">
+            <div class="col-12 col-md-4">
                 <label class="form-label fw-bold label-fila-form">Producto</label>
                 <select name="producto_${idx}" class="form-select producto-select" data-idx="${idx}" required>
                     ${construirOpciones()}
                 </select>
             </div>
             <div class="col-6 col-md-2">
+                <label class="form-label fw-bold label-fila-form">Fecha</label>
+                <input type="date" name="fecha_${idx}" class="form-control fecha-input" data-idx="${idx}"
+                       value="${hoy}" required>
+            </div>
+            <div class="col-6 col-md-2">
                 <label class="form-label fw-bold label-fila-form">Cantidad</label>
                 <input type="number" name="cantidad_${idx}" class="form-control cantidad-input" data-idx="${idx}" min="1" value="1" required>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md-2">
                 <label class="form-label fw-bold label-fila-form">Precio unit.</label>
                 <input type="number" name="precio_${idx}" class="form-control precio-input" data-idx="${idx}" min="0" step="0.50" required>
             </div>
-            <div class="col-12 col-md-2">
+            <div class="col-6 col-md-2">
                 <label class="form-label fw-bold label-fila-form">Subtotal</label>
                 <div class="subtotal-display" id="subtotal_${idx}">$0.00</div>
             </div>

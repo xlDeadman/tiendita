@@ -51,13 +51,13 @@
     <a href="{% url 'venta_list' %}" class="nav-link-side {% if request.resolver_match.url_name == 'venta_list' %}active{% endif %}">
       <i class="bi bi-clock-history"></i> Historial ventas
     </a>
+
     <a href="{% url 'pedido_list' %}" class="nav-link-side {% if 'pedido' in request.resolver_match.url_name %}active{% endif %}">
-      <i class="bi bi-basket"></i> Pedidos
-      {% pedidos_nuevos as total_nuevos %}
-      {% if total_nuevos > 0 %}
-      <span class="nav-badge">{{ total_nuevos }}</span>
-      {% endif %}
-    </a>
+  <i class="bi bi-basket"></i> Pedidos
+  <span class="nav-badge" id="badge-pedidos-nuevos" style="{% if total_nuevos == 0 %}display:none;{% endif %}">
+    {{ total_nuevos }}
+  </span>
+</a>
 
     <div class="sidebar-label">Catálogo</div>
     <a href="{% url 'producto_list' %}" class="nav-link-side {% if 'producto' in request.resolver_match.url_name %}active{% endif %}">
@@ -127,6 +127,43 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+(function () {
+  'use strict';
+
+  function getCookie(name) {
+    const match = document.cookie
+      .split(';')
+      .map(c => c.trim())
+      .find(c => c.startsWith(name + '='));
+    return match ? decodeURIComponent(match.slice(name.length + 1)) : null;
+  }
+
+  function actualizarBadgeSidebar() {
+    fetch('/api/pedidos/json/', {
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+    })
+      .then(r => r.json())
+      .then(data => {
+        const badge = document.getElementById('badge-pedidos-nuevos');
+        if (!badge) return;
+
+        const numNuevos = data.pedidos.filter(p => p.estado === 'nuevo').length;
+
+        if (numNuevos > 0) {
+          badge.textContent = numNuevos;
+          badge.style.display = 'inline-block';
+        } else {
+          badge.style.display = 'none';
+        }
+      })
+      .catch(err => console.error('Error al actualizar badge de pedidos:', err));
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    actualizarBadgeSidebar();
+    setInterval(actualizarBadgeSidebar, 5000);
+  });
+})();
 (function () {
   'use strict';
 

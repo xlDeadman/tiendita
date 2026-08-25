@@ -40,9 +40,14 @@
           <td class="text-empty">#{{ pedido.pk }}</td>
           <td class="text-medium">{{ pedido.nombre_cliente }}</td>
           <td>
-            <ul class="detalle-lista">
+            <ul class="detalle-lista" style="font-size: 15px;">
               {% for d in pedido.detalles.all %}
-              <li>{{ d.cantidad }}x {{ d.producto.nombre }}</li>
+              <li>
+                {{ d.cantidad }}x {{ d.producto.nombre }}
+                {% if d.comentario %}
+                <div class="detalle-comentario" style="font-size: 15px;">📝 {{ d.comentario }}</div>
+                {% endif %}
+              </li>
               {% endfor %}
             </ul>
           </td>
@@ -88,6 +93,16 @@
     </table>
   </div>
 </div>
+
+<style>
+  .detalle-comentario {
+    font-size: 11px;
+    color: #8a8a86;
+    line-height: 1.3;
+    margin-top: 2px;
+    margin-bottom: 4px;
+  }
+</style>
 
 {% endblock %}
 
@@ -174,6 +189,12 @@
     p.detalles.forEach(d => {
       const li = document.createElement('li');
       li.textContent = d.cantidad + 'x ' + d.producto;
+      if (d.comentario) {
+        const divComentario = document.createElement('div');
+        divComentario.className = 'detalle-comentario';
+        divComentario.textContent = '📝 ' + d.comentario;
+        li.appendChild(divComentario);
+      }
       ul.appendChild(li);
     });
     tdProductos.appendChild(ul);

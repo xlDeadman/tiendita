@@ -174,7 +174,7 @@
     });
 
     document.getElementById('btnSaldarDeuda')?.addEventListener('click', function (e) {
-      const nombreCliente = {{ cliente.nombre|escapejs }};
+      const nombreCliente = "{{ cliente.nombre|escapejs }}";
       if (!confirm('¿Saldar toda la deuda de ' + nombreCliente + '?')) {
         e.preventDefault();
       }

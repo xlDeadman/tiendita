@@ -46,6 +46,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'inventario.context_processors.pedidos_nuevos'
             ],
         },
     },
@@ -80,10 +81,32 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# ─────────────────────────── Archivos subidos (imágenes de productos) ───────────────────────────
+# MEDIA_ROOT: carpeta física donde Django guarda los archivos que suben los usuarios
+# (fotos de productos). En Railway, esta carpeta debe vivir dentro de un VOLUMEN
+# persistente — si no, Railway borra todo lo guardado aquí cada vez que la app
+# se reinicia o se vuelve a desplegar.
+#
+# Si ya montaste un volumen en Railway en una ruta como "/data", usa esa ruta
+# completa aquí en vez de BASE_DIR / 'media'. Ejemplo:
+#   MEDIA_ROOT = Path(os.getenv('RAILWAY_VOLUME_MOUNT_PATH', BASE_DIR / 'media')) / 'media'
+#
+# Por ahora se deja apuntando a BASE_DIR / 'media' para que funcione igual en tu
+# PC (desarrollo). Ajustamos esta línea en el siguiente paso cuando confirmes
+# la ruta del volumen en Railway.
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/dsei-acceso/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/catalogo/'
 
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://behind-reflect-represents-burlington.trycloudflare.com",
+]
+
+
+

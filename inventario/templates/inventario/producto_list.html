@@ -46,18 +46,20 @@
         <table class="table table-hover align-middle mb-0">
             <thead class="thead-sticky">
                 <tr>
-                    <th>Producto</th>
+                    <th data-ordenar="nombre">Producto<i class="bi bi-arrow-down-up icon-sort"></i></th>
                     <th>Categoría</th>
                     <th class="text-center">Stock inicial</th>
                     <th class="text-center">Stock actual</th>
                     <th class="text-end">Precio</th>
-                    <th class="text-center">Estado</th>
+                    <th class="text-center" data-ordenar="estado">Estado<i class="bi bi-arrow-down-up icon-sort"></i></th>
                     <th class="text-center">Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="tbodyProductos">
                 {% for p in productos %}
-                <tr {% if not p.activo %}class="inactivo-row"{% endif %}>
+                <tr {% if not p.activo %}class="inactivo-row"{% endif %}
+                    data-nombre="{{ p.nombre }}"
+                    data-orden-estado="{% if p.semaforo == 'rojo' %}0{% elif p.semaforo == 'naranja' %}1{% else %}2{% endif %}">
 
                     <td>
                         <div class="product-name">
@@ -139,6 +141,38 @@
 
 {% block extra_js %}
 <script>
+let ordenActual = { campo: 'nombre', asc: true };
+
+function ordenar(campo) {
+    const tbody = document.getElementById('tbodyProductos');
+    const filas = Array.from(tbody.querySelectorAll('tr[data-nombre]'));
+
+    if (ordenActual.campo === campo) {
+      ordenActual.asc = !ordenActual.asc;
+    } else {
+      ordenActual.campo = campo;
+      ordenActual.asc = true;
+    }
+
+    filas.sort((a, b) => {
+      if (campo === 'estado') {
+        const valA = parseInt(a.dataset.ordenEstado, 10);
+        const valB = parseInt(b.dataset.ordenEstado, 10);
+        return ordenActual.asc ? valA - valB : valB - valA;
+      }
+
+      const valA = a.dataset.nombre.toLowerCase();
+      const valB = b.dataset.nombre.toLowerCase();
+      return ordenActual.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    });
+
+    filas.forEach(f => tbody.appendChild(f));
+}
+
+document.querySelectorAll('th[data-ordenar]').forEach(th => {
+    th.addEventListener('click', () => ordenar(th.dataset.ordenar));
+});
+
 (function () {
   'use strict';
 

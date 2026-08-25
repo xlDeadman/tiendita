@@ -51,8 +51,8 @@
       <div class="carrusel-track" id="carrusel-track">
         {% for p in tendencias %}
         <div class="tend-card">
-          {% if p.imagen_url %}
-          <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}" draggable="false"
+          {% if p.imagen %}
+          <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" draggable="false"
                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
           <div class="tend-card-placeholder" style="display:none;"><i class="bi bi-bag"></i></div>
           {% else %}
@@ -94,14 +94,15 @@
     {% for p in productos %}
     <div class="producto-item"
          data-categoria="{{ p.categoria.nombre|default:'' }}"
+         data-categoria-id="{{ p.categoria_id|default:'' }}"
          data-nombre="{{ p.nombre }}"
          data-precio="{{ p.precio }}"
          data-stock="{{ p.stock_actual }}"
-         data-img="{{ p.imagen_url|default:'' }}">
+         data-img="{% if p.imagen %}{{ p.imagen.url }}{% endif %}">
       <div class="producto-card {% if p.stock_actual <= 0 %}agotado-card{% endif %}">
         <div class="producto-img-wrap">
-          {% if p.imagen_url %}
-          <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}" class="producto-img" draggable="false"
+          {% if p.imagen %}
+          <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" id="{{ p.categoria_id }}" class="producto-img" draggable="false"
                onerror="mostrarPlaceholderImagen(this)">
           {% else %}
           <div class="producto-img-placeholder"><i class="bi bi-bag"></i></div>
@@ -193,6 +194,160 @@
   </div>
 </div>
 
+<!-- ==========================================================
+     MODAL DE PERSONALIZACIÓN (categoría 17)
+========================================================== -->
+<div id="modal-personalizar-overlay" class="modal-personalizar-overlay" onclick="cancelarPersonalizacion(event)">
+  <div class="modal-personalizar-card" onclick="event.stopPropagation()">
+    <div class="modal-personalizar-header">
+      <div class="modal-personalizar-titulo" id="modal-personalizar-nombre">Personaliza tu bebida</div>
+      <button type="button" class="modal-personalizar-cerrar" onclick="cancelarPersonalizacion()" aria-label="Cerrar">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="modal-personalizar-body">
+      <div class="modal-personalizar-campo">
+        <label for="mp-tipo-leche">Tipo de leche</label>
+        <select id="mp-tipo-leche">
+          <option value="Entera">Entera</option>
+          <option value="Deslactosada">Deslactosada</option>
+        </select>
+      </div>
+
+      <div class="modal-personalizar-campo">
+        <label for="mp-azucar">¿Quiere azúcar?</label>
+        <select id="mp-azucar">
+          <option value="Sí">Sí</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+
+      <div class="modal-personalizar-campo">
+        <label for="mp-crema">¿Quiere crema?</label>
+        <select id="mp-crema">
+          <option value="Sí">Sí</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+
+      <div class="modal-personalizar-campo">
+        <label for="mp-chispas">¿Quiere chispas de chocolate?</label>
+        <select id="mp-chispas">
+          <option value="Sí">Sí</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-personalizar-footer">
+      <button type="button" class="modal-personalizar-btn-cancelar" onclick="cancelarPersonalizacion()">Cancelar</button>
+      <button type="button" class="modal-personalizar-btn-confirmar" onclick="confirmarPersonalizacion()">
+        <i class="bi bi-plus-lg"></i> Agregar
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .modal-personalizar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(24, 24, 27, 0.55);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-personalizar-overlay.visible {
+    display: flex;
+  }
+  .modal-personalizar-card {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 10px 50px rgba(0,0,0,.2);
+    overflow: hidden;
+  }
+  .modal-personalizar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid #f0f0ee;
+  }
+  .modal-personalizar-titulo {
+    font-size: 16px;
+    font-weight: 800;
+    color: #18181b;
+  }
+  .modal-personalizar-cerrar {
+    background: none;
+    border: none;
+    color: #a1a1aa;
+    font-size: 16px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+  }
+  .modal-personalizar-body {
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .modal-personalizar-campo label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #52525b;
+    margin-bottom: 6px;
+  }
+  .modal-personalizar-campo select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #e4e4e1;
+    font-size: 14px;
+    color: #18181b;
+    background: #fafafa;
+  }
+  .modal-personalizar-footer {
+    display: flex;
+    gap: 10px;
+    padding: 16px 20px 20px;
+  }
+  .modal-personalizar-btn-cancelar,
+  .modal-personalizar-btn-confirmar {
+    flex: 1;
+    border-radius: 10px;
+    padding: 11px 0;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+  }
+  .modal-personalizar-btn-cancelar {
+    background: #f4f4f2;
+    color: #52525b;
+  }
+  .modal-personalizar-btn-confirmar {
+    background: #e31837;
+    color: #fff;
+  }
+  .cr-comentario {
+    font-size: 11px;
+    color: #8a8a86;
+    line-height: 1.3;
+    margin-top: 2px;
+  }
+  #mc-campo-cucharadas.campo-oculto {
+    display: none;
+  }
+</style>
+
 <script>
 (function () {
   'use strict';
@@ -200,7 +355,8 @@
   /* ============================================================
      ESTADO GLOBAL
   ============================================================ */
-  const carrito = {};               // { nombre: { precio, qty, img } }
+  // carrito[nombre] = { precio, img, unidades: [comentarioOrNull, comentarioOrNull, ...] }
+  const carrito = {};
   let carritoAbierto = false;
   let carruselAuto = null;
   let carruselPausado = false;
@@ -208,6 +364,14 @@
   let paginaActual = 1;
   let categoriaActual = 'todos';
   let busquedaActual = '';
+
+  const CATEGORIA_PERSONALIZABLE = '17';
+  const NOMBRE_CHOCO_MILK = 'CHOCO MILK';
+  const NOMBRE_NESQUIK_FRESA = 'NESQUIK DE FRESA';
+
+  // Contexto pendiente mientras el modal de personalización está abierto.
+  let personalizacionPendiente = null; // { nombre, precio, img, idx, esNuevoProducto }
+  let personalizacionChocoPendiente = null; // { nombre, precio, img, idx, esNuevoProducto }
 
   /* ============================================================
      UTILIDADES
@@ -341,6 +505,134 @@
   };
 
   /* ============================================================
+     MODAL DE PERSONALIZACIÓN (categoría 17)
+  ============================================================ */
+  function esCategoriaPersonalizable(itemEl) {
+    return itemEl.dataset.categoriaId === CATEGORIA_PERSONALIZABLE;
+  }
+
+  // Decide qué modal mostrar para un producto: 'choco' (Choco Milk),
+  // 'bebida' (frapes y similares en la categoría 17), o null (sin modal).
+  function tipoDeModal(itemEl) {
+    if (!esCategoriaPersonalizable(itemEl)) return null;
+    const nombre = (itemEl.dataset.nombre || '').trim().toUpperCase();
+    if (nombre === NOMBRE_CHOCO_MILK || nombre === NOMBRE_NESQUIK_FRESA) return 'choco';
+    return 'bebida';
+  }
+
+  function abrirModalPersonalizacion(nombre, precio, img, idx, esNuevoProducto) {
+  personalizacionPendiente = { nombre, precio, img, idx, esNuevoProducto };
+
+  document.getElementById('modal-personalizar-nombre').textContent = 'Personaliza: ' + nombre;
+  document.getElementById('mp-tipo-leche').value = 'Entera';
+  document.getElementById('mp-azucar').value = 'Sí';
+
+  // Mostramos/ocultamos campos según el producto
+  const campoCrema = document.getElementById('mp-crema').closest('.modal-personalizar-campo');
+  const campoChispas = document.getElementById('mp-chispas').closest('.modal-personalizar-campo');
+
+  if (nombre === 'LICUADO DE CHOCO MILK' || nombre === 'LICUADO DE NESQUIK DE FRESA') {
+    // Este producto no necesita crema ni chispas
+    campoCrema.style.display = 'none';
+    campoChispas.style.display = 'none';
+  } else {
+    campoCrema.style.display = '';
+    campoChispas.style.display = '';
+    document.getElementById('mp-crema').value = 'Sí';
+    document.getElementById('mp-chispas').value = 'No';
+  }
+
+  document.getElementById('modal-personalizar-overlay').classList.add('visible');
+}
+
+  window.cancelarPersonalizacion = function (evt) {
+    if (evt) evt.preventDefault();
+    personalizacionPendiente = null;
+    document.getElementById('modal-personalizar-overlay').classList.remove('visible');
+  };
+
+  window.confirmarPersonalizacion = function () {
+    if (!personalizacionPendiente) return;
+    const { nombre, precio, img, idx, esNuevoProducto } = personalizacionPendiente;
+
+    const tipoLeche = document.getElementById('mp-tipo-leche').value;
+    const azucar = document.getElementById('mp-azucar').value;
+    const crema = document.getElementById('mp-crema').value;
+    const chispas = document.getElementById('mp-chispas').value;
+
+    const comentario = `Leche: ${tipoLeche} · Azúcar: ${azucar} · Crema: ${crema} · Chispas: ${chispas}`;
+
+    if (!carrito[nombre]) {
+      carrito[nombre] = { precio, img, unidades: [] };
+    }
+    carrito[nombre].unidades.push(comentario);
+
+    if (esNuevoProducto) {
+      mostrarControlCantidad(idx, true);
+    }
+    actualizarUiTarjeta(nombre, idx);
+    actualizarCarrito();
+
+    personalizacionPendiente = null;
+    document.getElementById('modal-personalizar-overlay').classList.remove('visible');
+  };
+
+  /* ============================================================
+     MODAL DE PERSONALIZACIÓN — Choco Milk
+  ============================================================ */
+  window.toggleCampoCucharadas = function () {
+    const azucar = document.getElementById('mc-azucar').value;
+    const campo = document.getElementById('mc-campo-cucharadas');
+    campo.classList.toggle('campo-oculto', azucar === 'No');
+  };
+
+  function abrirModalPersonalizacionChoco(nombre, precio, img, idx, esNuevoProducto) {
+    personalizacionChocoPendiente = { nombre, precio, img, idx, esNuevoProducto };
+
+    document.getElementById('modal-choco-nombre').textContent = 'Personaliza: ' + nombre;
+    document.getElementById('mc-tipo-leche').value = 'Entera';
+    document.getElementById('mc-azucar').value = 'Sí';
+    document.getElementById('mc-cucharadas').value = '1';
+    window.toggleCampoCucharadas();
+
+    document.getElementById('modal-choco-overlay').classList.add('visible');
+  }
+
+  window.cancelarPersonalizacionChoco = function (evt) {
+    if (evt) evt.preventDefault();
+    personalizacionChocoPendiente = null;
+    document.getElementById('modal-choco-overlay').classList.remove('visible');
+  };
+
+  window.confirmarPersonalizacionChoco = function () {
+    if (!personalizacionChocoPendiente) return;
+    const { nombre, precio, img, idx, esNuevoProducto } = personalizacionChocoPendiente;
+
+    const tipoLeche = document.getElementById('mc-tipo-leche').value;
+    const azucar = document.getElementById('mc-azucar').value;
+    const cucharadas = document.getElementById('mc-cucharadas').value;
+
+    const parteAzucar = azucar === 'Sí'
+      ? `Azúcar: Sí (${cucharadas} cucharada${cucharadas === '2' ? 's' : ''})`
+      : `Azúcar: No`;
+    const comentario = `Leche: ${tipoLeche} · ${parteAzucar}`;
+
+    if (!carrito[nombre]) {
+      carrito[nombre] = { precio, img, unidades: [] };
+    }
+    carrito[nombre].unidades.push(comentario);
+
+    if (esNuevoProducto) {
+      mostrarControlCantidad(idx, true);
+    }
+    actualizarUiTarjeta(nombre, idx);
+    actualizarCarrito();
+
+    personalizacionChocoPendiente = null;
+    document.getElementById('modal-choco-overlay').classList.remove('visible');
+  };
+
+  /* ============================================================
      CARRITO — lógica central
   ============================================================ */
 
@@ -351,10 +643,20 @@
     const precio = parseFloat(itemEl.dataset.precio);
     const img = itemEl.dataset.img || '';
 
+    const tipo = tipoDeModal(itemEl);
+    if (tipo === 'choco') {
+      abrirModalPersonalizacionChoco(nombre, precio, img, idx, true);
+      return;
+    }
+    if (tipo === 'bebida') {
+      abrirModalPersonalizacion(nombre, precio, img, idx, true);
+      return;
+    }
+
     if (carrito[nombre]) {
-      carrito[nombre].qty += 1;
+      carrito[nombre].unidades.push(null);
     } else {
-      carrito[nombre] = { precio, qty: 1, img };
+      carrito[nombre] = { precio, img, unidades: [null] };
     }
 
     mostrarControlCantidad(idx, true);
@@ -365,9 +667,32 @@
   // Cambia la cantidad de un producto, ya sea desde la tarjeta (con idx) o desde el carrito (sin idx).
   window.cambiarCantidad = function (nombre, delta, idx) {
     if (!carrito[nombre]) return;
-    carrito[nombre].qty += delta;
 
-    if (carrito[nombre].qty <= 0) {
+    if (delta > 0) {
+      const itemEl = idx !== undefined
+        ? document.getElementById('btn-' + idx)?.closest('.producto-item')
+        : Array.from(document.querySelectorAll('.producto-item')).find(el => el.dataset.nombre === nombre);
+
+      const tipo = itemEl ? tipoDeModal(itemEl) : null;
+      if (tipo === 'choco') {
+        const precio = carrito[nombre].precio;
+        const img = carrito[nombre].img;
+        abrirModalPersonalizacionChoco(nombre, precio, img, idx, false);
+        return;
+      }
+      if (tipo === 'bebida') {
+        const precio = carrito[nombre].precio;
+        const img = carrito[nombre].img;
+        abrirModalPersonalizacion(nombre, precio, img, idx, false);
+        return;
+      }
+
+      carrito[nombre].unidades.push(null);
+    } else {
+      carrito[nombre].unidades.pop();
+    }
+
+    if (carrito[nombre].unidades.length <= 0) {
       delete carrito[nombre];
       if (idx !== undefined) mostrarControlCantidad(idx, false);
       else ocultarControlPorNombre(nombre);
@@ -389,8 +714,8 @@
   function actualizarUiTarjeta(nombre, idx) {
     const numEl = document.getElementById('qty-num-' + idx);
     const leftBtn = document.getElementById('left-' + idx);
-    if (numEl) numEl.textContent = carrito[nombre].qty;
-    if (leftBtn) leftBtn.innerHTML = iconoBotonIzquierdo(carrito[nombre].qty);
+    if (numEl) numEl.textContent = carrito[nombre].unidades.length;
+    if (leftBtn) leftBtn.innerHTML = iconoBotonIzquierdo(carrito[nombre].unidades.length);
   }
 
   // Usado cuando se modifica la cantidad desde el carrito lateral (no se conoce el idx directamente).
@@ -400,8 +725,8 @@
     if (!itemEl) return;
     const numEl = itemEl.querySelector('.qty-card-num');
     const leftBtn = itemEl.querySelector('.qty-card-btn');
-    if (numEl) numEl.textContent = carrito[nombre].qty;
-    if (leftBtn) leftBtn.innerHTML = iconoBotonIzquierdo(carrito[nombre].qty);
+    if (numEl) numEl.textContent = carrito[nombre].unidades.length;
+    if (leftBtn) leftBtn.innerHTML = iconoBotonIzquierdo(carrito[nombre].unidades.length);
   }
 
   function ocultarControlPorNombre(nombre) {
@@ -420,23 +745,50 @@
       : '<span style="font-size:17px;font-weight:800;line-height:1;">−</span>';
   }
 
+  // Construye el texto de comentarios para una fila del carrito.
+  // Si todas las unidades tienen el mismo comentario, lo muestra una vez.
+  // Si difieren, las numera para que el cliente vea cuál es cuál.
+  function construirTextoComentarios(unidades) {
+    const conComentario = unidades.filter(u => u);
+    if (conComentario.length === 0) return '';
+
+    const todasIguales = conComentario.every(u => u === conComentario[0]);
+    if (todasIguales && conComentario.length === unidades.length) {
+      return conComentario[0];
+    }
+
+    return unidades
+      .map((u, i) => u ? `#${i + 1}: ${u}` : null)
+      .filter(Boolean)
+      .join(' | ');
+  }
+
   function renderFilaCarrito(nombre) {
     const item = carrito[nombre];
-    const subtotal = (item.precio * item.qty).toFixed(2);
+    const qty = item.unidades.length;
+    const subtotal = (item.precio * qty).toFixed(2);
     const nombreSeguro = escaparAtributo(nombre);
     const imgHtml = item.img
       ? `<img src="${item.img}" class="cr-img" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
          <div class="cr-img-ph" style="display:none;"><i class="bi bi-bag"></i></div>`
       : `<div class="cr-img-ph"><i class="bi bi-bag"></i></div>`;
 
+    const textoComentarios = construirTextoComentarios(item.unidades);
+    const comentarioHtml = textoComentarios
+      ? `<div class="cr-comentario">${textoComentarios}</div>`
+      : '';
+
     return `
       <div class="carrito-row">
         <div class="cr-img-wrap">${imgHtml}</div>
-        <div class="cr-name">${nombre}</div>
+        <div>
+          <div class="cr-name">${nombre}</div>
+          ${comentarioHtml}
+        </div>
         <div class="cr-price">$${subtotal}</div>
         <div class="qty-ctrl">
-          <button class="qty-btn" onclick="cambiarCantidad('${nombreSeguro}', -1)">${iconoBotonIzquierdo(item.qty)}</button>
-          <div class="qty-num">${item.qty}</div>
+          <button class="qty-btn" onclick="cambiarCantidad('${nombreSeguro}', -1)">${iconoBotonIzquierdo(qty)}</button>
+          <div class="qty-num">${qty}</div>
           <button class="qty-btn" onclick="cambiarCantidad('${nombreSeguro}', 1)">+</button>
         </div>
       </div>`;
@@ -444,8 +796,8 @@
 
   function actualizarCarrito() {
     const nombres = Object.keys(carrito);
-    const totalItems = nombres.reduce((suma, n) => suma + carrito[n].qty, 0);
-    const totalMonto = nombres.reduce((suma, n) => suma + carrito[n].precio * carrito[n].qty, 0);
+    const totalItems = nombres.reduce((suma, n) => suma + carrito[n].unidades.length, 0);
+    const totalMonto = nombres.reduce((suma, n) => suma + carrito[n].precio * carrito[n].unidades.length, 0);
     const montoFormateado = '$' + totalMonto.toFixed(2);
 
     document.getElementById('carrito-total').textContent = montoFormateado;
@@ -494,7 +846,17 @@
     if (!nombreCliente) { alert('Por favor escribe tu nombre.'); return; }
     if (nombresProductos.length === 0) return;
 
-    const items = nombresProductos.map(nombre => ({ nombre, cantidad: carrito[nombre].qty }));
+    // Cada producto manda su cantidad y, si aplica, los comentarios de personalización
+    // (uno por unidad, o un texto combinado) para que lleguen a la bandeja de pedidos.
+    const items = nombresProductos.map(nombre => {
+      const item = carrito[nombre];
+      const comentario = construirTextoComentarios(item.unidades);
+      return {
+        nombre,
+        cantidad: item.unidades.length,
+        comentario: comentario || undefined,
+      };
+    });
 
     fetch('/api/pedido/crear/', {
       method: 'POST',

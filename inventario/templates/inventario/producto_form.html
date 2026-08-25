@@ -10,7 +10,7 @@
         <h5 class="mb-0"><i class="bi bi-box-seam me-2"></i>{{ titulo }}</h5>
       </div>
       <div class="card-body p-4">
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
           {% csrf_token %}
 
           <!-- Nombre -->
@@ -63,15 +63,26 @@
             {% endif %}
           </div>
 
-          <!-- Imagen URL -->
+          <!-- Imagen (archivo) -->
           <div class="mb-3">
-            <label class="form-label fw-medium">🖼️ URL de imagen <span class="text-muted fw-normal">(opcional)</span></label>
-            {{ form.imagen_url }}
-            <div class="form-text">Pega el link de una foto del producto de internet.</div>
-            {% if form.imagen_url.errors %}
-              <div class="text-danger small mt-1">{{ form.imagen_url.errors.0 }}</div>
+            <label class="form-label fw-medium">🖼️ Foto del producto <span class="text-muted fw-normal">(opcional)</span></label>
+            {{ form.imagen }}
+            <div class="form-text">Sube una foto desde tu computadora (JPG o PNG).</div>
+            {% if form.imagen.errors %}
+              <div class="text-danger small mt-1">{{ form.imagen.errors.0 }}</div>
             {% endif %}
+
+            <!-- Imagen actual ya guardada (solo aparece al editar un producto que ya tiene foto) -->
+            {% if producto and producto.imagen %}
+            <div class="mt-2">
+              <div class="form-text mb-1">Foto actual:</div>
+              <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="preview-img">
+            </div>
+            {% endif %}
+
+            <!-- Vista previa de la nueva foto seleccionada, antes de guardar -->
             <div id="preview-container" class="mt-2 preview-hidden">
+              <div class="form-text mb-1">Nueva foto seleccionada:</div>
               <img id="preview-img" src="" alt="Preview" class="preview-img">
             </div>
           </div>
@@ -113,23 +124,24 @@
   'use strict';
 
   document.addEventListener('DOMContentLoaded', function () {
-    const input = document.querySelector('[name="imagen_url"]');
+    const input = document.querySelector('[name="imagen"]');
     const container = document.getElementById('preview-container');
     const previewImg = document.getElementById('preview-img');
     if (!input || !container || !previewImg) return;
 
-    function actualizarPreview() {
-      const url = input.value.trim();
-      if (url) {
-        container.classList.remove('preview-hidden');
-        previewImg.src = url;
+    input.addEventListener('change', function () {
+      const archivo = input.files && input.files[0];
+      if (archivo) {
+        const lector = new FileReader();
+        lector.onload = function (e) {
+          previewImg.src = e.target.result;
+          container.classList.remove('preview-hidden');
+        };
+        lector.readAsDataURL(archivo);
       } else {
         container.classList.add('preview-hidden');
       }
-    }
-
-    actualizarPreview(); // por si ya viene con valor al editar
-    input.addEventListener('input', actualizarPreview);
+    });
   });
 })();
 </script>
