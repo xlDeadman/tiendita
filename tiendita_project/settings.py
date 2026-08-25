@@ -105,8 +105,7 @@ LOGOUT_REDIRECT_URL = '/catalogo/'
 
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://behind-reflect-represents-burlington.trycloudflare.com",
+    "https://tiendita-production-61d8.up.railway.app",
 ]
-
 
 

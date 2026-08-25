@@ -305,13 +305,13 @@
             ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
       })
-      .catch(() => {});
+      .catch(() => {})
   }
 
   document.addEventListener('DOMContentLoaded', function () {
     pedirPermiso();
     setInterval(actualizarTabla, 10000);
-  });
+  }); 
 })();
 </script>
 {% endblock %}
